@@ -2,9 +2,8 @@
   publish = "."
   functions = "netlify/functions"
 
-[functions]
-  node_bundler = "esbuild"
-  external_node_modules = []
-
+# Optional: settings for deployment previews
 [dev]
-  framework = "#static"
+  command = "npm run start"
+  port = 8888
+  publish = "."
