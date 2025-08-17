@@ -1,23 +1,28 @@
 // netlify/functions/fetch-vehicle-media.js
-// Robust vehicle photo fetcher — uses sitemaps first, then page search fallback.
-// No external deps; relies on global fetch (Node 18+ on Netlify).
+// Robust vehicle photo fetcher (Netlify, Node 18). No external deps.
 
 const SITE = "https://www.corwinfordtricities.com";
 const IMG_HOST = "vehicle-images.dealerinspire.com";
+const HEADERS = {
+  "user-agent":
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+  "accept":
+    "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+  "accept-language": "en-US,en;q=0.9",
+};
 
 exports.handler = async (event) => {
   try {
-    const params = event.queryStringParameters || {};
-    const vinLast8 = (params.vinLast8 || "").trim();
-    const stock = (params.stock || "").trim();
+    const q = event.queryStringParameters || {};
+    const vinLast8 = (q.vinLast8 || "").trim();
+    const stock = (q.stock || "").trim();
     if (!vinLast8 && !stock) return json(400, { error: "Provide vinLast8 or stock" });
 
-    // 1) SITEMAP DISCOVERY
+    // 1) Discover vehicle URL from sitemaps
     const sitemapUrls = await discoverSitemaps();
     let vehicleUrl = null;
-
-    for (const mapUrl of sitemapUrls) {
-      const xml = await safeText(mapUrl);
+    for (const map of sitemapUrls) {
+      const xml = await safeText(map);
       if (!xml) continue;
       const urls = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1]);
       const hit = urls.find(u =>
@@ -27,58 +32,61 @@ exports.handler = async (event) => {
       if (hit) { vehicleUrl = hit; break; }
     }
 
-    // 2) FALLBACK — site-wide search pages that often list vehicles w/ stock/VIN
+    // 2) Fallback: site search pages
     if (!vehicleUrl) {
+      const key = encodeURIComponent(vinLast8 || stock);
       const candidates = [
-        `${SITE}/searchnew.aspx?pt=new&search=${encodeURIComponent(vinLast8 || stock)}`,
-        `${SITE}/searchused.aspx?pt=used&search=${encodeURIComponent(vinLast8 || stock)}`,
-        `${SITE}/inventory/?q=${encodeURIComponent(vinLast8 || stock)}`,
-        `${SITE}/cars/?q=${encodeURIComponent(vinLast8 || stock)}`,
+        `${SITE}/searchnew.aspx?pt=new&search=${key}`,
+        `${SITE}/searchused.aspx?pt=used&search=${key}`,
+        `${SITE}/inventory/?q=${key}`,
+        `${SITE}/cars/?q=${key}`,
       ];
       for (const url of candidates) {
         const html = await safeText(url);
         if (!html) continue;
-        const match = html.match(/https?:\/\/[^"']+\/vehicle[^"']+/i);
-        if (match) { vehicleUrl = match[0]; break; }
+        const m = html.match(/https?:\/\/[^"']+\/vehicle[^"']+/i);
+        if (m) { vehicleUrl = m[0]; break; }
       }
     }
 
-    if (!vehicleUrl) return json(404, { error: "Vehicle not found (sitemaps/search)" });
+    if (!vehicleUrl) return json(404, { error: "Vehicle not found (sitemaps/search)", debug: { vinLast8, stock, sitemapUrls } });
 
-    // 3) FETCH VEHICLE PAGE
+    // 3) Fetch the vehicle detail page
     const html = await safeText(vehicleUrl);
-    if (!html) return json(502, { error: "Vehicle page did not load" });
+    if (!html) return json(502, { error: "Vehicle page did not load (blocked or 4xx/5xx)", debug: { vehicleUrl } });
 
-    // Pull VIN / Stock
+    // 4) Extract VIN + images
     const vinMatch = html.match(/\bVIN[:\s]*([A-HJ-NPR-Z0-9]{17})\b/i);
     const fullVin = vinMatch && vinMatch[1];
-    const stockMatch = html.match(/\bStock[:\s]*([A-Za-z0-9-]+)\b/i);
-    const stockVal = (stockMatch && stockMatch[1]) || stock || null;
 
-    // 4) EXTRACT IMAGES (jpg/webp) hosted on DealerInspire for this VIN (or last8 as fallback)
-    let imgRegex;
-    if (fullVin) {
-      imgRegex = new RegExp(`https?://(?:[^/]*\\.)?${IMG_HOST.replace(/\./g,"\\.")}/[^"']+/${fullVin}[A-Za-z0-9]*/[^"']+\\.(?:jpg|jpeg|webp)`, "gi");
-    } else if (vinLast8) {
-      imgRegex = new RegExp(`https?://(?:[^/]*\\.)?${IMG_HOST.replace(/\./g,"\\.")}/[^"']+/[A-HJ-NPR-Z0-9]{9}${vinLast8}[A-Za-z0-9]*/[^"']+\\.(?:jpg|jpeg|webp)`, "gi");
-    }
-    let images = [];
-    if (imgRegex) images = Array.from(new Set(html.match(imgRegex) || []));
+    // Preferred: images that include the VIN dir
+    const imgByVin = fullVin
+      ? Array.from(new Set((html.match(new RegExp(`https?://(?:[^/]*\\.)?${IMG_HOST.replace(/\./g,"\\.")}/[^"']+/${fullVin}[A-Za-z0-9]*/[^"']+\\.(?:jpg|jpeg|webp)`, "gi")) || [])))
+      : [];
 
-    // 5) METADATA
+    // Fallback: any DealerInspire images on page (sometimes gallery doesn’t include VIN in the path)
+    const imgAny = Array.from(new Set((html.match(new RegExp(`https?://(?:[^/]*\\.)?${IMG_HOST.replace(/\./g,"\\.")}/[^"']+\\.(?:jpg|jpeg|webp)`, "gi")) || [])));
+
+    const images = imgByVin.length ? imgByVin : imgAny;
+
+    // Basic meta
     const title = (html.match(/<h1[^>]*>([^<]+)<\/h1>/i) || [])[1] || "Vehicle";
     const ymm = parseYMM(title);
 
     return json(200, {
       meta: {
         url: vehicleUrl,
-        title,
-        ...ymm,
+        title, ...ymm,
         vin: fullVin || null,
         vinLast8: vinLast8 || (fullVin ? fullVin.slice(-8) : null),
-        stock: stockVal
+        stock: stock || null
       },
-      images
+      images,
+      debug: {
+        sitemapCount: sitemapUrls.length,
+        imagesFound: images.length,
+        vinImagesFound: imgByVin.length,
+      }
     });
   } catch (e) {
     return json(500, { error: e.message });
@@ -98,26 +106,25 @@ async function discoverSitemaps() {
     `${SITE}/sitemap-inventory.xml`,
     `${SITE}/sitemap-vehicle.xml`
   ];
-  const found = [];
+  const found = new Set();
   for (const url of guesses) {
     const txt = await safeText(url);
     if (txt) {
-      found.push(url);
-      // If it's an index, include children inventory maps
-      const invs = [...txt.matchAll(/<loc>([^<]+inventory[^<]+?\.xml)<\/loc>/g)].map(m => m[1]);
-      found.push(...invs);
+      found.add(url);
+      [...txt.matchAll(/<loc>([^<]+inventory[^<]+?\.xml)<\/loc>/g)].forEach(m => found.add(m[1]));
     }
   }
-  // remove dups
-  return Array.from(new Set(found));
+  return [...found];
 }
 
 async function safeText(url) {
   try {
-    const res = await fetch(url, { redirect: "follow" });
+    const res = await fetch(url, { headers: HEADERS, redirect: "follow" });
     if (!res.ok) return null;
     return await res.text();
-  } catch { return null; }
+  } catch {
+    return null;
+  }
 }
 
 function json(status, body) {
@@ -125,7 +132,6 @@ function json(status, body) {
     statusCode: status,
     headers: {
       "content-type": "application/json",
-      // cache responses for 1 hour to speed up repeat lookups
       "cache-control": "public, max-age=3600"
     },
     body: JSON.stringify(body)
