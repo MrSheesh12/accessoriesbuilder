@@ -352,6 +352,19 @@ function bindEvents() {
         }
         const data = await fetchVehicleMedia({ vinLast8: vin8, stock });
         els.media.status.innerHTML = data.meta?.title ? `Found: ${data.meta.title}` : 'Found vehicle';
+const dbg = document.querySelector('#debugPanel') || document.createElement('pre');
+dbg.id = 'debugPanel';
+dbg.style.background = '#0f141b';
+dbg.style.border = '1px solid var(--border)';
+dbg.style.padding = '8px';
+dbg.style.borderRadius = '8px';
+dbg.style.whiteSpace = 'pre-wrap';
+dbg.textContent = JSON.stringify({
+  meta: data.meta,
+  imageCount: (data.images || []).length
+}, null, 2);
+document.getElementById('vehicle-media').appendChild(dbg);
+
         renderMediaGallery(data.images || []);
       } catch (e) {
         els.media.status.innerHTML = '<span class="error">Could not find photos. Check VIN/Stock or try another.</span>';
