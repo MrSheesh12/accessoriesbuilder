@@ -1,73 +1,80 @@
 // netlify/functions/fetch-vehicle-media.js
-// Dealer image fetch with sitemap fallback (works even when vehicle page blocks)
+// Paste-URL + VIN/stock lookup with sitemap fallback (works when the vehicle page blocks requests)
 
 const SITE = "https://www.corwinfordtricities.com";
 const IMG_HOST = "vehicle-images.dealerinspire.com";
+
 const HEADERS = {
   "user-agent":
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
   "accept":
     "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
   "accept-language": "en-US,en;q=0.9",
+  "cache-control": "no-cache"
 };
 
 exports.handler = async (event) => {
   try {
     const q = event.queryStringParameters || {};
-    const vinLast8 = (q.vinLast8 || "").trim();
-    const stock = (q.stock || "").trim();
+    let vinLast8 = (q.vinLast8 || "").trim();
+    let stock = (q.stock || "").trim();
     const directUrl = (q.url || "").trim();
+
+    // If the user pasted a URL, try to pull a VIN out of it (many DI URLs include the full VIN)
+    let vinFromUrl = null;
+    if (directUrl) {
+      const m = directUrl.match(/([A-HJ-NPR-Z0-9]{17})/i);
+      if (m) vinFromUrl = m[1].toUpperCase();
+      if (!vinLast8 && vinFromUrl) vinLast8 = vinFromUrl.slice(-8);
+    }
 
     if (!vinLast8 && !stock && !directUrl) {
       return json(400, { error: "Provide vinLast8, stock, or url" });
     }
 
-    // 0) If a direct URL is provided, try it first
+    // 0) If we can fetch the page and it returns images, great — otherwise we’ll fallback to sitemaps.
     if (directUrl) {
-      const fromPage = await imagesFromVehiclePage(directUrl);
-      if (fromPage.ok && fromPage.images.length) {
-        return json(200, payload(fromPage.meta, fromPage.images, { route: "directUrl" }));
+      const pageTry = await imagesFromVehiclePage(directUrl);
+      if (pageTry.ok && pageTry.images.length) {
+        return json(200, buildPayload(pageTry.meta, pageTry.images, { route: "directUrl" }));
       }
-      // fall through to sitemap strategy
+      // else: fall through to sitemap flow using VIN/stock extracted above
     }
 
-    // 1) Try discover vehicle URL (sitemaps/search)
+    // 1) Try to discover a vehicle URL from sitemaps/search using VIN/stock
     const discovered = await discoverVehicleUrl({ vinLast8, stock });
     let vehicleUrl = discovered.url;
 
-    // 2) Try to pull images from the page (may be blocked)
+    // 2) If a page URL is known, try it (it may work on some units)
     if (vehicleUrl) {
-      const fromPage = await imagesFromVehiclePage(vehicleUrl);
-      if (fromPage.ok && fromPage.images.length) {
-        return json(200, payload(fromPage.meta, fromPage.images, {
-          route: "vehiclePage",
-          discovered
-        }));
+      const pageTry2 = await imagesFromVehiclePage(vehicleUrl);
+      if (pageTry2.ok && pageTry2.images.length) {
+        return json(200, buildPayload(pageTry2.meta, pageTry2.images, { route: "vehiclePage", discovered }));
       }
     }
 
-    // 3) **Fallback**: scrape images straight from inventory sitemaps
-    const fromSitemaps = await imagesFromInventorySitemaps({ vinLast8, stock });
-    if (fromSitemaps.images.length) {
-      return json(200, payload(
-        { url: vehicleUrl || fromSitemaps.vehicleUrl || null, title: fromSitemaps.title || "Vehicle" },
-        fromSitemaps.images,
+    // 3) Fallback: **inventory image sitemaps** keyed by VIN/stock (works even when the page blocks)
+    const fromMaps = await imagesFromInventorySitemaps({ vinLast8, stock, preferUrl: vehicleUrl || directUrl || null });
+    if (fromMaps.images.length) {
+      return json(200, buildPayload(
+        { url: fromMaps.vehicleUrl || vehicleUrl || directUrl || null, title: fromMaps.title || "Vehicle" },
+        fromMaps.images,
         { route: "inventorySitemaps", discovered }
       ));
     }
 
     return json(404, {
       error: "Vehicle not found or images unavailable",
-      debug: { discovered, fromSitemaps }
+      debug: { vinLast8, stock, directUrl, discovered, fromMaps }
     });
   } catch (e) {
     return json(500, { error: e.message });
   }
 };
 
-/* ---------------- internals ---------------- */
+/* ---------------- helpers ---------------- */
 
-function payload(meta, images, debug = {}) {
+function buildPayload(meta, images, debug = {}) {
   const title = meta?.title || "Vehicle";
   const ymm = parseYMM(title);
   return {
@@ -80,14 +87,13 @@ function payload(meta, images, debug = {}) {
 function parseYMM(title) {
   const m = title && title.match(/(\d{4})\s+([A-Za-z0-9\-]+)\s+([A-Za-z0-9\-]+)\s*(.*)?/);
   if (!m) return {};
-  return { year: m[1], make: m[2], model: m[3], trim: (m[4]||"").trim() };
+  return { year: m[1], make: m[2], model: m[3], trim: (m[4] || "").trim() };
 }
 
 async function discoverVehicleUrl({ vinLast8, stock }) {
   const tried = [];
   const sitemaps = await discoverSitemaps();
 
-  // Search sitemap URLs for a match
   for (const map of sitemaps) {
     tried.push({ method: "sitemap", map });
     const xml = await safeText(map);
@@ -100,7 +106,6 @@ async function discoverVehicleUrl({ vinLast8, stock }) {
     if (hit) return { url: hit, tried };
   }
 
-  // Fallback: search pages
   const key = encodeURIComponent(vinLast8 || stock || "");
   const candidates = [
     `${SITE}/searchnew.aspx?pt=new&search=${key}`,
@@ -128,58 +133,61 @@ async function imagesFromVehiclePage(vehicleUrl) {
 
   const byVin = fullVin
     ? Array.from(new Set((html.match(new RegExp(
-        `https?://(?:[^/]*\\.)?${IMG_HOST.replace(/\./g,"\\.")}/[^"']+/${fullVin}[A-Za-z0-9]*/[^"']+\\.(?:jpg|jpeg|webp)`,
+        `https?://(?:[^/]*\\.)?${IMG_HOST.replace(/\./g, "\\.")}/[^"']+/${fullVin}[A-Za-z0-9]*/[^"']+\\.(?:jpg|jpeg|webp)`,
         "gi"
       )) || [])))
     : [];
 
   const any = Array.from(new Set((html.match(new RegExp(
-      `https?://(?:[^/]*\\.)?${IMG_HOST.replace(/\./g,"\\.")}/[^"']+\\.(?:jpg|jpeg|webp)`,
-      "gi"
-    )) || [])));
+    `https?://(?:[^/]*\\.)?${IMG_HOST.replace(/\./g, "\\.")}/[^"']+\\.(?:jpg|jpeg|webp)`,
+    "gi"
+  )) || [])));
 
   const images = byVin.length ? byVin : any;
   return { ok: true, meta: { url: vehicleUrl, title }, images };
 }
 
-async function imagesFromInventorySitemaps({ vinLast8, stock }) {
+async function imagesFromInventorySitemaps({ vinLast8, stock, preferUrl }) {
   const sitemaps = await discoverSitemaps();
   const invMaps = sitemaps.filter(u => /inventory|vehicle/i.test(u));
   const result = { images: [], vehicleUrl: null, title: null, mapsChecked: invMaps.length };
 
+  const keyLower = (vinLast8 || stock || "").toLowerCase();
+
+  // Prefer checking a child sitemap that likely contains our specific URL
   for (const map of invMaps) {
     const xml = await safeText(map);
     if (!xml) continue;
 
-    // Entries typically look like:
-    // <url><loc>VEHICLE_URL</loc><image:image><image:loc>IMG_URL</image:loc>...</image:image></url>
-    const urlBlocks = xml.split(/<\/url>/i);
-    for (const block of urlBlocks) {
+    // Split into <url> blocks
+    const blocks = xml.split(/<\/url>/i);
+    for (const block of blocks) {
       const loc = (block.match(/<loc>([^<]+)<\/loc>/i) || [])[1];
       if (!loc) continue;
 
       const blockLc = block.toLowerCase();
-      const matchKey =
-        (vinLast8 && blockLc.includes(vinLast8.toLowerCase())) ||
-        (stock && blockLc.includes(String(stock).toLowerCase()));
-      if (!matchKey) continue;
+      // Match by VIN last8/stock or (as a loose extra) by preferUrl if provided
+      const looksLikeMatch =
+        (keyLower && blockLc.includes(keyLower)) ||
+        (preferUrl && loc.includes(stripTrailingSlash(preferUrl)));
 
-      // Collect any DealerInspire images for this entry
-      const imgs = Array.from(new Set(
-        [...block.matchAll(/<image:loc>([^<]+)\.jpe?g<\/image:loc>/gi)].map(m => m[1] + ".jpg")
-          .concat([...block.matchAll(/<image:loc>([^<]+)\.webp<\/image:loc>/gi)].map(m => m[1] + ".webp"))
-      )).filter(u => u.includes(IMG_HOST));
+      if (!looksLikeMatch) continue;
+
+      // Collect images from <image:loc>
+      const jpgs = [...block.matchAll(/<image:loc>([^<]+?\.jpe?g)<\/image:loc>/gi)].map(m => m[1]);
+      const webps = [...block.matchAll(/<image:loc>([^<]+?\.webp)<\/image:loc>/gi)].map(m => m[1]);
+      const imgs = Array.from(new Set(jpgs.concat(webps))).filter(u => u.includes(IMG_HOST));
 
       if (imgs.length) {
         result.images = imgs;
         result.vehicleUrl = loc;
-        // Title sometimes present in <image:title>
         const title = (block.match(/<image:title>([^<]+)<\/image:title>/i) || [])[1];
         if (title) result.title = title;
-        return result; // found the vehicle with images—done
+        return result;
       }
     }
   }
+
   return result;
 }
 
@@ -195,9 +203,7 @@ async function discoverSitemaps() {
     const txt = await safeText(url);
     if (txt) {
       found.add(url);
-      // Pull inventory children
       [...txt.matchAll(/<loc>([^<]+inventory[^<]+?\.xml)<\/loc>/gi)].forEach(m => found.add(m[1]));
-      // Some sites put vehicle-specific sitemaps under different names:
       [...txt.matchAll(/<loc>([^<]+vehicle[^<]+?\.xml)<\/loc>/gi)].forEach(m => found.add(m[1]));
     }
   }
@@ -209,7 +215,13 @@ async function safeText(url) {
     const r = await fetch(url, { headers: HEADERS, redirect: "follow" });
     if (!r.ok) return null;
     return await r.text();
-  } catch { return null; }
+  } catch {
+    return null;
+  }
+}
+
+function stripTrailingSlash(u) {
+  return u ? u.replace(/\/+$/, "") : u;
 }
 
 function json(status, body) {
