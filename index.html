@@ -7,23 +7,15 @@
 
   <!-- Preload logo -->
   <link rel="preload" href="assets/5541a666-cf50-4670-8af2-0ecc316ccbc8.png" as="image" />
-
-  <!-- Styles -->
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
   <!-- Header -->
   <header class="site-header">
     <div class="brand">
-      <img
-        src="assets/5541a666-cf50-4670-8af2-0ecc316ccbc8.png"
-        alt="The Auto Lounge / Corwin Ford"
-        class="logo"
-        width="44" height="44"
-      />
+      <img src="assets/5541a666-cf50-4670-8af2-0ecc316ccbc8.png" alt="The Auto Lounge / Corwin Ford" class="logo" width="44" height="44" />
       <h1 class="title">Accessories &amp; Packages Builder</h1>
     </div>
-
     <div class="finance-toggle">
       <label class="switch" aria-label="Toggle financing calculator">
         <input type="checkbox" id="financeToggle" />
@@ -34,7 +26,7 @@
   </header>
 
   <main>
-    <!-- Filters + quick packages -->
+    <!-- Controls -->
     <section class="controls">
       <div class="filters">
         <label for="categorySelect">Category</label>
@@ -54,13 +46,13 @@
 
     <!-- Vehicle photos -->
     <section class="vehicle-media" id="vehicle-media">
-      <h2>Vehicle Photos (by VIN or Stock)</h2>
+      <h2>Vehicle Photos</h2>
 
       <!-- VIN / Stock -->
       <form id="mediaForm" class="media-form" onsubmit="return false;">
         <label>
           Last 8 of VIN
-          <input type="text" id="vinLast8" maxlength="8" placeholder="e.g. KD099955" autocomplete="off" />
+          <input type="text" id="vinLast8" maxlength="8" placeholder="e.g. GL359185" autocomplete="off" />
         </label>
         <span class="or">or</span>
         <label>
@@ -68,34 +60,29 @@
           <input type="text" id="stockNum" placeholder="e.g. F12345" autocomplete="off" />
         </label>
         <button id="fetchMedia" class="primary small" type="button">Grab Photos</button>
-        <small class="muted" id="mediaStatus" role="status" aria-live="polite"></small>
       </form>
 
-      <!-- NEW: Direct URL method -->
+      <!-- Direct URL -->
       <div class="field mt-2">
         <label for="vehicleUrl" class="lbl">Or paste vehicle URL</label>
         <div class="row">
-          <input
-            id="vehicleUrl"
-            type="url"
-            inputmode="url"
-            placeholder="https://www.corwinfordtricities.com/inventory/..."
-            aria-describedby="urlHelp"
-            class="grow"
-          />
+          <input id="vehicleUrl" type="url" inputmode="url" class="grow"
+                 placeholder="https://www.corwinfordtricities.com/inventory/...">
           <button id="fetchMediaByUrl" class="btn" type="button">Use URL</button>
         </div>
-        <small id="urlHelp" class="hint">We only read public photos; no login required.</small>
+        <small class="hint">We only read public photos; no login required.</small>
       </div>
+
+      <small class="muted" id="mediaStatus" role="status" aria-live="polite"></small>
 
       <!-- Thumbnails -->
       <div id="mediaGallery" class="media-gallery" aria-live="polite"></div>
     </section>
 
-    <!-- Catalog grid (accessories go here) -->
+    <!-- Accessories catalog (placeholder) -->
     <section id="catalog" class="catalog" aria-live="polite"></section>
 
-    <!-- Summary / Finance -->
+    <!-- Summary -->
     <aside id="summary" class="summary">
       <h2>Summary</h2>
       <div class="line"><span>Items:</span> <strong id="itemCount">0</strong></div>
@@ -135,7 +122,6 @@
     <small>© <span id="year"></span> Corwin Ford Tri-Cities · Shop rate $165/hr · Prices incl. labor where noted</small>
   </footer>
 
-  <!-- App -->
   <script src="js/app.js" defer></script>
 </body>
 </html>
