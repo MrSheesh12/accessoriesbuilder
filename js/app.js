@@ -1,7 +1,5 @@
-/* ---------- Accessories & Packages Builder (app.js) ---------- */
-/* Works on Netlify + local `netlify dev`. Includes URL lookup. */
+/* ---------- Accessories & Packages Builder (Netlify-ready) ---------- */
 
-/* ---------- Global state ---------- */
 const state = {
   items: [],
   taxRate: 0.089,
@@ -12,7 +10,6 @@ const state = {
   selectedBaseImage: null
 };
 
-/* ---------- Elements ---------- */
 const els = {
   media: {
     vinLast8: document.getElementById("vinLast8"),
@@ -24,14 +21,26 @@ const els = {
     url: document.getElementById("vehicleUrl"),
     fetchUrlBtn: document.getElementById("fetchMediaByUrl")
   },
-  exportBtn: document.getElementById("exportQuote")
+  exportBtn: document.getElementById("exportQuote"),
+  yearSpan: document.getElementById("year"),
+  financeToggle: document.getElementById("financeToggle"),
+  financeBox: document.getElementById("financeBox"),
+  apr: document.getElementById("apr"),
+  term: document.getElementById("term"),
+  down: document.getElementById("down"),
+  estPayment: document.getElementById("estPayment"),
+  subtotal: document.getElementById("subtotal"),
+  tax: document.getElementById("tax"),
+  total: document.getElementById("total"),
+  itemCount: document.getElementById("itemCount")
 };
 
-/* ---------- Helpers ---------- */
 const API_BASE =
   location.hostname === "localhost"
     ? "http://localhost:8888/.netlify/functions"
     : "/.netlify/functions";
+
+/* ------------------- helpers ------------------- */
 
 function setStatus(html, cls = "") {
   if (!els.media.status) return;
@@ -70,32 +79,28 @@ function renderMediaGallery(images = []) {
   els.media.gallery.innerHTML = images
     .map(
       (src, i) => `
-    <div class="media-thumb" data-src="${src}" title="Use this photo as base">
-      <span class="pick">Use</span>
-      <img src="${src}" alt="Vehicle photo ${i + 1}">
-    </div>`
+      <div class="media-thumb" data-src="${src}" title="Use this photo as base">
+        <span class="pick">Use</span>
+        <img src="${src}" alt="Vehicle photo ${i + 1}">
+      </div>`
     )
     .join("");
 
-  els.media.gallery
-    .querySelectorAll(".media-thumb")
-    .forEach((div) => {
-      div.addEventListener("click", () => {
-        els.media.gallery
-          .querySelectorAll(".media-thumb")
-          .forEach((n) => n.classList.remove("active"));
-        div.classList.add("active");
-        state.selectedBaseImage = div.dataset.src;
+  els.media.gallery.querySelectorAll(".media-thumb").forEach((div) => {
+    div.addEventListener("click", () => {
+      els.media.gallery.querySelectorAll(".media-thumb").forEach((n) => n.classList.remove("active"));
+      div.classList.add("active");
+      state.selectedBaseImage = div.dataset.src;
 
-        let info = document.querySelector(".selected-base");
-        if (!info) {
-          info = document.createElement("div");
-          info.className = "selected-base";
-          els.media.container.appendChild(info);
-        }
-        info.textContent = `Base photo selected: ${state.selectedBaseImage}`;
-      });
+      let info = document.querySelector(".selected-base");
+      if (!info) {
+        info = document.createElement("div");
+        info.className = "selected-base";
+        els.media.container.appendChild(info);
+      }
+      info.textContent = `Base photo selected: ${state.selectedBaseImage}`;
     });
+  });
 }
 
 async function fetchVehicleMedia({ vinLast8, stock, url }) {
@@ -103,8 +108,8 @@ async function fetchVehicleMedia({ vinLast8, stock, url }) {
   if (vinLast8) qs.set("vinLast8", vinLast8.trim());
   if (stock) qs.set("stock", String(stock).trim());
   if (url) qs.set("url", url.trim());
-
   const full = `${API_BASE}/fetch-vehicle-media?${qs.toString()}`;
+
   const res = await fetch(full, { method: "GET" });
   if (!res.ok) {
     const text = await res.text().catch(() => "");
@@ -113,12 +118,8 @@ async function fetchVehicleMedia({ vinLast8, stock, url }) {
   return res.json();
 }
 
-/* ---------- Totals (used by export) ---------- */
 function recomputeTotals() {
-  const subtotal = (state.items || []).reduce(
-    (sum, it) => sum + (Number(it.price) || 0),
-    0
-  );
+  const subtotal = (state.items || []).reduce((sum, it) => sum + (Number(it.price) || 0), 0);
   const tax = +(subtotal * state.taxRate).toFixed(2);
   const total = +(subtotal + tax).toFixed(2);
   state.subtotal = +subtotal.toFixed(2);
@@ -131,9 +132,16 @@ function recomputeTotals() {
     const m = r ? (total * r) / (1 - Math.pow(1 + r, -n)) : total / n;
     state.finance.monthly = +m.toFixed(2);
   }
+
+  if (els.subtotal) els.subtotal.textContent = `$${state.subtotal.toFixed(2)}`;
+  if (els.tax) els.tax.textContent = `$${state.tax.toFixed(2)}`;
+  if (els.total) els.total.textContent = `$${state.total.toFixed(2)}`;
+  if (els.itemCount) els.itemCount.textContent = String((state.items || []).length);
 }
 
-/* ---------- VIN/STOCK fetch ---------- */
+/* ------------------- wiring ------------------- */
+
+// VIN / Stock
 if (els.media.fetchBtn) {
   els.media.fetchBtn.addEventListener("click", async () => {
     try {
@@ -145,66 +153,41 @@ if (els.media.fetchBtn) {
       }
       setStatus('Looking up vehicle… <span class="spinner"></span>');
       const data = await fetchVehicleMedia({ vinLast8: vin8, stock });
-      setStatus(
-        data?.meta?.title ? `Found: ${data.meta.title}` : "Found vehicle",
-        "success"
-      );
-      showDebug(data.meta, data.images || [], data?.debug?.route);
+      setStatus(data?.meta?.title ? `Found: ${data.meta.title}` : "Found vehicle", "success");
+      showDebug(data.meta, data.images || [], data?.debug?.route || "vin/stock");
       renderMediaGallery(data.images || []);
       if (!data.images?.length) {
-        setStatus(
-          "No images found for this vehicle. Try VIN last 8 (more reliable), a different unit, or paste the vehicle URL.",
-          "error"
-        );
+        setStatus("No images found. Try VIN last 8, a different unit, or paste the vehicle URL.", "error");
       }
     } catch (e) {
       console.error(e);
-      setStatus(
-        "Could not find photos. Check VIN/Stock or try the URL method.",
-        "error"
-      );
+      setStatus("Could not find photos. Check VIN/Stock or try the URL method.", "error");
     }
   });
 }
 
-/* ---------- URL fetch ---------- */
+// URL method
 if (els.media.fetchUrlBtn) {
   els.media.fetchUrlBtn.addEventListener("click", async () => {
     try {
       const url = (els.media.url?.value || "").trim();
-      if (!url) {
-        setStatus("Paste a vehicle detail URL first.", "error");
-        return;
-      }
-      if (!/^https?:\/\//i.test(url)) {
-        setStatus("URL must start with http:// or https://", "error");
-        return;
-      }
+      if (!url) return setStatus("Paste a vehicle detail URL first.", "error");
+      if (!/^https?:\/\//i.test(url)) return setStatus("URL must start with http:// or https://", "error");
+
       setStatus('Fetching photos from URL… <span class="spinner"></span>');
       const data = await fetchVehicleMedia({ url });
-      setStatus(
-        data?.meta?.title ? `Found: ${data.meta.title}` : "Found vehicle",
-        "success"
-      );
+      setStatus(data?.meta?.title ? `Found: ${data.meta.title}` : "Found vehicle", "success");
       showDebug(data.meta, data.images || [], data?.debug?.route || "url");
       renderMediaGallery(data.images || []);
-      if (!data.images?.length) {
-        setStatus(
-          "No images were found at that URL. Try a different vehicle page.",
-          "error"
-        );
-      }
+      if (!data.images?.length) setStatus("No images were found at that URL. Try another vehicle page.", "error");
     } catch (e) {
       console.error(e);
-      setStatus(
-        "Could not fetch from that URL. Try a different one or use VIN last 8.",
-        "error"
-      );
+      setStatus("Could not fetch from that URL. Try a different one or use VIN last 8.", "error");
     }
   });
 }
 
-/* ---------- Export Quote (.json) ---------- */
+// Export Quote (.json)
 if (els.exportBtn) {
   els.exportBtn.addEventListener("click", () => {
     try {
@@ -220,19 +203,11 @@ if (els.exportBtn) {
           total: state.total
         },
         finance: state.finance?.enabled
-          ? {
-              enabled: true,
-              apr: state.finance.apr,
-              termMonths: state.finance.termMonths,
-              estMonthly: state.finance.monthly
-            }
+          ? { enabled: true, apr: state.finance.apr, termMonths: state.finance.termMonths, estMonthly: state.finance.monthly }
           : { enabled: false },
         exportedAt: new Date().toISOString()
       };
-
-      const blob = new Blob([JSON.stringify(payload, null, 2)], {
-        type: "application/json"
-      });
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -248,14 +223,43 @@ if (els.exportBtn) {
   });
 }
 
-/* ---------- Minimal spinner styles in case CSS missing ---------- */
+// Finance toggle (basic)
+if (els.financeToggle && els.financeBox) {
+  els.financeToggle.addEventListener("change", () => {
+    els.financeBox.hidden = !els.financeToggle.checked;
+    state.finance.enabled = els.financeToggle.checked;
+    recomputeTotals();
+    if (els.financeToggle.checked) updatePayment();
+  });
+  ["input", "change"].forEach(evt => {
+    els.apr?.addEventListener(evt, () => { state.finance.apr = Number(els.apr.value || 0); updatePayment(); });
+    els.term?.addEventListener(evt, () => { state.finance.termMonths = Number(els.term.value || 0); updatePayment(); });
+    els.down?.addEventListener(evt, () => { updatePayment(); });
+  });
+}
+
+function updatePayment() {
+  recomputeTotals();
+  const down = Number(els.down?.value || 0);
+  const financed = Math.max(0, state.total - down);
+  const r = state.finance.apr / 100 / 12;
+  const n = state.finance.termMonths;
+  const m = r ? (financed * r) / (1 - Math.pow(1 + r, -n)) : financed / Math.max(1, n);
+  state.finance.monthly = +m.toFixed(2);
+  if (els.estPayment) els.estPayment.textContent = `$${state.finance.monthly.toFixed(2)}/mo`;
+}
+
+// Footer year + initial totals
+if (els.yearSpan) els.yearSpan.textContent = new Date().getFullYear();
+recomputeTotals();
+
+/* minimal spinner + status colors in case CSS missing */
 (function ensureSpinnerCSS() {
   const style = document.createElement("style");
   style.textContent = `
-    .spinner { display:inline-block;width:16px;height:16px;border-radius:50%;border:2px solid #4a9;border-top-color:transparent;animation:spin .8s linear infinite;vertical-align:middle;margin-left:6px;}
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .error { color: #ff6b6b; }
-    .success { color: #67e8f9; }
+    .spinner{display:inline-block;width:16px;height:16px;border-radius:50%;border:2px solid #4a9;border-top-color:transparent;animation:spin .8s linear infinite;vertical-align:middle;margin-left:6px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .error{color:#ff6b6b}.success{color:#67e8f9}
   `;
   document.head.appendChild(style);
 })();
