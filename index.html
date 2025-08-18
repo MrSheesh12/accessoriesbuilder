@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Corwin Ford Tri-Cities — Accessories Builder</title>
+<!-- Preload logo -->
+<link as="image" href="assets/5541a666-cf50-4670-8af2-0ecc316ccbc8.png" rel="preload"/>
+<link href="css/styles.css" rel="stylesheet"/>
+</head>
+<body>
+<!-- Header -->
+<header class="site-header">
+<div class="brand">
+<img alt="The Auto Lounge / Corwin Ford" class="logo" height="44" src="assets/5541a666-cf50-4670-8af2-0ecc316ccbc8.png" width="44"/>
+<h1 class="title">Accessories &amp; Packages Builder</h1>
+</div>
+<div class="finance-toggle">
+<label aria-label="Toggle financing calculator" class="switch">
+<input id="financeToggle" type="checkbox"/>
+<span class="slider"></span>
+</label>
+<span class="toggle-label">Show finance calculator</span>
+</div>
+</header>
+<main>
+<!-- Controls -->
+<section class="controls">
+<div class="filters">
+<label for="categorySelect">Category</label>
+<select id="categorySelect">
+<option value="all">All</option>
+</select>
+</div>
+<div class="packages">
+<button class="pkg-btn" data-package="work_truck">Work Truck</button>
+<button class="pkg-btn" data-package="overland">Overland</button>
+<button class="pkg-btn" data-package="family_daily">Family Daily</button>
+<button class="pkg-btn" data-package="platinum_look">Platinum Look</button>
+<button class="pkg-btn outline" id="clearSelections">Clear</button>
+</div>
+</section>
+<!-- Vehicle photos -->
+<section class="vehicle-media" id="vehicle-media">
+<h2>Vehicle Photos</h2>
+<!-- VIN / Stock -->
+<form class="media-form" id="mediaForm" onsubmit="return false;">
+<label>
+          Last 8 of VIN
+          <input autocomplete="off" id="vinLast8" maxlength="8" placeholder="e.g. GL359185" type="text"/>
+</label>
+<span class="or">or</span>
+<label>
+          Stock #
+          <input autocomplete="off" id="stockNum" placeholder="e.g. F12345" type="text"/>
+</label>
+<button class="primary small" id="fetchMedia" type="button">Grab Photos</button>
+</form>
+<!-- Direct URL -->
+<div class="field mt-2">
+<label class="lbl" for="vehicleUrl">Or paste vehicle URL</label>
+<div class="row">
+<input class="grow" id="vehicleUrl" inputmode="url" placeholder="https://www.corwinfordtricities.com/inventory/..." type="url"/>
+<button class="btn" id="fetchMediaByUrl" type="button">Use URL</button>
+</div>
+<small class="hint">We only read public photos; no login required.</small>
+</div>
+<small aria-live="polite" class="muted" id="mediaStatus" role="status"></small>
+<!-- Thumbnails -->
+<div aria-live="polite" class="media-gallery" id="mediaGallery"></div>
+
+<div class="media-controls">
+<label>Vehicle (no VIN/Stock? pick here)
+    <select id="vehicleSelect">
+<option value="">Select a Ford model…</option>
+</select>
+</label>
+<label id="bedLengthWrap" style="display:none;">Bed length
+    <select id="bedLength"></select>
+</label>
+</div>
+</section>
+<!-- Accessories catalog (placeholder) -->
+<section aria-live="polite" class="catalog" id="catalog"></section>
+<!-- Summary -->
+<aside class="summary" id="summary">
+<h2>Summary</h2>
+<div class="line"><span>Items:</span> <strong id="itemCount">0</strong></div>
+<div class="line"><span>Subtotal:</span> <strong id="subtotal">$0.00</strong></div>
+<div class="line"><span>Tax (8.9%):</span> <strong id="tax">$0.00</strong></div>
+<div class="line total">
+<span>Total:</span>
+<strong id="total">$0.00</strong>
+<small class="payment-badge" hidden="" id="paymentBadge"></small>
+</div>
+<div class="finance" hidden="" id="financeBox">
+<h3>Finance Calculator</h3>
+<div class="grid-3">
+<label>APR (%)
+            <input id="apr" min="0" step="0.01" type="number" value="8.0">
+</input></label>
+<label>Term (months)
+            <input id="term" min="1" step="1" type="number" value="72"/>
+</label>
+<label>Down Payment ($)
+            <input id="down" min="0" step="50" type="number" value="0"/>
+</label>
+</div>
+<div class="line total">
+<span>Est. Payment:</span>
+<strong id="estPayment">$0.00/mo</strong>
+</div>
+<p class="note">This calculator is an estimate and not an offer of credit.</p>
+</div>
+<button class="primary" id="exportQuote" type="button">Export Quote (.json)</button>
+</aside>
+</main>
+<footer class="site-footer">
+<small>© <span id="year"></span> Corwin Ford Tri-Cities · Shop rate $165/hr · Prices incl. labor where noted</small>
+</footer>
+<script defer="" src="js/app.js"></script>
+</body>
+</html>
