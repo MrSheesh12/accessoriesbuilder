@@ -4,15 +4,26 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Corwin Ford Tri-Cities — Accessories Builder</title>
-  <link rel="preload" href="assets/5541a666-cf50-4670-8af2-0ecc316ccbc8.png" as="image">
+
+  <!-- Preload logo -->
+  <link rel="preload" href="assets/5541a666-cf50-4670-8af2-0ecc316ccbc8.png" as="image" />
+
+  <!-- Styles -->
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
+  <!-- Header -->
   <header class="site-header">
     <div class="brand">
-      <img src="assets/5541a666-cf50-4670-8af2-0ecc316ccbc8.png" alt="The Auto Lounge / Corwin Ford" class="logo" />
-      <h1 class="title">Accessories & Packages Builder</h1>
+      <img
+        src="assets/5541a666-cf50-4670-8af2-0ecc316ccbc8.png"
+        alt="The Auto Lounge / Corwin Ford"
+        class="logo"
+        width="44" height="44"
+      />
+      <h1 class="title">Accessories &amp; Packages Builder</h1>
     </div>
+
     <div class="finance-toggle">
       <label class="switch" aria-label="Toggle financing calculator">
         <input type="checkbox" id="financeToggle" />
@@ -23,6 +34,7 @@
   </header>
 
   <main>
+    <!-- Filters + quick packages -->
     <section class="controls">
       <div class="filters">
         <label for="categorySelect">Category</label>
@@ -40,27 +52,60 @@
       </div>
     </section>
 
-    
+    <!-- Vehicle photos -->
     <section class="vehicle-media" id="vehicle-media">
       <h2>Vehicle Photos (by VIN or Stock)</h2>
+
+      <!-- VIN / Stock -->
       <form id="mediaForm" class="media-form" onsubmit="return false;">
-        <label>Last 8 of VIN <input type="text" id="vinLast8" maxlength="8" placeholder="e.g. KD099955" /></label>
+        <label>
+          Last 8 of VIN
+          <input type="text" id="vinLast8" maxlength="8" placeholder="e.g. KD099955" autocomplete="off" />
+        </label>
         <span class="or">or</span>
-        <label>Stock # <input type="text" id="stockNum" placeholder="e.g. F12345" /></label>
+        <label>
+          Stock #
+          <input type="text" id="stockNum" placeholder="e.g. F12345" autocomplete="off" />
+        </label>
         <button id="fetchMedia" class="primary small" type="button">Grab Photos</button>
-        <small class="muted" id="mediaStatus"></small>
+        <small class="muted" id="mediaStatus" role="status" aria-live="polite"></small>
       </form>
+
+      <!-- NEW: Direct URL method -->
+      <div class="field mt-2">
+        <label for="vehicleUrl" class="lbl">Or paste vehicle URL</label>
+        <div class="row">
+          <input
+            id="vehicleUrl"
+            type="url"
+            inputmode="url"
+            placeholder="https://www.corwinfordtricities.com/inventory/..."
+            aria-describedby="urlHelp"
+            class="grow"
+          />
+          <button id="fetchMediaByUrl" class="btn" type="button">Use URL</button>
+        </div>
+        <small id="urlHelp" class="hint">We only read public photos; no login required.</small>
+      </div>
+
+      <!-- Thumbnails -->
       <div id="mediaGallery" class="media-gallery" aria-live="polite"></div>
     </section>
-    
+
+    <!-- Catalog grid (accessories go here) -->
     <section id="catalog" class="catalog" aria-live="polite"></section>
 
+    <!-- Summary / Finance -->
     <aside id="summary" class="summary">
       <h2>Summary</h2>
       <div class="line"><span>Items:</span> <strong id="itemCount">0</strong></div>
       <div class="line"><span>Subtotal:</span> <strong id="subtotal">$0.00</strong></div>
       <div class="line"><span>Tax (8.9%):</span> <strong id="tax">$0.00</strong></div>
-      <div class="line total"><span>Total:</span> <strong id="total">$0.00</strong> <small id="paymentBadge" class="payment-badge" hidden></small></div>
+      <div class="line total">
+        <span>Total:</span>
+        <strong id="total">$0.00</strong>
+        <small id="paymentBadge" class="payment-badge" hidden></small>
+      </div>
 
       <div id="financeBox" class="finance" hidden>
         <h3>Finance Calculator</h3>
@@ -81,7 +126,8 @@
         </div>
         <p class="note">This calculator is an estimate and not an offer of credit.</p>
       </div>
-      <button id="exportQuote" class="primary">Export Quote (.json)</button>
+
+      <button id="exportQuote" class="primary" type="button">Export Quote (.json)</button>
     </aside>
   </main>
 
@@ -89,6 +135,7 @@
     <small>© <span id="year"></span> Corwin Ford Tri-Cities · Shop rate $165/hr · Prices incl. labor where noted</small>
   </footer>
 
-  <script src="js/app.js"></script>
+  <!-- App -->
+  <script src="js/app.js" defer></script>
 </body>
 </html>
