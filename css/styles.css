@@ -1,0 +1,136 @@
+/* Reset & base */
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+img { max-width: 100%; display: block; }
+
+:root {
+  --bg: #0f1216;
+  --card: #171b21;
+  --muted: #98a2b3;
+  --text: #e6e7ea;
+  --accent: #2eaadc;
+  --accent-2: #4ad37b;
+  --danger: #ff6b6b;
+  --border: #2a2f39;
+  --shadow: 0 6px 24px rgba(0,0,0,.25);
+}
+
+body { background: var(--bg); color: var(--text); }
+
+/* Header */
+.site-header {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(15,18,22,.9); backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px;
+}
+.brand { display: grid; grid-template-columns: 64px 1fr; gap: 12px; align-items: center; }
+.logo { width: 64px; height: 64px; object-fit: contain; margin: 0 auto; }
+.title { margin: 0; font-size: 1.25rem; font-weight: 650; text-align: left; }
+
+.finance-toggle { display: flex; align-items: center; gap: 10px; }
+.toggle-label { color: var(--muted); font-size: .95rem; }
+
+/* Switch */
+.switch { position: relative; display: inline-block; width: 52px; height: 28px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #444; transition: .2s; border-radius: 999px; }
+.slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 3px; top: 3px; background: white; transition: .2s; border-radius: 50%; }
+input:checked + .slider { background: var(--accent); }
+input:checked + .slider:before { transform: translateX(24px); }
+
+/* Layout */
+main {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 18px;
+  padding: 18px;
+  max-width: 1400px; margin: 0 auto;
+}
+@media (max-width: 980px) {
+  main { grid-template-columns: 1fr; }
+  .summary { order: 2; }
+}
+
+/* Controls */
+.controls { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 12px 0 6px; }
+.filters select { background: var(--card); color: var(--text); border: 1px solid var(--border); padding: 8px 10px; border-radius: 8px; }
+.packages { display: flex; flex-wrap: wrap; gap: 8px; }
+.pkg-btn { background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 8px; cursor: pointer; }
+.pkg-btn:hover { border-color: var(--accent); }
+.pkg-btn.outline { background: transparent; border-style: dashed; }
+
+/* Catalog */
+.catalog { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  display: flex; flex-direction: column;
+}
+.card .media { aspect-ratio: 16/10; background: #111; }
+.card .content { padding: 12px; display: grid; gap: 6px; }
+.card h3 { margin: 0; font-size: 1.05rem; }
+.badge { font-size: .8rem; color: var(--muted); }
+.price { font-weight: 700; }
+.card .actions { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 6px; }
+.card .desc { color: var(--muted); font-size: .92rem; }
+label.checkbox { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+label.checkbox input { width: 18px; height: 18px; }
+
+/* Summary */
+.summary {
+  position: sticky; top: 84px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  height: fit-content;
+  box-shadow: var(--shadow);
+}
+.summary h2 { margin-top: 4px; }
+.line { display: flex; align-items: baseline; justify-content: space-between; color: var(--muted); margin: 6px 0; }
+.line.total { color: var(--text); font-size: 1.1rem; font-weight: 700; }
+.payment-badge { background: #223; border: 1px solid var(--border); padding: 2px 8px; border-radius: 999px; font-size: .85rem; color: var(--accent-2); }
+.primary { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--accent); background: #0b2a33; color: var(--text); cursor: pointer; }
+.primary:hover { background: #0d3641; }
+
+/* Finance panel */
+.finance { margin-top: 14px; padding-top: 10px; border-top: 1px dashed var(--border); }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.grid-3 input { width: 100%; padding: 8px; background: #0f141b; border: 1px solid var(--border); color: var(--text); border-radius: 8px; }
+.note { color: var(--muted); font-size: .85rem; }
+
+/* Footer */
+.site-footer { border-top: 1px solid var(--border); color: var(--muted); text-align: center; padding: 12px; }
+
+
+/* Vehicle Media */
+.vehicle-media { margin: 10px 0 4px; padding: 12px; border: 1px solid var(--border); border-radius: 12px; background: #11161d; }
+.vehicle-media h2 { margin: 4px 0 12px; font-size: 1.1rem; }
+.media-form { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 10px; }
+.media-form input { padding: 8px; background: #0f141b; border: 1px solid var(--border); color: var(--text); border-radius: 8px; }
+.media-form .or { color: var(--muted); }
+.primary.small { padding: 8px 10px; width: auto; }
+.muted { color: var(--muted); }
+
+.media-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+.media-thumb { position: relative; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: #0b0f15; cursor: pointer; }
+.media-thumb img { width: 100%; height: 100%; object-fit: cover; aspect-ratio: 4/3; display: block; }
+.media-thumb .pick { position: absolute; left: 8px; top: 8px; background: rgba(0,0,0,.6); padding: 2px 6px; border-radius: 6px; font-size: .8rem; }
+.media-thumb.active { outline: 2px solid var(--accent); }
+.selected-base { margin-top: 6px; font-size: .95rem; color: var(--muted); }
+
+
+/* Loading spinner */
+.spinner { display: inline-block; width: 16px; height: 16px; border-radius: 50%; border: 2px solid #4a9; border-top-color: transparent; animation: spin .8s linear infinite; vertical-align: middle; margin-left: 6px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.error { color: var(--danger); }
+.success { color: var(--accent-2); }
+
+
+/* Vehicle picker inside media section */
+#bedLengthWrap { align-self: end; }
