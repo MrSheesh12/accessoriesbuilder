@@ -74,9 +74,27 @@ function showDebug(meta, images, route) {
   );
 }
 
+// Ensure images are valid and unique and have https scheme
+function normalizeImages(list = []) {
+  const norm = new Set();
+  list.forEach((u) => {
+    if (!u) return;
+    let url = String(u).trim();
+    if (!/^https?:\/\//i.test(url)) {
+      if (url.startsWith("//")) url = "https:" + url;
+      else if (url.startsWith("/")) url = location.origin + url;
+    }
+    // only accept jpg/jpeg/webp from dealerinspire (or anything the fn returns)
+    if (!/\.(jpg|jpeg|webp)(\?|#|$)/i.test(url)) return;
+    norm.add(url);
+  });
+  return Array.from(norm);
+}
+
 function renderMediaGallery(images = []) {
   if (!els.media.gallery) return;
-  els.media.gallery.innerHTML = images
+  const imgs = normalizeImages(images);
+  els.media.gallery.innerHTML = imgs
     .map(
       (src, i) => `
       <div class="media-thumb" data-src="${src}" title="Use this photo as base">
@@ -86,12 +104,12 @@ function renderMediaGallery(images = []) {
     )
     .join("");
 
-  els.media.gallery.querySelectorAll(".media-thumb").forEach((div) => {
+  const nodes = els.media.gallery.querySelectorAll(".media-thumb");
+  nodes.forEach((div) => {
     div.addEventListener("click", () => {
-      els.media.gallery.querySelectorAll(".media-thumb").forEach((n) => n.classList.remove("active"));
+      nodes.forEach((n) => n.classList.remove("active"));
       div.classList.add("active");
       state.selectedBaseImage = div.dataset.src;
-
       let info = document.querySelector(".selected-base");
       if (!info) {
         info = document.createElement("div");
@@ -101,6 +119,14 @@ function renderMediaGallery(images = []) {
       info.textContent = `Base photo selected: ${state.selectedBaseImage}`;
     });
   });
+
+  // Auto-select first image, if any
+  if (nodes.length) {
+    nodes[0].click();
+    setStatus(`Loaded ${nodes.length} images. Click a thumbnail to change the base photo.`, "success");
+  } else {
+    setStatus("No images found for that vehicle.", "error");
+  }
 }
 
 async function fetchVehicleMedia({ vinLast8, stock, url }) {
@@ -108,9 +134,9 @@ async function fetchVehicleMedia({ vinLast8, stock, url }) {
   if (vinLast8) qs.set("vinLast8", vinLast8.trim());
   if (stock) qs.set("stock", String(stock).trim());
   if (url) qs.set("url", url.trim());
-  const full = `${API_BASE}/fetch-vehicle-media?${qs.toString()}`;
 
-  const res = await fetch(full, { method: "GET" });
+  const endpoint = `${API_BASE}/fetch-vehicle-media?${qs.toString()}`;
+  const res = await fetch(endpoint, { method: "GET" });
   if (!res.ok) {
     const text = await res.text().catch(() => "");
     throw new Error(`Function error ${res.status}: ${text || "unknown"}`);
@@ -139,6 +165,16 @@ function recomputeTotals() {
   if (els.itemCount) els.itemCount.textContent = String((state.items || []).length);
 }
 
+// disable/enable buttons to prevent double clicks
+function setLoading(isLoading) {
+  const btns = [els.media.fetchBtn, els.media.fetchUrlBtn];
+  btns.forEach((b) => {
+    if (!b) return;
+    b.disabled = isLoading;
+    b.classList.toggle("is-loading", isLoading);
+  });
+}
+
 /* ------------------- wiring ------------------- */
 
 // VIN / Stock
@@ -151,17 +187,17 @@ if (els.media.fetchBtn) {
         setStatus("Enter last 8 of VIN or Stock #", "error");
         return;
       }
+      els.media.gallery.innerHTML = "";
+      setLoading(true);
       setStatus('Looking up vehicle… <span class="spinner"></span>');
       const data = await fetchVehicleMedia({ vinLast8: vin8, stock });
-      setStatus(data?.meta?.title ? `Found: ${data.meta.title}` : "Found vehicle", "success");
       showDebug(data.meta, data.images || [], data?.debug?.route || "vin/stock");
       renderMediaGallery(data.images || []);
-      if (!data.images?.length) {
-        setStatus("No images found. Try VIN last 8, a different unit, or paste the vehicle URL.", "error");
-      }
     } catch (e) {
       console.error(e);
       setStatus("Could not find photos. Check VIN/Stock or try the URL method.", "error");
+    } finally {
+      setLoading(false);
     }
   });
 }
@@ -174,15 +210,38 @@ if (els.media.fetchUrlBtn) {
       if (!url) return setStatus("Paste a vehicle detail URL first.", "error");
       if (!/^https?:\/\//i.test(url)) return setStatus("URL must start with http:// or https://", "error");
 
+      els.media.gallery.innerHTML = "";
+      setLoading(true);
       setStatus('Fetching photos from URL… <span class="spinner"></span>');
       const data = await fetchVehicleMedia({ url });
-      setStatus(data?.meta?.title ? `Found: ${data.meta.title}` : "Found vehicle", "success");
       showDebug(data.meta, data.images || [], data?.debug?.route || "url");
       renderMediaGallery(data.images || []);
-      if (!data.images?.length) setStatus("No images were found at that URL. Try another vehicle page.", "error");
     } catch (e) {
       console.error(e);
       setStatus("Could not fetch from that URL. Try a different one or use VIN last 8.", "error");
+    } finally {
+      setLoading(false);
+    }
+  });
+}
+
+// Allow pressing Enter inside VIN/Stock inputs to trigger "Grab Photos"
+["vinLast8", "stockNum"].forEach((id) => {
+  const inp = document.getElementById(id);
+  if (!inp) return;
+  inp.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      els.media.fetchBtn?.click();
+    }
+  });
+});
+// Enter key in URL field triggers Use URL
+if (els.media.url) {
+  els.media.url.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      els.media.fetchUrlBtn?.click();
     }
   });
 }
@@ -231,10 +290,18 @@ if (els.financeToggle && els.financeBox) {
     recomputeTotals();
     if (els.financeToggle.checked) updatePayment();
   });
-  ["input", "change"].forEach(evt => {
-    els.apr?.addEventListener(evt, () => { state.finance.apr = Number(els.apr.value || 0); updatePayment(); });
-    els.term?.addEventListener(evt, () => { state.finance.termMonths = Number(els.term.value || 0); updatePayment(); });
-    els.down?.addEventListener(evt, () => { updatePayment(); });
+  ["input", "change"].forEach((evt) => {
+    els.apr?.addEventListener(evt, () => {
+      state.finance.apr = Number(els.apr.value || 0);
+      updatePayment();
+    });
+    els.term?.addEventListener(evt, () => {
+      state.finance.termMonths = Number(els.term.value || 0);
+      updatePayment();
+    });
+    els.down?.addEventListener(evt, () => {
+      updatePayment();
+    });
   });
 }
 
@@ -260,6 +327,7 @@ recomputeTotals();
     .spinner{display:inline-block;width:16px;height:16px;border-radius:50%;border:2px solid #4a9;border-top-color:transparent;animation:spin .8s linear infinite;vertical-align:middle;margin-left:6px}
     @keyframes spin{to{transform:rotate(360deg)}}
     .error{color:#ff6b6b}.success{color:#67e8f9}
+    .is-loading{opacity:.7;pointer-events:none}
   `;
   document.head.appendChild(style);
 })();
