@@ -1,0 +1,13 @@
+# Free Render static site for the iPad accessory menu.
+# rootDir limits autodeploys to changes under menu/. Publish path is
+# relative to that directory, so the site root is the menu folder.
+# There is no build step. Hash routes (#/, #/c/..., #/p/...) need no
+# CDN rewrite, which leaves catalog.json and images at their own URLs.
+# No disk, no database, no paid add-ons.
+services:
+  - type: web
+    name: accessory-menu
+    runtime: static
+    rootDir: menu
+    staticPublishPath: .
+    buildCommand: ""

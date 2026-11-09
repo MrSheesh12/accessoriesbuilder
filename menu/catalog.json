@@ -1,0 +1,529 @@
+{
+  "categories": [
+    {
+      "id": "floor-mats",
+      "name": "Floor Mats"
+    },
+    {
+      "id": "bed-covers",
+      "name": "Bed Covers"
+    },
+    {
+      "id": "lift-level-kits",
+      "name": "Lift & Level Kits"
+    },
+    {
+      "id": "bumper-grille",
+      "name": "Bumper & Grille"
+    },
+    {
+      "id": "lighting",
+      "name": "Lighting"
+    },
+    {
+      "id": "bedliners",
+      "name": "Bedliners"
+    },
+    {
+      "id": "running-boards-steps",
+      "name": "Running Boards/Steps"
+    },
+    {
+      "id": "towing-5th-wheel",
+      "name": "Towing / 5th Wheel"
+    },
+    {
+      "id": "wheels-tires",
+      "name": "Wheels & Tires"
+    },
+    {
+      "id": "performance",
+      "name": "Performance"
+    },
+    {
+      "id": "tint",
+      "name": "Tint"
+    },
+    {
+      "id": "commercial-fleet",
+      "name": "Commercial / Fleet"
+    },
+    {
+      "id": "interior",
+      "name": "Interior"
+    },
+    {
+      "id": "audio",
+      "name": "Audio"
+    },
+    {
+      "id": "ppf-coating",
+      "name": "PPF & Coating"
+    }
+  ],
+  "items": [
+    {
+      "id": "hard-folding-cover-f-150-6-5-bed-advantage-rev-ford",
+      "category": "bed-covers",
+      "name": "Hard folding cover, F-150 6.5' bed (Advantage/Rev, Ford)",
+      "brand": "Advantage",
+      "price": 1450,
+      "tier": "better",
+      "sellingPoint": "Ford OEM hard tri-fold.",
+      "fits": [
+        "F-150"
+      ]
+    },
+    {
+      "id": "soft-roll-up-cover-f-150-5-5-6-5-bed-truxedo-ford",
+      "category": "bed-covers",
+      "name": "Soft roll-up cover, F-150 5.5'/6.5' bed (TruXedo, Ford)",
+      "brand": "TruXedo",
+      "price": 549,
+      "tier": "good",
+      "sellingPoint": "Ford OEM TruXedo soft roll-up.",
+      "fits": [
+        "F-150"
+      ]
+    },
+    {
+      "id": "retractable-cover-f-150-5-5-bed-embark-ford",
+      "category": "bed-covers",
+      "name": "Retractable cover, F-150 5.5' bed (Embark, Ford)",
+      "brand": "Embark",
+      "price": 2350,
+      "tier": "best",
+      "sellingPoint": "Ford OEM Embark retractable.",
+      "fits": [
+        "F-150"
+      ]
+    },
+    {
+      "id": "hard-roll-up-cover-f-150-rev-ford",
+      "category": "bed-covers",
+      "name": "Hard roll-up cover, F-150 (Rev, Ford)",
+      "brand": "Rev",
+      "price": 1414,
+      "tier": "better",
+      "sellingPoint": "Ford OEM Rev hard roll-up.",
+      "fits": [
+        "F-150"
+      ]
+    },
+    {
+      "id": "powered-retractable-cover-f-150-6-5-bed-leer-ford",
+      "category": "bed-covers",
+      "name": "Powered retractable cover, F-150 6.5' bed (LEER, Ford)",
+      "brand": "LEER",
+      "price": 4529,
+      "tier": "best",
+      "sellingPoint": "Ford OEM LEER powered retractable; 4 hr install.",
+      "fits": [
+        "F-150"
+      ]
+    },
+    {
+      "id": "fixed-running-boards-nerf-bars-dee-zee-etc",
+      "category": "running-boards-steps",
+      "name": "Fixed running boards / nerf bars (Dee Zee etc.)",
+      "brand": "Dee Zee",
+      "price": 695,
+      "tier": "good",
+      "sellingPoint": "Fixed boards / nerf bars; brand and cab change price.",
+      "fits": [
+        "Ranger",
+        "Super Duty",
+        "Other"
+      ]
+    },
+    {
+      "id": "power-running-boards-amp-powersteps-or-similar",
+      "category": "running-boards-steps",
+      "name": "Power running boards (AMP PowerSteps or similar)",
+      "brand": "AMP",
+      "price": 2499,
+      "tier": "best",
+      "sellingPoint": "AMP PowerSteps.",
+      "fits": [
+        "Super Duty"
+      ]
+    },
+    {
+      "id": "air-suspension-airbags-compressor",
+      "category": "lift-level-kits",
+      "name": "Air suspension (airbags + compressor)",
+      "brand": "Air Lift",
+      "price": 2398,
+      "tier": "best",
+      "sellingPoint": "Airbags + compressor.",
+      "fits": [
+        "Super Duty"
+      ]
+    },
+    {
+      "id": "lift-kit-3in-f-150-rough-country-41431",
+      "category": "lift-level-kits",
+      "name": "Lift kit 3in, F-150 (Rough Country 41431)",
+      "brand": "Rough Country",
+      "price": 2514,
+      "tier": "better",
+      "sellingPoint": "Rough Country 3\" lift + alignment; F-150 4WD.",
+      "fits": [
+        "F-150"
+      ]
+    },
+    {
+      "id": "leveling-kit-f-150-readylift-2in-66-2120",
+      "category": "lift-level-kits",
+      "name": "Leveling kit, F-150 / non-Super Duty (ReadyLIFT 2in, 66-2120)",
+      "brand": "ReadyLIFT",
+      "price": 995,
+      "tier": "good",
+      "sellingPoint": "ReadyLIFT 2\" level + alignment; F-150 4WD (not CCD/Tremor/Raptor).",
+      "fits": [
+        "F-150"
+      ]
+    },
+    {
+      "id": "all-terrain-tire-upgrade",
+      "category": "wheels-tires",
+      "name": "All-terrain tire upgrade",
+      "brand": "Toyo",
+      "price": 1950,
+      "tier": "good",
+      "sellingPoint": "AT tires mounted and balanced.",
+      "fits": [
+        "Other"
+      ]
+    },
+    {
+      "id": "wheel-and-tire-package",
+      "category": "wheels-tires",
+      "name": "Wheel and tire package",
+      "brand": "",
+      "price": 2495,
+      "tier": "better",
+      "sellingPoint": "Complete wheel + tire package; size/brand drive price.",
+      "fits": [
+        "F-150",
+        "Super Duty",
+        "Ranger",
+        "Bronco",
+        "Maverick",
+        "Other"
+      ]
+    },
+    {
+      "id": "spray-in-bedliner",
+      "category": "bedliners",
+      "name": "Spray-in bedliner",
+      "brand": "",
+      "price": 650,
+      "tier": "best",
+      "sellingPoint": "In-house spray-in.",
+      "fits": [
+        "F-150",
+        "Ranger",
+        "Super Duty",
+        "Other"
+      ]
+    },
+    {
+      "id": "heavy-duty-bed-mat-rubber",
+      "category": "bedliners",
+      "name": "Heavy-duty bed mat (rubber)",
+      "brand": "BedRug",
+      "price": 169,
+      "tier": "good",
+      "sellingPoint": "Drop-in rubber bed mat.",
+      "fits": [
+        "Super Duty",
+        "Ranger",
+        "Maverick"
+      ]
+    },
+    {
+      "id": "front-window-tint-2-fronts-carbon",
+      "category": "tint",
+      "name": "Front window tint (2 fronts, carbon)",
+      "brand": "",
+      "price": 280,
+      "tier": "good",
+      "sellingPoint": "Carbon film, 2 front windows.",
+      "fits": [
+        "Super Duty",
+        "Other"
+      ]
+    },
+    {
+      "id": "cab-roof-lights-recon",
+      "category": "lighting",
+      "name": "Cab roof lights (Recon)",
+      "brand": "Recon",
+      "price": 1100,
+      "tier": "better",
+      "sellingPoint": "Recon cab roof lights.",
+      "fits": [
+        "Super Duty"
+      ]
+    },
+    {
+      "id": "fog-and-pod-lights",
+      "category": "lighting",
+      "name": "Fog and pod lights",
+      "brand": "",
+      "price": 395,
+      "tier": "good",
+      "sellingPoint": "Fog / pod light kits.",
+      "fits": [
+        "Super Duty",
+        "Maverick"
+      ]
+    },
+    {
+      "id": "reverse-lights-baja-designs",
+      "category": "lighting",
+      "name": "Reverse lights (Baja Designs)",
+      "brand": "Baja Designs",
+      "price": 799,
+      "tier": "better",
+      "sellingPoint": "Baja Designs reverse lights.",
+      "fits": [
+        "Super Duty"
+      ]
+    },
+    {
+      "id": "led-light-bar",
+      "category": "lighting",
+      "name": "LED light bar",
+      "brand": "Baja Designs",
+      "price": 595,
+      "tier": "better",
+      "sellingPoint": "LED light bar; size/brand change price.",
+      "fits": [
+        "F-150",
+        "Super Duty",
+        "Ranger",
+        "Bronco",
+        "Maverick",
+        "Other"
+      ]
+    },
+    {
+      "id": "floor-liners-1st-and-2nd-row-weathertech-or-husky",
+      "category": "floor-mats",
+      "name": "Floor liners, 1st and 2nd row (WeatherTech or Husky)",
+      "brand": "WeatherTech",
+      "price": 240,
+      "tier": "good",
+      "sellingPoint": "WeatherTech or Husky 1st+2nd row.",
+      "fits": [
+        "F-150",
+        "Super Duty",
+        "Bronco",
+        "Other"
+      ]
+    },
+    {
+      "id": "cargo-mat-liner-weathertech",
+      "category": "floor-mats",
+      "name": "Cargo mat / liner (WeatherTech)",
+      "brand": "WeatherTech",
+      "price": 130,
+      "tier": "good",
+      "sellingPoint": "WeatherTech cargo mat / liner.",
+      "fits": [
+        "Other"
+      ]
+    },
+    {
+      "id": "oem-trailer-hitch-and-wiring-ford",
+      "category": "towing-5th-wheel",
+      "name": "OEM trailer hitch and wiring (Ford)",
+      "brand": "Ford OEM",
+      "price": 1100,
+      "tier": "good",
+      "sellingPoint": "Ford OEM hitch + wiring.",
+      "fits": [
+        "F-150",
+        "Ranger",
+        "Maverick",
+        "Other"
+      ]
+    },
+    {
+      "id": "b-w-turnover-ball-super-duty-gooseneck-hitch",
+      "category": "towing-5th-wheel",
+      "name": "B&W turnover ball, Super Duty gooseneck hitch",
+      "brand": "B&W",
+      "price": 2000,
+      "tier": "better",
+      "sellingPoint": "B&W turnover ball.",
+      "fits": [
+        "Super Duty"
+      ]
+    },
+    {
+      "id": "mud-flaps",
+      "category": "bumper-grille",
+      "name": "Mud flaps",
+      "brand": "Ranch Hand",
+      "price": 350,
+      "tier": null,
+      "sellingPoint": "Mud flaps; brand and set change price.",
+      "fits": [
+        "Bronco"
+      ]
+    },
+    {
+      "id": "fender-flares",
+      "category": "bumper-grille",
+      "name": "Fender flares",
+      "brand": "Rough Country",
+      "price": 795,
+      "tier": null,
+      "sellingPoint": "Fender flares (paint-match available).",
+      "fits": [
+        "Bronco"
+      ]
+    },
+    {
+      "id": "rain-guards-wind-deflectors",
+      "category": "bumper-grille",
+      "name": "Rain guards / wind deflectors",
+      "brand": "Ford",
+      "price": 199,
+      "tier": null,
+      "sellingPoint": "Rain guards / wind deflectors.",
+      "fits": [
+        "Super Duty"
+      ]
+    },
+    {
+      "id": "black-front-emblem-ford-oem",
+      "category": "bumper-grille",
+      "name": "Black front emblem (Ford OEM)",
+      "brand": "Ford OEM",
+      "price": 580,
+      "tier": null,
+      "sellingPoint": "Ford OEM black front emblem.",
+      "fits": [
+        "Super Duty"
+      ]
+    },
+    {
+      "id": "grille-guard-bull-bar",
+      "category": "bumper-grille",
+      "name": "Grille guard / bull bar",
+      "brand": "Ranch Hand",
+      "price": 799,
+      "tier": null,
+      "sellingPoint": "Grille guard / bull bar.",
+      "fits": [
+        "Super Duty"
+      ]
+    },
+    {
+      "id": "hood-deflector",
+      "category": "bumper-grille",
+      "name": "Hood deflector",
+      "brand": "Ford",
+      "price": 199,
+      "tier": null,
+      "sellingPoint": "Hood / bug deflector.",
+      "fits": [
+        "F-150"
+      ]
+    },
+    {
+      "id": "skid-plate",
+      "category": "bumper-grille",
+      "name": "Skid plate",
+      "brand": "",
+      "price": 803,
+      "tier": null,
+      "sellingPoint": "Skid plate; type and truck change price.",
+      "fits": [
+        "F-150"
+      ]
+    },
+    {
+      "id": "tremor-style-front-air-dam-valance",
+      "category": "bumper-grille",
+      "name": "Tremor-style front air dam / valance",
+      "brand": "",
+      "price": 350,
+      "tier": null,
+      "sellingPoint": "Tremor-style front air dam / valance.",
+      "fits": [
+        "Super Duty"
+      ]
+    },
+    {
+      "id": "dash-camera-front-and-rear",
+      "category": "interior",
+      "name": "Dash camera, front and rear",
+      "brand": "",
+      "price": 850,
+      "tier": null,
+      "sellingPoint": "Front + rear dash camera.",
+      "fits": [
+        "Super Duty"
+      ]
+    },
+    {
+      "id": "cold-air-intake",
+      "category": "performance",
+      "name": "Cold air intake",
+      "brand": "K&N",
+      "price": 495,
+      "tier": null,
+      "sellingPoint": "Cold air intake.",
+      "fits": [
+        "Ranger"
+      ]
+    },
+    {
+      "id": "tuner",
+      "category": "performance",
+      "name": "Tuner",
+      "brand": "",
+      "price": 850,
+      "tier": null,
+      "sellingPoint": "Engine tuner, installed.",
+      "fits": [
+        "Ranger",
+        "Bronco"
+      ]
+    },
+    {
+      "id": "bed-divider-ford",
+      "category": "commercial-fleet",
+      "name": "Bed divider (Ford)",
+      "brand": "Ford",
+      "price": 490,
+      "tier": null,
+      "sellingPoint": "Ford bed divider.",
+      "fits": [
+        "F-150"
+      ]
+    },
+    {
+      "id": "tool-box",
+      "category": "commercial-fleet",
+      "name": "Tool box",
+      "brand": "",
+      "price": 595,
+      "tier": null,
+      "sellingPoint": "Bed tool box.",
+      "fits": [
+        "F-150",
+        "Super Duty",
+        "Ranger",
+        "Bronco",
+        "Maverick",
+        "Other"
+      ]
+    }
+  ]
+}
