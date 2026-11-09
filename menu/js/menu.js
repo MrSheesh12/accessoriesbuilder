@@ -2,7 +2,7 @@
    Item names and prices come from catalog.json. Photos are mapped locally. */
 
 import { bulletsFor, tierSwitch } from "./copy.js";
-import { hasPrice, money, priceLabel } from "./price-label.js";
+import { PARTS_ONLY_NOTE, PARTS_ONLY_TAG, hasPrice, money, priceLabel } from "./price-label.js";
 import { quoteTotals } from "./quote-math.js";
 import { photosFor } from "./photos.js";
 
@@ -136,8 +136,14 @@ function slidesFor(item) {
   return [{ kind: "ph", label: "Photo coming" }];
 }
 
+function partsTag() {
+  return `<span class="tag tag-parts">${esc(PARTS_ONLY_TAG)}</span>`;
+}
+
 function priceHtml(item) {
-  return `<p class="price">${esc(priceLabel(item.price, { listPrice: item.listPrice === true }))}</p>`;
+  const label = priceLabel(item.price, { listPrice: item.listPrice === true });
+  const tag = item.listPrice ? partsTag() : "";
+  return `<p class="price-line"><span class="price">${esc(label)}</span>${tag}</p>`;
 }
 
 function newBadge(item) {
@@ -153,8 +159,13 @@ function isListPrice(line) {
 
 function linePriceText(line) {
   if (!hasPrice(line.price)) return "Call for price";
-  if (isListPrice(line)) return `List price ${money(line.price)} (parts only, install extra)`;
+  if (isListPrice(line)) return `List price ${money(line.price)}`;
   return money(line.price);
+}
+
+function linePriceHtml(line) {
+  const tag = isListPrice(line) ? partsTag() : "";
+  return `<span class="price">${esc(linePriceText(line))}</span>${tag}`;
 }
 
 function tierBadge(tier) {
@@ -575,10 +586,9 @@ function renderTray() {
   document.getElementById("tray-handle-total").textContent = money(totals.subtotal);
   list.innerHTML = state.quote.lines.map((line) => {
     const tier = TIER_LABEL[line.tier] ? `<span class="tray-tier">${esc(TIER_LABEL[line.tier])}</span>` : "";
-    const priceText = linePriceText(line);
     return `<li>
       <span class="tray-name">${esc(line.name)}${tier}${line.qty > 1 ? ` × ${line.qty}` : ""}</span>
-      <span class="price">${esc(priceText)}</span>
+      <span class="tray-price">${linePriceHtml(line)}</span>
       <button class="remove-btn" type="button" data-remove="${esc(line.id)}">Remove</button>
     </li>`;
   }).join("");
@@ -618,12 +628,11 @@ function renderQuote() {
   const vehicle = vehicleText();
   const rows = state.quote.lines.map((line) => {
     const tier = TIER_LABEL[line.tier] || "";
-    const priceText = linePriceText(line);
     const extended = hasPrice(line.price) ? money(Number(line.price) * line.qty) : "Call for price";
     return `<tr>
       <td>${esc(line.name)}</td>
       <td>${esc(tier)}</td>
-      <td class="num price">${esc(priceText)}</td>
+      <td class="num">${linePriceHtml(line)}</td>
       <td class="num"><input class="qty no-print" type="number" min="1" step="1" inputmode="numeric" data-qty="${esc(line.id)}" value="${line.qty}" aria-label="Quantity for ${esc(line.name)}"><span class="print-only">${line.qty}</span></td>
       <td class="num price">${esc(extended)}</td>
       <td class="no-print"><button class="remove-btn" type="button" data-remove="${esc(line.id)}">Remove</button></td>
@@ -631,7 +640,7 @@ function renderQuote() {
   }).join("");
   const notes = [
     totals.callForPrice ? "Items marked Call for price are not included in the totals." : "",
-    state.quote.lines.some((line) => isListPrice(line)) ? "List price lines are parts only. Install is extra." : "",
+    state.quote.lines.some((line) => isListPrice(line)) ? PARTS_ONLY_NOTE : "",
   ].filter(Boolean).map((text) => `<p class="quote-note">${esc(text)}</p>`).join("");
   view.innerHTML = `<article class="quote-page">
     <div class="page-head no-print">

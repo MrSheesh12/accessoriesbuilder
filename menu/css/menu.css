@@ -287,6 +287,18 @@ p.brand { margin: 0; color: var(--muted); font-size: 0.82rem; font-weight: 700; 
   vertical-align: 2px;
 }
 .tag-new { background: var(--accent); color: #fff; margin-right: 6px; }
+.tag-parts {
+  text-transform: none;
+  letter-spacing: 0;
+  margin: 0 0 0 6px;
+  background: var(--amber-bg);
+  color: var(--amber);
+  white-space: normal;
+}
+.price-line { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 4px 0 0; }
+.price-line .price { margin: 0; }
+.quote-table .tag-parts,
+.tray-price .tag-parts { display: inline-block; margin-top: 4px; }
 .new-row h2 {
   margin: 0 0 6px;
   font-size: 0.82rem;
@@ -691,4 +703,5 @@ body.prices-off .prices-hidden-label { display: inline; }
   .quote-table tr, .quote-totals, .print-head, .print-who { break-inside: avoid; }
   body.prices-off .quote-page .price { display: inline !important; }
   body.prices-off .quote-page td.price { display: table-cell !important; }
+  .tag-parts { display: inline-block !important; }
 }

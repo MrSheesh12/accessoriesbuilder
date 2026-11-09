@@ -3,7 +3,7 @@ import { dirname, join, normalize, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { bulletsFor, tierSwitch } from "./js/copy.js";
 import { photosFor, PHOTOS } from "./js/photos.js";
-import { priceLabel } from "./js/price-label.js";
+import { PARTS_ONLY_NOTE, PARTS_ONLY_TAG, priceLabel } from "./js/price-label.js";
 import { quoteTotals } from "./js/quote-math.js";
 import { inflateSync } from "node:zlib";
 
@@ -335,9 +335,33 @@ if (!css.includes("@media print") || !css.includes("size: letter")) fail("print 
 if (!css.includes("body.prices-off .quote-page .price")) fail("the quote page must keep prices visible when the price switch is off");
 
 const listed = priceLabel(1299.99, { listPrice: true });
-if (listed !== "List price $1,299.99 (parts only, install extra)") {
+if (listed !== "List price $1,299.99") {
   fail(`list price rendered ${JSON.stringify(listed)}`);
 }
+if (PARTS_ONLY_TAG !== "Parts only, install extra") fail("parts tag text changed");
+if (PARTS_ONLY_NOTE !== "Some items are parts-only list prices; installation is quoted separately.") {
+  fail("parts note text changed");
+}
+const priceFn = menuJs.slice(menuJs.indexOf("function priceHtml"), menuJs.indexOf("function newBadge"));
+if (!priceFn.includes("partsTag()") || !priceFn.includes("item.listPrice") || !priceFn.includes("price-line")) {
+  fail("product cards must show the parts-only tag next to a list price");
+}
+const rowStart = menuJs.indexOf("const rows = state.quote.lines.map");
+const rowEnd = menuJs.indexOf("const notes =", rowStart);
+const rowSrc = menuJs.slice(rowStart, rowEnd);
+const priceCell = rowSrc.slice(rowSrc.indexOf('<td class="num">${linePriceHtml(line)}</td>'), rowSrc.indexOf("<td class=\"num\"><input"));
+if (!priceCell.startsWith('<td class="num">${linePriceHtml(line)}</td>') || priceCell.includes("no-print")) {
+  fail("each quote line must carry the parts tag on screen and in print");
+}
+const lineFn = menuJs.slice(menuJs.indexOf("function linePriceHtml"), menuJs.indexOf("function tierBadge"));
+if (!lineFn.includes("partsTag()") || !lineFn.includes("isListPrice(line)")) {
+  fail("quote lines for list prices must render the parts tag");
+}
+if (!menuJs.includes("PARTS_ONLY_NOTE") || !menuJs.includes('class="quote-totals"')) {
+  fail("a parts-only quote needs the note under the totals");
+}
+const totalsBlock = menuJs.slice(menuJs.indexOf('class="quote-totals"'), menuJs.indexOf('class="print-foot"'));
+if (!totalsBlock.includes("${notes}")) fail("the parts note must sit under the totals and print with them");
 const additions = items.filter((item) => item.newAddition);
 if (additions.length !== 12) fail(`expected 12 new additions, found ${additions.length}`);
 additions.forEach((item) => {
