@@ -1,6 +1,7 @@
 /* Corwin Ford Tri-Cities — iPad accessory menu.
    Item names and prices come from catalog.json. Photos are mapped locally. */
 
+import { bulletsFor, tierChoices } from "./copy.js";
 import { hasPrice, money, priceLabel } from "./price-label.js";
 import { photosFor } from "./photos.js";
 
@@ -134,6 +135,17 @@ function tierBadge(tier) {
 
 function chipsHtml(fits) {
   return (fits || []).map((fit) => `<li class="chip is-fit">${esc(fit)}</li>`).join("");
+}
+
+function tierChoiceHtml(item) {
+  const choices = tierChoices(item, items());
+  if (!choices.length) return "";
+  const links = choices.map((other) => `<a class="tier-choice" href="#/p/${esc(other.id)}">
+    <span class="tier">${esc(TIER_LABEL[other.tier])}</span>
+    <span class="opt-name">${esc(other.name)}</span>
+    <span class="price">${esc(priceLabel(other.price))}</span>
+  </a>`).join("");
+  return `<p class="fit-label">Other tiers</p><div class="tier-choices">${links}</div>`;
 }
 
 function parseRoute() {
@@ -277,8 +289,10 @@ function renderProduct(id) {
       ${brand}
       <p class="benefit">${esc(item.sellingPoint)}</p>
       ${priceHtml(item.price)}
+      <ul class="bullets">${bulletsFor(item).map((bullet) => `<li>${esc(bullet)}</li>`).join("")}</ul>
       <p class="fit-label">Fitment</p>
       <ul class="chips">${chipsHtml(item.fits)}</ul>
+      ${tierChoiceHtml(item)}
       <button class="add-wide" type="button" data-add="${esc(item.id)}">Add to my truck</button>
     </div>
   </article>`;

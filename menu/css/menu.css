@@ -340,6 +340,22 @@ body.is-home main {
   column-gap: 10px;
 }
 .option[aria-checked="true"] { border-color: var(--navy); background: #f4f7fb; }
+.tier-choices { display: grid; gap: 8px; margin: 0 0 12px; }
+.tier-choice {
+  min-height: 52px;
+  text-decoration: none;
+  color: inherit;
+  border-radius: 14px;
+  border: 2px solid var(--line);
+  background: var(--card);
+  padding: 10px 12px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 10px;
+  align-items: center;
+}
+.tier-choice:active { border-color: var(--navy); }
 .tier {
   grid-row: 1 / span 2;
   align-self: center;
@@ -355,8 +371,8 @@ body.is-home main {
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
-.option .opt-name { font-weight: 750; }
-.option .price { margin: 0; }
+.option .opt-name, .tier-choice .opt-name { font-weight: 750; grid-column: 2; }
+.option .price, .tier-choice .price { margin: 0; grid-column: 2; }
 .opt-detail { grid-column: 2; color: var(--muted); font-size: 0.9rem; }
 .add-wide {
   min-height: 52px;

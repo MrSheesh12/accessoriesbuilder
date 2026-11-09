@@ -1,8 +1,10 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, join, normalize, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { bulletsFor, tierChoices } from "./js/copy.js";
+import { photosFor, PHOTOS } from "./js/photos.js";
 import { priceLabel } from "./js/price-label.js";
-import { PHOTOS } from "./js/photos.js";
+import { inflateSync } from "node:zlib";
 
 const root = dirname(fileURLToPath(import.meta.url));
 const errors = [];
@@ -33,9 +35,82 @@ const PAGE_FILES = [
   "index.html",
   "css/menu.css",
   "js/menu.js",
+  "js/copy.js",
   "js/price-label.js",
   "js/photos.js",
 ];
+
+const MISMATCHED_COVERS = [
+  ["hard-folding-cover-f-150-6-5-bed-advantage-rev-ford", "bakflip"],
+  ["hard-roll-up-cover-f-150-rev-ford", "bakflip"],
+  ["retractable-cover-f-150-5-5-bed-embark-ford", "retrax"],
+  ["powered-retractable-cover-f-150-6-5-bed-leer-ford", "retrax"],
+];
+
+function paeth(a, b, c) {
+  const estimate = a + b - c;
+  const da = Math.abs(estimate - a);
+  const db = Math.abs(estimate - b);
+  const dc = Math.abs(estimate - c);
+  if (da <= db && da <= dc) return a;
+  if (db <= dc) return b;
+  return c;
+}
+
+function isFlatOrTextGraphic(filePath) {
+  const data = readFileSync(filePath);
+  if (data.includes(Buffer.from("(placeholder)"))) return true;
+  let offset = 8;
+  const idat = [];
+  let width = 0;
+  let height = 0;
+  let colorType = 6;
+  while (offset + 8 <= data.length) {
+    const length = data.readUInt32BE(offset);
+    const type = data.toString("ascii", offset + 4, offset + 8);
+    const chunk = data.subarray(offset + 8, offset + 8 + length);
+    if (type === "IHDR") {
+      width = chunk.readUInt32BE(0);
+      height = chunk.readUInt32BE(4);
+      colorType = chunk[9];
+    } else if (type === "IDAT") idat.push(chunk);
+    else if (type === "IEND") break;
+    offset += 12 + length;
+  }
+  if (!width || !height || colorType !== 2 && colorType !== 6) return false;
+  const channels = colorType === 6 ? 4 : 3;
+  const stride = width * channels;
+  const raw = inflateSync(Buffer.concat(idat));
+  const rows = [];
+  let cursor = 0;
+  for (let y = 0; y < height; y += 1) {
+    const filter = raw[cursor];
+    cursor += 1;
+    const row = Buffer.from(raw.subarray(cursor, cursor + stride));
+    cursor += stride;
+    const prior = rows[y - 1];
+    for (let i = 0; i < row.length; i += 1) {
+      const left = i >= channels ? row[i - channels] : 0;
+      const up = prior ? prior[i] : 0;
+      const upLeft = prior && i >= channels ? prior[i - channels] : 0;
+      if (filter === 1) row[i] = (row[i] + left) & 255;
+      else if (filter === 2) row[i] = (row[i] + up) & 255;
+      else if (filter === 3) row[i] = (row[i] + Math.floor((left + up) / 2)) & 255;
+      else if (filter === 4) row[i] = (row[i] + paeth(left, up, upLeft)) & 255;
+    }
+    rows.push(row);
+  }
+  const colors = new Set();
+  const stepY = Math.max(1, Math.floor(height / 40));
+  const stepX = Math.max(1, Math.floor(width / 40));
+  for (let y = 0; y < height; y += stepY) {
+    for (let x = 0; x < width; x += stepX) {
+      const i = x * channels;
+      colors.add(`${rows[y][i]},${rows[y][i + 1]},${rows[y][i + 2]}`);
+    }
+  }
+  return colors.size < 48;
+}
 
 function isSafeImage(value) {
   if (typeof value !== "string" || !value) return false;
@@ -129,8 +204,64 @@ Object.entries(PHOTOS).forEach(([id, paths]) => {
   if (!ids.has(id)) fail(`photo map points at an item that is not public: ${id}`);
   paths.forEach((path) => {
     if (!isSafeImage(path) || !imageExists(path)) fail(`photo for ${id} is missing: ${path}`);
+    else if (isFlatOrTextGraphic(join(root, path))) fail(`photo for ${id} is a placeholder graphic: ${path}`);
   });
 });
+
+MISMATCHED_COVERS.forEach(([id, banned]) => {
+  const used = photosFor(id).join(" ").toLowerCase();
+  if (used.includes(banned)) fail(`${id} must not use the ${banned} photo`);
+});
+
+const imageDir = join(root, "images");
+if (existsSync(imageDir)) {
+  readdirSync(imageDir).forEach((name) => {
+    const full = join(imageDir, name);
+    if (/\.png$/i.test(name) && isFlatOrTextGraphic(full)) {
+      fail(`menu/images/${name} is a filename placeholder and must be deleted`);
+    }
+  });
+}
+
+const softCover = items.find((item) => item.id === "soft-roll-up-cover-f-150-5-5-6-5-bed-truxedo-ford");
+const softBullets = bulletsFor(softCover);
+if (JSON.stringify(softBullets) !== JSON.stringify([
+  "Ford OEM TruXedo soft roll-up.",
+  "TruXedo",
+  "Fits F-150",
+])) fail(`soft cover bullets were ${JSON.stringify(softBullets)}`);
+
+const powered = items.find((item) => item.id === "powered-retractable-cover-f-150-6-5-bed-leer-ford");
+const poweredBullets = bulletsFor(powered);
+if (poweredBullets.length !== 3) fail("bullets stop at 3");
+if (poweredBullets[0] !== "Ford OEM LEER powered retractable" || poweredBullets[1] !== "4 hr install." || poweredBullets[2] !== "LEER") {
+  fail(`powered cover bullets were ${JSON.stringify(poweredBullets)}`);
+}
+if (poweredBullets.some((bullet) => bullet.startsWith("Fits "))) fail("a fourth fits bullet must not be added past the limit");
+
+items.forEach((item) => {
+  const bullets = bulletsFor(item);
+  if (bullets.length > 3) fail(`${item.id} has more than 3 bullets`);
+  const allowed = new Set(String(item.sellingPoint).split(";").map((part) => part.trim()).filter(Boolean));
+  if (String(item.brand || "").trim()) allowed.add(String(item.brand).trim());
+  allowed.add(`Fits ${item.fits.join(", ")}`);
+  bullets.forEach((bullet) => {
+    if (!allowed.has(bullet)) fail(`${item.id} bullet is not from the catalog: ${bullet}`);
+  });
+});
+
+const goodCover = items.find((item) => item.id === "soft-roll-up-cover-f-150-5-5-6-5-bed-truxedo-ford");
+const goodChoices = tierChoices(goodCover, items);
+if (goodChoices.some((choice) => choice.id === goodCover.id || choice.tier === "good")) {
+  fail("tier choices must not include the current tier");
+}
+if (!goodChoices.some((choice) => choice.tier === "better") || !goodChoices.some((choice) => choice.tier === "best")) {
+  fail("a good cover should link to better and best covers");
+}
+const betterCover = items.find((item) => item.id === "hard-folding-cover-f-150-6-5-bed-advantage-rev-ford");
+const betterChoices = tierChoices(betterCover, items);
+if (betterChoices.some((choice) => choice.tier === "better")) fail("better covers must not list other better covers");
+if (!betterChoices.some((choice) => choice.id === goodCover.id)) fail("better cover should link back to the good cover");
 
 const html = readFileSync(join(root, "index.html"), "utf8");
 const css = readFileSync(join(root, "css/menu.css"), "utf8");
