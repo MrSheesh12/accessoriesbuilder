@@ -1,15 +1,18 @@
 :root {
-  --paper: #efeae1;
-  --ink: #17202a;
-  --muted: #5c6974;
-  --navy: #12263a;
-  --card: #fffcf7;
-  --line: #e3dacd;
-  --copper: #b8612f;
+  --brand: #00095B;
+  --brand-2: #363B64;
+  --accent: #066FEF;
+  --paper: #F4F6FA;
+  --ink: #17202A;
+  --muted: var(--brand-2);
+  --navy: var(--brand);
+  --card: #FFFFFF;
+  --line: var(--brand-2);
+  --copper: var(--accent);
   --green: #1d6b42;
   --amber: #8a5a12;
   --amber-bg: #f6e6c8;
-  --shadow: 0 10px 28px rgba(18, 38, 58, 0.1);
+  --shadow: 0 10px 28px rgba(0, 9, 91, 0.1);
   --tray-h: 64px;
   --radius: 18px;
   color-scheme: light;
@@ -31,7 +34,8 @@ img { max-width: 100%; display: block; }
 button, a { font: inherit; touch-action: manipulation; }
 button { cursor: pointer; }
 .header-btn { white-space: nowrap; }
-:focus-visible { outline: 3px solid #e2a15a; outline-offset: 2px; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+main a:not(.card-link):not(.tile) { color: var(--accent); }
 
 .sr {
   position: absolute;
@@ -49,8 +53,8 @@ button { cursor: pointer; }
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 8px 16px calc(8px + env(safe-area-inset-top));
-  background: var(--navy);
+  padding: calc(8px + env(safe-area-inset-top)) 16px 8px;
+  background: var(--brand);
   color: #fff;
   z-index: 40;
 }
@@ -74,7 +78,7 @@ button { cursor: pointer; }
   letter-spacing: 0.04em;
 }
 .brand-text { display: flex; flex-direction: column; line-height: 1.15; }
-.brand-dealer { font-size: 0.78rem; letter-spacing: 0.04em; text-transform: uppercase; opacity: 0.8; }
+.brand-dealer { font-size: 0.78rem; letter-spacing: 0.04em; text-transform: uppercase; color: #fff; }
 .brand-title { font-size: 1.15rem; font-weight: 750; }
 .top-actions { display: flex; gap: 8px; align-items: center; }
 .header-btn {
@@ -148,7 +152,7 @@ body.is-home main {
   height: 62px;
   flex: 0 0 62px;
   padding: 6px 10px 8px;
-  background: var(--navy);
+  background: var(--brand);
   color: #fff;
   display: flex;
   flex-direction: column;
@@ -364,7 +368,7 @@ body.is-home main {
   border-left: 1px solid var(--navy);
 }
 .tier-switch .seg:first-child { border-left: 0; }
-.tier-switch .seg.is-current { background: var(--navy); color: #fff; }
+.tier-switch .seg.is-current { background: var(--brand); color: #fff; }
 .tier-switch .seg-label {
   font-size: 0.82rem;
   font-weight: 800;
@@ -471,7 +475,7 @@ body.is-home main {
   min-height: var(--tray-h);
   padding: 8px 16px calc(8px + env(safe-area-inset-bottom));
   border: 0;
-  background: var(--navy);
+  background: var(--brand);
   color: #fff;
   display: flex;
   align-items: center;
