@@ -370,13 +370,17 @@ additions.forEach((item) => {
   if (item.listPrice !== true) fail(`${item.id} must be marked as a list price`);
 });
 const withPhotos = items.filter((item) => photosFor(item.id).length);
-if (withPhotos.length !== 45) fail(`expected 45 of 48 items with photos, found ${withPhotos.length}`);
-const photoComing = ["mud-flaps", "heavy-duty-bed-mat-rubber", "yakima-overhaul-hd"];
+if (withPhotos.length !== 47) fail(`expected 47 of 48 items with photos, found ${withPhotos.length}`);
+const photoComing = ["mud-flaps"];
 const credits = readFileSync(join(root, "images/CREDITS.md"), "utf8");
 photoComing.forEach((id) => {
   if (photosFor(id).length) fail(`${id} must show Photo coming until a matching photo is added`);
   if (existsSync(join(root, "images", `${id}.webp`))) fail(`${id} photo file must be deleted`);
   if (credits.includes(id)) fail(`${id} credit must be removed`);
+});
+["heavy-duty-bed-mat-rubber", "yakima-overhaul-hd"].forEach((id) => {
+  if (!photosFor(id).includes(`images/${id}.webp`)) fail(`${id} needs its replacement photo`);
+  if (!credits.includes(`| ${id} |`)) fail(`${id} needs a credit`);
 });
 if (existsSync(join(root, "images/fixed-running-boards-nerf-bars-dee-zee-etc.webp"))) {
   fail("the old Dee Zee running board photo must be removed");

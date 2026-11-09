@@ -18,6 +18,7 @@ export const PHOTOS = {
   "all-terrain-tire-upgrade": ["images/all-terrain-tire-upgrade.webp"],
   "wheel-and-tire-package": ["images/wheel-and-tire-package.webp"],
   "spray-in-bedliner": ["images/spray-in-bedliner.webp"],
+  "heavy-duty-bed-mat-rubber": ["images/heavy-duty-bed-mat-rubber.webp"],
   "front-window-tint-2-fronts-carbon": ["images/front-window-tint-2-fronts-carbon.webp"],
   "cab-roof-lights-recon": ["images/cab-roof-lights-recon.webp"],
   "fog-and-pod-lights": ["images/fog-and-pod-lights.webp"],
@@ -45,6 +46,7 @@ export const PHOTOS = {
   "decked-drawer-system": ["images/decked-drawer-system.webp"],
   "leitner-acs-forged": ["images/leitner-acs-forged.webp"],
   "maverick-bed-divider": ["images/maverick-bed-divider.webp"],
+  "yakima-overhaul-hd": ["images/yakima-overhaul-hd.webp"],
 };
 
 export function photosFor(id) {
