@@ -8,7 +8,9 @@ export function bulletsFor(item, options = {}) {
   const sellingPoint = String(item?.sellingPoint || "").trim();
   const fits = Array.isArray(item?.fits) ? item.fits.map((fit) => String(fit).trim()).filter(Boolean) : [];
   const bullets = [sellingPoint, `Fits: ${fits.join(", ")}`];
-  if (showPrices && hasPrice(item?.price)) bullets.push("Installed price, before tax.");
+  if (showPrices && hasPrice(item?.price)) {
+    bullets.push(item.listPrice ? "List price, parts only. Install extra." : "Installed price, before tax.");
+  }
   return bullets;
 }
 

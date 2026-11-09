@@ -158,7 +158,7 @@ HOME.forEach(([id, name], index) => {
   }
 });
 
-if (items.length !== 36) fail(`expected 36 public items, found ${items.length}`);
+if (items.length !== 48) fail(`expected 48 public items, found ${items.length}`);
 if (items.some((item) => item && item.review === true)) fail("catalog.json still has a review item");
 if (rawCatalog.includes("full-vehicle-tint")) fail("full-vehicle-tint must not be in the public catalog");
 if (/"review"\s*:/.test(rawCatalog)) fail("review flags must not be stored in catalog.json");
@@ -247,8 +247,12 @@ items.forEach((item) => {
   if (shown[0] !== String(item.sellingPoint).trim()) fail(`${item.id} must use the full selling point as bullet 1`);
   if (shown[1] !== `Fits: ${item.fits.join(", ")}`) fail(`${item.id} must use the fits list as bullet 2`);
   if (item.price === null) {
-    if (shown.length !== 2 || shown.some((bullet) => bullet.includes("before tax"))) {
+    if (shown.length !== 2 || shown.some((bullet) => bullet.includes("before tax") || bullet.includes("List price"))) {
       fail(`${item.id} with a null price must drop the price bullet`);
+    }
+  } else if (item.listPrice) {
+    if (shown.length !== 3 || shown[2] !== "List price, parts only. Install extra.") {
+      fail(`${item.id} must use the list-price bullet`);
     }
   } else if (shown.length !== 3 || shown[2] !== "Installed price, before tax.") {
     fail(`${item.id} must have exactly 3 bullets when prices are shown`);
@@ -329,6 +333,42 @@ if (!menuJs.includes("Landon Alexander")) fail("salesperson must default to Land
 if (!menuJs.includes("Call for price")) fail("missing prices on a quote must read Call for price");
 if (!css.includes("@media print") || !css.includes("size: letter")) fail("print layout must target letter paper");
 if (!css.includes("body.prices-off .quote-page .price")) fail("the quote page must keep prices visible when the price switch is off");
+
+const listed = priceLabel(1299.99, { listPrice: true });
+if (listed !== "List price $1,299.99 (parts only, install extra)") {
+  fail(`list price rendered ${JSON.stringify(listed)}`);
+}
+const additions = items.filter((item) => item.newAddition);
+if (additions.length !== 12) fail(`expected 12 new additions, found ${additions.length}`);
+additions.forEach((item) => {
+  if (item.listPrice !== true) fail(`${item.id} must be marked as a list price`);
+});
+items.forEach((item) => {
+  if (!photosFor(item.id).length) fail(`${item.id} needs a photo`);
+});
+if (existsSync(join(root, "images/fixed-running-boards-nerf-bars-dee-zee-etc.webp"))) {
+  fail("the old Dee Zee running board photo must be removed");
+}
+if (!photosFor("fixed-running-boards-nerf-bars-dee-zee-etc").join(" ").includes("fixed-running-boards-nerf-bars-dee-zee-etc-v2.webp")) {
+  fail("the Dee Zee item must use the replacement photo");
+}
+if (!photosFor("mud-flaps").length) fail("mud flaps need the Bronco splash guard photo");
+if (!menuJs.includes("New additions") || !menuJs.includes("tag-new")) fail("new additions need a home row and a New badge");
+if (/priceSource|photoSourceUrl|partNumber/.test(rawCatalog)) fail("public catalog must not carry source fields");
+if (/https?:\/\//.test(rawCatalog)) fail("public catalog must not carry source URLs");
+const bannedKey = /(^|[^a-z])(source|cost|gross|vendor|times_sold|rmac|keystone)([^a-z]|$)|priceSource|photoSourceUrl|partNumber/i;
+function walkKeys(value, path) {
+  if (Array.isArray(value)) {
+    value.forEach((entry, index) => walkKeys(entry, `${path}[${index}]`));
+    return;
+  }
+  if (!value || typeof value !== "object") return;
+  Object.entries(value).forEach(([key, entry]) => {
+    if (bannedKey.test(key)) fail(`${path}.${key} is a private field`);
+    walkKeys(entry, `${path}.${key}`);
+  });
+}
+walkKeys(catalog, "catalog");
 
 const stray = [];
 function walk(dir) {

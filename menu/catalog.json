@@ -123,6 +123,20 @@
       ]
     },
     {
+      "id": "bakflip-mx4",
+      "category": "bed-covers",
+      "name": "BAKFlip MX4 (GEN 3) Hard Folding Tonneau Cover",
+      "brand": "BAK Industries",
+      "price": 1299.99,
+      "tier": null,
+      "sellingPoint": "America's best-selling hard tri-fold cover: matte FRP panels, slam latch, and clamp-on install for 2021–2026 F-150 5'7\" beds (incl. Lightning/Raptor).",
+      "fits": [
+        "F-150"
+      ],
+      "listPrice": true,
+      "newAddition": true
+    },
+    {
       "id": "fixed-running-boards-nerf-bars-dee-zee-etc",
       "category": "running-boards-steps",
       "name": "Fixed running boards / nerf bars (Dee Zee etc.)",
@@ -147,6 +161,34 @@
       "fits": [
         "Super Duty"
       ]
+    },
+    {
+      "id": "amp-bedstep2-f150",
+      "category": "running-boards-steps",
+      "name": "AMP Research BedStep2 Retractable Bed Step",
+      "brand": "AMP Research",
+      "price": 349.99,
+      "tier": null,
+      "sellingPoint": "Frame-mounted retractable step that kicks down behind the cab for safer bed access—rated to 300 lb and made in the USA for 2015–2026 F-150 5.5'/6.5' beds.",
+      "fits": [
+        "F-150"
+      ],
+      "listPrice": true,
+      "newAddition": true
+    },
+    {
+      "id": "amp-powerstep-xl-f150",
+      "category": "running-boards-steps",
+      "name": "AMP Research PowerStep XL Electric Running Boards",
+      "brand": "AMP Research",
+      "price": 2399.99,
+      "tier": null,
+      "sellingPoint": "Power-deployable boards with integrated rocker rail and LED light that drop 3\" lower than standard PowerStep—ideal for lifted 2021–2025 F-150 SuperCrew (excludes PowerBoost).",
+      "fits": [
+        "F-150"
+      ],
+      "listPrice": true,
+      "newAddition": true
     },
     {
       "id": "air-suspension-airbags-compressor",
@@ -183,6 +225,34 @@
       "fits": [
         "F-150"
       ]
+    },
+    {
+      "id": "rough-country-ranger-leveling-50100",
+      "category": "lift-level-kits",
+      "name": "Rough Country 2.5 Inch Leveling Kit (Ranger)",
+      "brand": "Rough Country",
+      "price": 59.95,
+      "tier": null,
+      "sellingPoint": "Bolt-on front strut spacers that level a 2019–2026 Ranger (non-Tremor) for a more aggressive stance and clearance for larger tires while keeping factory ride quality.",
+      "fits": [
+        "Ranger"
+      ],
+      "listPrice": true,
+      "newAddition": true
+    },
+    {
+      "id": "rough-country-bronco-lift-40400",
+      "category": "lift-level-kits",
+      "name": "Rough Country 2 Inch Lift Kit (Bronco)",
+      "brand": "Rough Country",
+      "price": 79.95,
+      "tier": null,
+      "sellingPoint": "Easy bolt-on strut spacers that add ~2\" of height on 2021–2026 Bronco 4WD (not Sasquatch/HOSS 3.0/4.0) for a taller stance and up to 35\" tires with proper wheels.",
+      "fits": [
+        "Bronco"
+      ],
+      "listPrice": true,
+      "newAddition": true
     },
     {
       "id": "all-terrain-tire-upgrade",
@@ -308,6 +378,24 @@
         "Maverick",
         "Other"
       ]
+    },
+    {
+      "id": "baja-s2-pro-led-pair",
+      "category": "lighting",
+      "name": "Baja Designs S2 Pro LED Light Pod Pair w/ Harness",
+      "brand": "Baja Designs",
+      "price": 356.95,
+      "tier": null,
+      "sellingPoint": "Compact 2,245-lumen LED pods (pair) with wiring harness—perfect as ditch, A-pillar, or bumper auxiliaries without taxing the electrical system.",
+      "fits": [
+        "F-150",
+        "Super Duty",
+        "Ranger",
+        "Bronco",
+        "Maverick"
+      ],
+      "listPrice": true,
+      "newAddition": true
     },
     {
       "id": "floor-liners-1st-and-2nd-row-weathertech-or-husky",
@@ -460,6 +548,20 @@
       ]
     },
     {
+      "id": "ford-bronco-tube-doors-4dr",
+      "category": "bumper-grille",
+      "name": "Ford Performance Bronco Tube Door Kit (4-Door)",
+      "brand": "Ford Performance",
+      "price": 1250,
+      "tier": null,
+      "sellingPoint": "High-strength 2\" steel tube doors with black powder coat for open-air Bronco adventures—works with OEM latches on 2021–2026 4-door Bronco including Raptor.",
+      "fits": [
+        "Bronco"
+      ],
+      "listPrice": true,
+      "newAddition": true
+    },
+    {
       "id": "dash-camera-front-and-rear",
       "category": "interior",
       "name": "Dash camera, front and rear",
@@ -470,6 +572,20 @@
       "fits": [
         "Super Duty"
       ]
+    },
+    {
+      "id": "covercraft-carhartt-seatsaver",
+      "category": "interior",
+      "name": "Covercraft Carhartt SeatSaver Custom Front Seat Covers",
+      "brand": "Covercraft",
+      "price": 393.99,
+      "tier": null,
+      "sellingPoint": "Custom-fit Carhartt duck-weave front-row SeatSavers in Gravel that protect factory seats from jobsite dirt and pets while keeping console and controls usable.",
+      "fits": [
+        "F-150"
+      ],
+      "listPrice": true,
+      "newAddition": true
     },
     {
       "id": "cold-air-intake",
@@ -524,6 +640,67 @@
         "Maverick",
         "Other"
       ]
+    },
+    {
+      "id": "decked-drawer-system",
+      "category": "commercial-fleet",
+      "name": "DECKED Drawer System + Premium Accessory Pack",
+      "brand": "DECKED",
+      "price": 1699.99,
+      "tier": null,
+      "sellingPoint": "American-made dual full-bed drawers with weatherproof deck (up to 2,000 lb payload) that organize tools while keeping a flat load floor—locks with the tailgate.",
+      "fits": [
+        "F-150",
+        "Super Duty"
+      ],
+      "listPrice": true,
+      "newAddition": true
+    },
+    {
+      "id": "leitner-acs-forged",
+      "category": "commercial-fleet",
+      "name": "Leitner ACS FORGED Bed Rack (Ford)",
+      "brand": "Leitner Designs",
+      "price": 2099,
+      "tier": null,
+      "sellingPoint": "USA-made forged aluminum overland bed rack with sliding load bar, up to 1,400 lb static capacity, and GearPOD-ready mounting for tents, bikes, and recovery gear.",
+      "fits": [
+        "F-150",
+        "Ranger",
+        "Super Duty"
+      ],
+      "listPrice": true,
+      "newAddition": true
+    },
+    {
+      "id": "maverick-bed-divider",
+      "category": "commercial-fleet",
+      "name": "Ford Maverick Bed Divider (FLEXBED / Track System)",
+      "brand": "Ford",
+      "price": 370,
+      "tier": null,
+      "sellingPoint": "Genuine Ford anodized-aluminum bed divider that slides on the Maverick bed-track system to create load zones (requires Bed Track & Cleat kit, sold separately).",
+      "fits": [
+        "Maverick"
+      ],
+      "listPrice": true,
+      "newAddition": true
+    },
+    {
+      "id": "yakima-overhaul-hd",
+      "category": "commercial-fleet",
+      "name": "Yakima OverHaul HD Adjustable Truck Bed Rack",
+      "brand": "Yakima",
+      "price": 1319,
+      "tier": null,
+      "sellingPoint": "Height-adjustable (19–30\") aluminum bed rack with 500 lb on-road / 300 lb off-road rating, QuickChange mounts, and HD Bars for tents, lumber, and utility loads.",
+      "fits": [
+        "F-150",
+        "Super Duty",
+        "Ranger"
+      ],
+      "listPrice": true,
+      "newAddition": true
     }
   ]
 }

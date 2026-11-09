@@ -13,7 +13,9 @@ export function hasPrice(price) {
 }
 
 /** Card and product copy. Null prices stay in the price slot as words. */
-export function priceLabel(price) {
+export function priceLabel(price, options = {}) {
   if (!hasPrice(price)) return "Ask for price";
-  return `Starting at ${moneyFormat.format(Number(price))}, installed`;
+  const amount = moneyFormat.format(Number(price));
+  if (options.listPrice) return `List price ${amount} (parts only, install extra)`;
+  return `Starting at ${amount}, installed`;
 }

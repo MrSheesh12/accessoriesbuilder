@@ -136,8 +136,25 @@ function slidesFor(item) {
   return [{ kind: "ph", label: "Photo coming" }];
 }
 
-function priceHtml(price) {
-  return `<p class="price">${esc(priceLabel(price))}</p>`;
+function priceHtml(item) {
+  return `<p class="price">${esc(priceLabel(item.price, { listPrice: item.listPrice === true }))}</p>`;
+}
+
+function newBadge(item) {
+  return item && item.newAddition ? `<span class="tag tag-new">New</span>` : "";
+}
+
+function isListPrice(line) {
+  if (line && line.listPrice) return true;
+  if (!state.catalog || !line) return false;
+  const item = itemById(line.id);
+  return Boolean(item && item.listPrice);
+}
+
+function linePriceText(line) {
+  if (!hasPrice(line.price)) return "Call for price";
+  if (isListPrice(line)) return `List price ${money(line.price)} (parts only, install extra)`;
+  return money(line.price);
 }
 
 function tierBadge(tier) {
@@ -182,6 +199,21 @@ function render() {
 }
 
 function renderHome() {
+  const fresh = visibleItems().filter((item) => item.newAddition);
+  const row = fresh.length ? `<section class="new-row" aria-label="New additions">
+    <h2>New additions</h2>
+    <div class="new-scroller">${fresh.map((item) => {
+      const photo = photosFor(item.id)[0];
+      return `<a class="new-card" href="#/p/${esc(item.id)}">
+        ${photo ? photoTag(photo, "") : ""}
+        <span class="new-copy">
+          <span class="tag tag-new">New</span>
+          <span class="new-name">${esc(item.name)}</span>
+          ${priceHtml(item)}
+        </span>
+      </a>`;
+    }).join("")}</div>
+  </section>` : "";
   const tiles = homeCategories().map((category) => {
     const count = itemsIn(category.id).length;
     const noun = count === 1 ? "accessory" : "accessories";
@@ -197,7 +229,7 @@ function renderHome() {
       </div>
     </a>`;
   }).join("");
-  view.innerHTML = `<div class="view-home"><div class="home-grid">${tiles}</div></div>`;
+  view.innerHTML = `<div class="view-home">${row}<div class="home-grid">${tiles}</div></div>`;
 }
 
 function cardHtml(item, category) {
@@ -210,11 +242,12 @@ function cardHtml(item, category) {
     <a class="card-link" href="#/p/${esc(item.id)}">
       <div class="media">${media}</div>
       <div class="card-body">
+        ${newBadge(item)}
         ${tierBadge(item.tier)}
         <h2>${esc(item.name)}</h2>
         ${brand}
         <p class="benefit">${esc(item.sellingPoint)}</p>
-        ${priceHtml(item.price)}
+        ${priceHtml(item)}
       </div>
     </a>
     <button class="add-btn" type="button" data-add="${esc(item.id)}" aria-label="Add ${esc(item.name)} to Build my truck">+</button>
@@ -297,9 +330,10 @@ function renderProduct(id) {
         <div><p>${esc(category ? category.name : "")}</p></div>
       </div>
       <h1>${esc(item.name)}</h1>
+      ${newBadge(item)}
       ${tierBadge(item.tier)}
       ${brand}
-      ${priceHtml(item.price)}
+      ${priceHtml(item)}
       <ul class="bullets">${bulletsFor(item, { showPrices: state.showPrices }).map((bullet) => `<li>${esc(bullet)}</li>`).join("")}</ul>
       ${tierSwitchHtml(item)}
       <button class="add-wide" type="button" data-add="${esc(item.id)}">Add to my truck</button>
@@ -472,6 +506,7 @@ function loadQuote() {
       tier: line.tier || "",
       price: hasPrice(line.price) ? Number(line.price) : null,
       qty: Math.max(1, Math.round(Number(line.qty) || 1)),
+      listPrice: Boolean(line.listPrice),
     })).filter((line) => line.id && line.name) : [];
     return base;
   } catch (error) {
@@ -506,14 +541,17 @@ function addToTray(itemId) {
   const item = itemById(itemId);
   if (!item) return;
   const existing = state.quote.lines.find((line) => line.id === item.id);
-  if (existing) existing.qty += 1;
-  else {
+  if (existing) {
+    existing.qty += 1;
+    if (item.listPrice) existing.listPrice = true;
+  } else {
     state.quote.lines.push({
       id: item.id,
       name: item.name,
       tier: item.tier || "",
       price: hasPrice(item.price) ? Number(item.price) : null,
       qty: 1,
+      listPrice: item.listPrice === true,
     });
   }
   quoteNumber();
@@ -537,7 +575,7 @@ function renderTray() {
   document.getElementById("tray-handle-total").textContent = money(totals.subtotal);
   list.innerHTML = state.quote.lines.map((line) => {
     const tier = TIER_LABEL[line.tier] ? `<span class="tray-tier">${esc(TIER_LABEL[line.tier])}</span>` : "";
-    const priceText = hasPrice(line.price) ? money(line.price) : "Call for price";
+    const priceText = linePriceText(line);
     return `<li>
       <span class="tray-name">${esc(line.name)}${tier}${line.qty > 1 ? ` × ${line.qty}` : ""}</span>
       <span class="price">${esc(priceText)}</span>
@@ -580,7 +618,7 @@ function renderQuote() {
   const vehicle = vehicleText();
   const rows = state.quote.lines.map((line) => {
     const tier = TIER_LABEL[line.tier] || "";
-    const priceText = hasPrice(line.price) ? money(line.price) : "Call for price";
+    const priceText = linePriceText(line);
     const extended = hasPrice(line.price) ? money(Number(line.price) * line.qty) : "Call for price";
     return `<tr>
       <td>${esc(line.name)}</td>
@@ -591,7 +629,10 @@ function renderQuote() {
       <td class="no-print"><button class="remove-btn" type="button" data-remove="${esc(line.id)}">Remove</button></td>
     </tr>`;
   }).join("");
-  const note = totals.callForPrice ? `<p class="quote-note">Items marked Call for price are not included in the totals.</p>` : "";
+  const notes = [
+    totals.callForPrice ? "Items marked Call for price are not included in the totals." : "",
+    state.quote.lines.some((line) => isListPrice(line)) ? "List price lines are parts only. Install is extra." : "",
+  ].filter(Boolean).map((text) => `<p class="quote-note">${esc(text)}</p>`).join("");
   view.innerHTML = `<article class="quote-page">
     <div class="page-head no-print">
       <button class="back" type="button" data-back="#/">Back</button>
@@ -625,7 +666,7 @@ function renderQuote() {
       <p><span>Subtotal</span><strong class="price">${esc(money(totals.subtotal))}</strong></p>
       <p><span>Sales tax (8.9%)</span><strong class="price">${esc(money(totals.tax))}</strong></p>
       <p class="quote-grand"><span>Total</span><strong class="price">${esc(money(totals.total))}</strong></p>
-      ${note}
+      ${notes}
     </div>
     <p class="print-foot">Prices subject to change; quote valid 30 days.</p>
     <div class="quote-actions no-print">
@@ -796,6 +837,7 @@ async function boot() {
   }
   if (!location.hash || location.hash === "#") history.replaceState(null, "", "#/");
   render();
+  renderTray();
 }
 
 boot();
