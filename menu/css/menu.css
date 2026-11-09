@@ -134,7 +134,7 @@ body.is-home main {
   box-shadow: var(--shadow);
 }
 .tile:active { transform: scale(0.985); }
-.tile-media { position: relative; flex: 1; min-height: 0; background: #ddd8d0; }
+.tile-media { position: relative; flex: 1; min-height: 0; aspect-ratio: 16 / 10; background: #fff; }
 .tile-media img,
 .media img,
 .slide img,
@@ -142,7 +142,7 @@ body.is-home main {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  background: #e6e2db;
+  background: #fff;
 }
 .tile-foot {
   height: 62px;
@@ -218,7 +218,7 @@ body.is-home main {
   text-decoration: none;
   min-height: 100%;
 }
-.media { aspect-ratio: 16 / 10; background: #ddd8d0; }
+.media { aspect-ratio: 16 / 10; background: #fff; }
 .card-body { padding: 12px 68px 14px 14px; display: grid; gap: 4px; }
 .card-body h2 { margin: 0; font-size: 1.05rem; line-height: 1.25; }
 .brand { margin: 0; color: var(--muted); font-size: 0.82rem; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; }
@@ -276,8 +276,8 @@ body.is-home main {
   gap: 16px;
   max-width: 1100px;
 }
-.gallery { position: relative; background: #ddd8d0; border-radius: var(--radius); overflow: hidden; min-height: 220px; }
-.gallery-stage { aspect-ratio: 16 / 10; position: relative; touch-action: pan-y; }
+.gallery { position: relative; background: #fff; border-radius: var(--radius); overflow: hidden; min-height: 220px; }
+.gallery-stage { aspect-ratio: 16 / 10; position: relative; touch-action: pan-y; background: #fff; }
 .slide { position: absolute; inset: 0; }
 .slide[hidden] { display: none; }
 .g-nav {
@@ -531,7 +531,8 @@ body.prices-off .prices-hidden-label { display: inline; }
 .lb-stage { grid-column: 2; min-height: 0; position: relative; touch-action: pan-y; }
 .lb-slide { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
 .lb-slide[hidden] { display: none; }
-.lb-slide img { max-height: 100%; object-fit: contain; background: transparent; }
+.lb-slide { background: #fff; }
+.lb-slide img { max-height: 100%; object-fit: contain; background: #fff; }
 .lb-nav {
   align-self: center;
   width: 52px;
