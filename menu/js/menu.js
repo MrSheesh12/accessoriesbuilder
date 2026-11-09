@@ -5,12 +5,12 @@ import { bulletsFor, tierSwitch } from "./copy.js";
 import { PARTS_ONLY_NOTE, PARTS_ONLY_TAG, hasPrice, money, priceLabel } from "./price-label.js";
 import { quoteTotals } from "./quote-math.js";
 import { photosFor } from "./photos.js";
+import { itemMatchesVehicle } from "./vehicle-filter.js";
 
 const PRICE_KEY = "accessory-menu-show-prices";
 const FILTER_KEY = "accessory-menu-vehicle";
 const QUOTE_KEY = "accessory-menu-quote";
 const VEHICLES = ["All", "F-150", "Super Duty", "Ranger", "Maverick", "Bronco", "Other"];
-const FIT_NAMES = VEHICLES.slice(1);
 const TIERS = ["good", "better", "best"];
 const TIER_LABEL = { good: "Good", better: "Better", best: "Best" };
 
@@ -78,16 +78,8 @@ function items() {
   return (state.catalog.items || []).filter((item) => item.review !== true);
 }
 
-function isUniversal(item) {
-  const fits = item.fits || [];
-  if (!fits.length) return true;
-  return FIT_NAMES.every((name) => fits.includes(name));
-}
-
 function itemMatchesFilter(item) {
-  if (state.vehicleFilter === "All") return true;
-  if (isUniversal(item)) return true;
-  return (item.fits || []).includes(state.vehicleFilter);
+  return itemMatchesVehicle(item, state.vehicleFilter);
 }
 
 function visibleItems() {

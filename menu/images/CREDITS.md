@@ -29,7 +29,6 @@ Each file is a product photo from the manufacturer or Ford Accessories. Photos a
 | retractable-cover-f-150-5-5-bed-embark-ford | Ford Embark LS retractable, https://www.ford.ca/product/embark-ls-retractable-truck-bed-cover-with-tslot-rails-by-realtruck-advantage-for-55-bed-p2732829859 |
 | hard-roll-up-cover-f-150-rev-ford | Ford hard roll-up by Rev, https://www.ford.com/product/bed-cover-hard-roll-up-by-rev-65-ft-bed-p2971706449 |
 | cab-roof-lights-recon | RECON Super Duty cab lights, https://gorecon.com/products/ford-super-duty-99-16-5-piece-cab-lights-xenon-bulbs-amber-lens-in-amber |
-| heavy-duty-bed-mat-rubber | Ford Accessories bed mat, https://www.ford.com/product/bed-mat-for-65-bed-p4000207426 |
 | wheel-and-tire-package | Fuel Off-Road on F-150, https://www.fueloffroad.com/news/best-fuel-wheels-for-the-ford-f-150 |
 | spray-in-bedliner | LINE-X in F-150, https://thetrackahead.com/projects/13th-gen-ford-f150/line-x-spray-in-bed-liner-13th-gen-ford-f-150/ |
 | front-window-tint-2-fronts-carbon | Tinted Ford Raptor, https://bloomingtonwindowtint.com/auto-window-tint-film-install/ceramic-film/no-more-blistering-hot-seats-steering-wheels-with-llumar-ctx-ceramic-window-film/ |
@@ -39,7 +38,6 @@ Each file is a product photo from the manufacturer or Ford Accessories. Photos a
 | dash-camera-front-and-rear | Thinkware U1000, https://internal.thinkware.com.au/products/u1000d64-4k-uhd-front-1080p-hd-rear-dash-cam-kit-u1000-plus-64gb |
 | tuner | SCT X4, https://www.totalzparts.com/product/sct-x4-programmer-tuner-ford-f-150-trucks-v6-v8-ecoboost/ |
 | tool-box | Dee Zee Red Label crossover, https://www.theisens.com/products/dee-zee-red-label-crossover-tool-boxblack |
-| mud-flaps | Ford Accessories molded splash guards M2DZ16A550BB, https://www.ford.com/product/splash-guards-molded-rear-pair-p2945357460 |
 | bakflip-mx4 | BAK Industries, BAKFlip MX4 (GEN 3) Hard Folding Tonneau Cover, https://www.americantrucks.com/image/bak-industries-f150-bakflip-mx4-folding-tonneau-cover-t549828.T549828.jpg |
 | decked-drawer-system | DECKED, DECKED Drawer System + Premium Accessory Pack, https://decked.com/cdn/shop/files/fs-ds-10.26.jpg |
 | leitner-acs-forged | Leitner Designs, Leitner ACS FORGED Bed Rack (Ford), https://www.leitnerdesigns.com/cdn/shop/files/DSC0610_copy.webp |
@@ -50,5 +48,4 @@ Each file is a product photo from the manufacturer or Ford Accessories. Photos a
 | ford-bronco-tube-doors-4dr | Ford Performance, Ford Performance Bronco Tube Door Kit (4-Door), https://performanceparts.ford.com/images/part/full/M-19008-BTD4_V8.JPG |
 | maverick-bed-divider | Ford, Ford Maverick Bed Divider (FLEXBED / Track System), https://nvc-feil-prod-gcsproxy.ford.com/feil-image-upload-bucket-p/accessories/images/NA/NZ6Z99286A72A_0.jpg |
 | rough-country-bronco-lift-40400 | Rough Country, Rough Country 2 Inch Lift Kit (Bronco), https://media.prod.roughcountry.com/media/catalog/product/b/r/bronco-40400.jpg |
-| yakima-overhaul-hd | Yakima, Yakima OverHaul HD Adjustable Truck Bed Rack, https://yakima.com/cdn/shop/products/overhaulhd_2_yak_profile_middle_1_1.1568302198.jpg |
 | covercraft-carhartt-seatsaver | Covercraft, Covercraft Carhartt SeatSaver Custom Front Seat Covers, https://www.blackopsautoworks.com/cdn/shop/files/covercraft-21-24-ford-f-150-carhartt-seatsaver-custom-front-row-seat-covers-gravel-34784255017039-1000x1000.webp |

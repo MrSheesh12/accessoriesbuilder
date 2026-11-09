@@ -3,6 +3,7 @@ import { dirname, join, normalize, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { bulletsFor, tierSwitch } from "./js/copy.js";
 import { photosFor, PHOTOS } from "./js/photos.js";
+import { itemMatchesVehicle } from "./js/vehicle-filter.js";
 import { PARTS_ONLY_NOTE, PARTS_ONLY_TAG, priceLabel } from "./js/price-label.js";
 import { quoteTotals } from "./js/quote-math.js";
 import { inflateSync } from "node:zlib";
@@ -40,6 +41,7 @@ const PAGE_FILES = [
   "js/price-label.js",
   "js/photos.js",
   "js/quote-math.js",
+  "js/vehicle-filter.js",
 ];
 
 const MISMATCHED_COVERS = [
@@ -367,8 +369,14 @@ if (additions.length !== 12) fail(`expected 12 new additions, found ${additions.
 additions.forEach((item) => {
   if (item.listPrice !== true) fail(`${item.id} must be marked as a list price`);
 });
-items.forEach((item) => {
-  if (!photosFor(item.id).length) fail(`${item.id} needs a photo`);
+const withPhotos = items.filter((item) => photosFor(item.id).length);
+if (withPhotos.length !== 45) fail(`expected 45 of 48 items with photos, found ${withPhotos.length}`);
+const photoComing = ["mud-flaps", "heavy-duty-bed-mat-rubber", "yakima-overhaul-hd"];
+const credits = readFileSync(join(root, "images/CREDITS.md"), "utf8");
+photoComing.forEach((id) => {
+  if (photosFor(id).length) fail(`${id} must show Photo coming until a matching photo is added`);
+  if (existsSync(join(root, "images", `${id}.webp`))) fail(`${id} photo file must be deleted`);
+  if (credits.includes(id)) fail(`${id} credit must be removed`);
 });
 if (existsSync(join(root, "images/fixed-running-boards-nerf-bars-dee-zee-etc.webp"))) {
   fail("the old Dee Zee running board photo must be removed");
@@ -376,7 +384,20 @@ if (existsSync(join(root, "images/fixed-running-boards-nerf-bars-dee-zee-etc.web
 if (!photosFor("fixed-running-boards-nerf-bars-dee-zee-etc").join(" ").includes("fixed-running-boards-nerf-bars-dee-zee-etc-v2.webp")) {
   fail("the Dee Zee item must use the replacement photo");
 }
-if (!photosFor("mud-flaps").length) fail("mud flaps need the Bronco splash guard photo");
+const baja = items.find((item) => item.id === "baja-s2-pro-led-pair");
+["All", "F-150", "Super Duty", "Ranger", "Bronco", "Maverick", "Other"].forEach((vehicle) => {
+  if (!itemMatchesVehicle(baja, vehicle)) fail(`Baja S2 pods must show under ${vehicle}`);
+});
+items.forEach((item) => {
+  const coversNamed = ["F-150", "Super Duty", "Ranger", "Bronco", "Maverick"].every((name) => (item.fits || []).includes(name));
+  if (coversNamed && !itemMatchesVehicle(item, "Other")) {
+    fail(`${item.id} fits every named vehicle and must show under Other`);
+  }
+});
+if (itemMatchesVehicle({ fits: ["Ranger"] }, "Other")) fail("a Ranger-only item must stay hidden under Other");
+if (!itemMatchesVehicle({ universal: true, fits: ["F-150"] }, "Other")) fail("an item marked universal must show under Other");
+if (!itemMatchesVehicle({ fits: ["universal"] }, "Bronco")) fail("a fits value of universal must show under every vehicle");
+if (!menuJs.includes("itemMatchesVehicle")) fail("the menu filter must use the shared vehicle match");
 if (!menuJs.includes("New additions") || !menuJs.includes("tag-new")) fail("new additions need a home row and a New badge");
 if (/priceSource|photoSourceUrl|partNumber/.test(rawCatalog)) fail("public catalog must not carry source fields");
 if (/https?:\/\//.test(rawCatalog)) fail("public catalog must not carry source URLs");
