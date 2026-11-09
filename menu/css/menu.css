@@ -79,7 +79,7 @@ main a:not(.card-link):not(.tile) { color: var(--accent); }
 }
 .brand-text { display: flex; flex-direction: column; line-height: 1.15; }
 .brand-dealer { font-size: 0.78rem; letter-spacing: 0.04em; text-transform: uppercase; color: #fff; }
-.brand-title { font-size: 1.15rem; font-weight: 750; }
+.brand-title { font-size: 1.15rem; font-weight: 750; color: #C9D3F5; }
 .top-actions { display: flex; gap: 8px; align-items: center; }
 .header-btn {
   min-height: 44px;
@@ -225,7 +225,7 @@ body.is-home main {
 .media { aspect-ratio: 16 / 10; background: #fff; }
 .card-body { padding: 12px 68px 14px 14px; display: grid; gap: 4px; }
 .card-body h2 { margin: 0; font-size: 1.05rem; line-height: 1.25; }
-.brand { margin: 0; color: var(--muted); font-size: 0.82rem; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; }
+p.brand { margin: 0; color: var(--muted); font-size: 0.82rem; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; }
 .benefit {
   margin: 0;
   color: var(--ink);
