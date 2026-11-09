@@ -12,7 +12,6 @@ export const PHOTOS = {
   "hard-folding-cover-f-150-6-5-bed-advantage-rev-ford": ["images/hard-folding-cover-f-150-6-5-bed-advantage-rev-ford.webp"],
   "led-light-bar": ["images/led-light-bar.webp"],
   "lift-kit-3in-f-150-rough-country-41431": ["images/lift-kit-3in-f-150-rough-country-41431.webp"],
-  "mud-flaps": ["images/mud-flaps.webp"],
   "power-running-boards-amp-powersteps-or-similar": ["images/power-running-boards-amp-powersteps-or-similar.webp"],
   "rain-guards-wind-deflectors": ["images/rain-guards-wind-deflectors.webp"],
   "leveling-kit-f-150-readylift-2in-66-2120": ["images/leveling-kit-f-150-readylift-2in-66-2120.webp"],

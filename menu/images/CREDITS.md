@@ -20,7 +20,6 @@ Each file is a product photo from the manufacturer or Ford Accessories. Photos a
 | led-light-bar | Baja Designs, OnX6+ Straight LED Light Bar, https://www.bajadesigns.com/products/onx6-straight-led-light-bar/?sku=451001 |
 | leveling-kit-f-150-readylift-2in-66-2120 | https://www.readylift.com/2-0-leveling-kit-ford-f-150-2021-2025.html |
 | lift-kit-3in-f-150-rough-country-41431 | Rough Country, 3 Inch Lift Kit, Ford F-150 4WD (2021-2027), https://www.roughcountry.com/product/configurable/ford-suspension-lift-kit-41431 |
-| mud-flaps | Ranch Hand, 12x23 Textured Rubber Mud Flaps (Super Duty), https://www.ranchhand.com/ranch-hand-251720rh-front-or-rear-12in-x-23in-textured-rubber-mud-flaps-fits-select-ford-f-250-f-350-f-450-f-550-super-duty-2025066862 |
 | oem-trailer-hitch-and-wiring-ford | https://www.ford.com/product/trailer-hitch-receiver-p2930279223 |
 | power-running-boards-amp-powersteps-or-similar | https://amp-research.com/powerstep/ |
 | powered-retractable-cover-f-150-6-5-bed-leer-ford | https://www.ford.com/product/tonneaubed-cover-power-retractable-with-t-slots-from-pace-edwards-by-leer-for-65-bed-p2880399281 |
@@ -36,6 +35,7 @@ These items stay on the Photo coming tile. A maker or Ford Accessories image was
 - fog-and-pod-lights
 - front-window-tint-2-fronts-carbon
 - hard-roll-up-cover-f-150-rev-ford
+- mud-flaps
 - heavy-duty-bed-mat-rubber
 - retractable-cover-f-150-5-5-bed-embark-ford
 - skid-plate
