@@ -1,7 +1,7 @@
 /* Corwin Ford Tri-Cities — iPad accessory menu.
    Item names and prices come from catalog.json. Photos are mapped locally. */
 
-import { bulletsFor, tierChoices } from "./copy.js";
+import { bulletsFor, tierSwitch } from "./copy.js";
 import { hasPrice, money, priceLabel } from "./price-label.js";
 import { photosFor } from "./photos.js";
 
@@ -97,9 +97,8 @@ function iconSvg(id) {
   return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${body}</svg>`;
 }
 
-function placeholderBlock(label, accent, tilt, iconId) {
-  const caption = label && label !== "Photo coming" ? `<span class="ph-label">${esc(label)}</span>` : "";
-  return `<div class="ph" style="--accent:${esc(accent)};--tilt:${tilt}deg">${iconSvg(iconId)}<span class="ph-kicker">Photo coming</span>${caption}</div>`;
+function placeholderBlock(accent, iconId) {
+  return `<div class="ph" style="--accent:${esc(accent)}">${iconSvg(iconId)}<span class="ph-kicker">Photo coming</span></div>`;
 }
 
 function photoTag(src, alt) {
@@ -133,19 +132,16 @@ function tierBadge(tier) {
   return `<span class="tag">${esc(TIER_LABEL[tier])}</span>`;
 }
 
-function chipsHtml(fits) {
-  return (fits || []).map((fit) => `<li class="chip is-fit">${esc(fit)}</li>`).join("");
-}
-
-function tierChoiceHtml(item) {
-  const choices = tierChoices(item, items());
-  if (!choices.length) return "";
-  const links = choices.map((other) => `<a class="tier-choice" href="#/p/${esc(other.id)}">
-    <span class="tier">${esc(TIER_LABEL[other.tier])}</span>
-    <span class="opt-name">${esc(other.name)}</span>
-    <span class="price">${esc(priceLabel(other.price))}</span>
-  </a>`).join("");
-  return `<p class="fit-label">Other tiers</p><div class="tier-choices">${links}</div>`;
+function tierSwitchHtml(item) {
+  const segments = tierSwitch(item, items());
+  if (!segments.length) return "";
+  const html = segments.map((segment) => {
+    const priceText = hasPrice(segment.price) ? money(segment.price) : "Ask for price";
+    const inner = `<span class="seg-label">${esc(segment.label)}</span><span class="price">${esc(priceText)}</span>`;
+    if (segment.current) return `<span class="seg is-current" aria-current="true">${inner}</span>`;
+    return `<a class="seg" href="#/p/${esc(segment.id)}">${inner}</a>`;
+  }).join("");
+  return `<div class="tier-switch" role="group" aria-label="Good, better, best">${html}</div>`;
 }
 
 function parseRoute() {
@@ -193,7 +189,7 @@ function cardHtml(item, category) {
   const photo = photosFor(item.id)[0];
   const media = photo
     ? photoTag(photo, item.name)
-    : placeholderBlock("Photo coming", accentFor(category.id), 155, category.id);
+    : placeholderBlock(accentFor(category.id), category.id);
   const brand = item.brand ? `<p class="brand">${esc(item.brand)}</p>` : "";
   return `<article class="card">
     <a class="card-link" href="#/p/${esc(item.id)}">
@@ -264,7 +260,7 @@ function renderProduct(id) {
     if (slide.kind === "img") {
       return `<div class="slide" data-slide="${slideIndex}"${hidden}>${photoTag(slide.src, slide.label)}</div>`;
     }
-    return `<div class="slide" data-slide="${slideIndex}"${hidden}>${placeholderBlock(slide.label, accent, 140 + slideIndex * 28, item.category)}</div>`;
+    return `<div class="slide" data-slide="${slideIndex}"${hidden}>${placeholderBlock(accent, item.category)}</div>`;
   }).join("");
   const dots = slides.map((slide, slideIndex) => {
     const current = slideIndex === index ? ' aria-current="true"' : "";
@@ -287,12 +283,9 @@ function renderProduct(id) {
       <h1>${esc(item.name)}</h1>
       ${tierBadge(item.tier)}
       ${brand}
-      <p class="benefit">${esc(item.sellingPoint)}</p>
       ${priceHtml(item.price)}
-      <ul class="bullets">${bulletsFor(item).map((bullet) => `<li>${esc(bullet)}</li>`).join("")}</ul>
-      <p class="fit-label">Fitment</p>
-      <ul class="chips">${chipsHtml(item.fits)}</ul>
-      ${tierChoiceHtml(item)}
+      <ul class="bullets">${bulletsFor(item, { showPrices: state.showPrices }).map((bullet) => `<li>${esc(bullet)}</li>`).join("")}</ul>
+      ${tierSwitchHtml(item)}
       <button class="add-wide" type="button" data-add="${esc(item.id)}">Add to my truck</button>
     </div>
   </article>`;
@@ -396,7 +389,7 @@ function paintLightbox() {
     if (slide.kind === "img") {
       return `<div class="lb-slide" data-slide="${slideIndex}"${hidden}><img src="${esc(slide.src)}" alt="${esc(slide.label)}" width="800" height="500"></div>`;
     }
-    return `<div class="lb-slide" data-slide="${slideIndex}"${hidden}>${placeholderBlock(slide.label, accent, 140 + slideIndex * 28, item.category)}</div>`;
+    return `<div class="lb-slide" data-slide="${slideIndex}"${hidden}>${placeholderBlock(accent, item.category)}</div>`;
   }).join("");
   document.getElementById("lb-count").textContent = `${index + 1} of ${slides.length}`;
   box.hidden = false;
@@ -509,6 +502,7 @@ function bind() {
   document.getElementById("price-toggle").addEventListener("click", () => {
     state.showPrices = !state.showPrices;
     applyPriceVisibility();
+    render();
     live.textContent = state.showPrices ? "Prices shown." : "Prices hidden.";
   });
   document.getElementById("tray-handle").addEventListener("click", () => {

@@ -340,22 +340,39 @@ body.is-home main {
   column-gap: 10px;
 }
 .option[aria-checked="true"] { border-color: var(--navy); background: #f4f7fb; }
-.tier-choices { display: grid; gap: 8px; margin: 0 0 12px; }
-.tier-choice {
-  min-height: 52px;
-  text-decoration: none;
-  color: inherit;
+.tier-switch {
+  display: flex;
+  margin: 12px 0 16px;
+  border: 2px solid var(--navy);
   border-radius: 14px;
-  border: 2px solid var(--line);
-  background: var(--card);
-  padding: 10px 12px;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  grid-template-rows: auto auto;
-  column-gap: 10px;
-  align-items: center;
+  overflow: hidden;
 }
-.tier-choice:active { border-color: var(--navy); }
+.tier-switch .seg {
+  flex: 1 1 0;
+  min-width: 44px;
+  min-height: 52px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 8px 6px;
+  text-align: center;
+  text-decoration: none;
+  color: var(--navy);
+  background: #fff;
+  border-left: 1px solid var(--navy);
+}
+.tier-switch .seg:first-child { border-left: 0; }
+.tier-switch .seg.is-current { background: var(--navy); color: #fff; }
+.tier-switch .seg-label {
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.tier-switch .price { margin: 0; font-size: 0.8rem; color: var(--green); }
+.tier-switch .is-current .price { color: #fff; }
 .tier {
   grid-row: 1 / span 2;
   align-self: center;
@@ -371,8 +388,8 @@ body.is-home main {
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
-.option .opt-name, .tier-choice .opt-name { font-weight: 750; grid-column: 2; }
-.option .price, .tier-choice .price { margin: 0; grid-column: 2; }
+.option .opt-name { font-weight: 750; }
+.option .price { margin: 0; }
 .opt-detail { grid-column: 2; color: var(--muted); font-size: 0.9rem; }
 .add-wide {
   min-height: 52px;

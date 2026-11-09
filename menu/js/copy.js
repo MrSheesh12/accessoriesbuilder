@@ -1,26 +1,31 @@
-const TIER_ORDER = { good: 0, better: 1, best: 2 };
+import { hasPrice } from "./price-label.js";
 
-export function bulletsFor(item) {
-  const clauses = String(item?.sellingPoint || "")
-    .split(";")
-    .map((part) => part.trim())
-    .filter(Boolean);
-  const bullets = [...clauses];
-  const brand = String(item?.brand || "").trim();
-  if (brand) bullets.push(brand);
+const TIERS = ["good", "better", "best"];
+const TIER_LABEL = { good: "Good", better: "Better", best: "Best" };
+
+export function bulletsFor(item, options = {}) {
+  const showPrices = options.showPrices !== false;
+  const sellingPoint = String(item?.sellingPoint || "").trim();
   const fits = Array.isArray(item?.fits) ? item.fits.map((fit) => String(fit).trim()).filter(Boolean) : [];
-  if (fits.length) bullets.push(`Fits ${fits.join(", ")}`);
-  return bullets.slice(0, 3);
+  const bullets = [sellingPoint, `Fits: ${fits.join(", ")}`];
+  if (showPrices && hasPrice(item?.price)) bullets.push("Installed price, before tax.");
+  return bullets;
 }
 
-export function tierChoices(item, catalogItems) {
-  if (!item) return [];
-  return (catalogItems || [])
-    .filter((other) => {
-      if (!other || other.id === item.id || other.category !== item.category) return false;
-      if (other.review === true) return false;
-      if (!Object.prototype.hasOwnProperty.call(TIER_ORDER, other.tier)) return false;
-      return other.tier !== item.tier;
-    })
-    .sort((a, b) => TIER_ORDER[a.tier] - TIER_ORDER[b.tier]);
+export function tierSwitch(item, catalogItems) {
+  if (!item || !TIERS.includes(item.tier)) return [];
+  const pool = (catalogItems || []).filter((other) => other && other.category === item.category && other.review !== true && TIERS.includes(other.tier));
+  const present = TIERS.filter((tier) => pool.some((other) => other.tier === tier));
+  if (present.length < 2) return [];
+  return present.map((tier) => {
+    const group = pool.filter((other) => other.tier === tier);
+    const chosen = tier === item.tier ? item : group[0];
+    return {
+      tier,
+      label: TIER_LABEL[tier],
+      id: chosen.id,
+      price: chosen.price,
+      current: chosen.id === item.id,
+    };
+  });
 }

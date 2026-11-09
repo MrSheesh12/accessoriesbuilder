@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, join, normalize, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { bulletsFor, tierChoices } from "./js/copy.js";
+import { bulletsFor, tierSwitch } from "./js/copy.js";
 import { photosFor, PHOTOS } from "./js/photos.js";
 import { priceLabel } from "./js/price-label.js";
 import { inflateSync } from "node:zlib";
@@ -224,44 +224,64 @@ if (existsSync(imageDir)) {
 }
 
 const softCover = items.find((item) => item.id === "soft-roll-up-cover-f-150-5-5-6-5-bed-truxedo-ford");
-const softBullets = bulletsFor(softCover);
+const softBullets = bulletsFor(softCover, { showPrices: true });
 if (JSON.stringify(softBullets) !== JSON.stringify([
   "Ford OEM TruXedo soft roll-up.",
-  "TruXedo",
-  "Fits F-150",
+  "Fits: F-150",
+  "Installed price, before tax.",
 ])) fail(`soft cover bullets were ${JSON.stringify(softBullets)}`);
 
 const powered = items.find((item) => item.id === "powered-retractable-cover-f-150-6-5-bed-leer-ford");
-const poweredBullets = bulletsFor(powered);
-if (poweredBullets.length !== 3) fail("bullets stop at 3");
-if (poweredBullets[0] !== "Ford OEM LEER powered retractable" || poweredBullets[1] !== "4 hr install." || poweredBullets[2] !== "LEER") {
-  fail(`powered cover bullets were ${JSON.stringify(poweredBullets)}`);
-}
-if (poweredBullets.some((bullet) => bullet.startsWith("Fits "))) fail("a fourth fits bullet must not be added past the limit");
+const poweredBullets = bulletsFor(powered, { showPrices: true });
+if (JSON.stringify(poweredBullets) !== JSON.stringify([
+  "Ford OEM LEER powered retractable; 4 hr install.",
+  "Fits: F-150",
+  "Installed price, before tax.",
+])) fail(`powered cover bullets were ${JSON.stringify(poweredBullets)}`);
 
 items.forEach((item) => {
-  const bullets = bulletsFor(item);
-  if (bullets.length > 3) fail(`${item.id} has more than 3 bullets`);
-  const allowed = new Set(String(item.sellingPoint).split(";").map((part) => part.trim()).filter(Boolean));
-  if (String(item.brand || "").trim()) allowed.add(String(item.brand).trim());
-  allowed.add(`Fits ${item.fits.join(", ")}`);
-  bullets.forEach((bullet) => {
-    if (!allowed.has(bullet)) fail(`${item.id} bullet is not from the catalog: ${bullet}`);
-  });
+  const shown = bulletsFor(item, { showPrices: true });
+  const hidden = bulletsFor(item, { showPrices: false });
+  if (shown[0] !== String(item.sellingPoint).trim()) fail(`${item.id} must use the full selling point as bullet 1`);
+  if (shown[1] !== `Fits: ${item.fits.join(", ")}`) fail(`${item.id} must use the fits list as bullet 2`);
+  if (item.price === null) {
+    if (shown.length !== 2 || shown.some((bullet) => bullet.includes("before tax"))) {
+      fail(`${item.id} with a null price must drop the price bullet`);
+    }
+  } else if (shown.length !== 3 || shown[2] !== "Installed price, before tax.") {
+    fail(`${item.id} must have exactly 3 bullets when prices are shown`);
+  }
+  if (hidden.length !== 2 || hidden.some((bullet) => bullet.includes("before tax"))) {
+    fail(`${item.id} must drop the price bullet when prices are hidden`);
+  }
 });
 
+const nullPriceBullets = bulletsFor({
+  sellingPoint: "Full line; still one bullet.",
+  fits: ["F-150", "Ranger"],
+  price: null,
+}, { showPrices: true });
+if (JSON.stringify(nullPriceBullets) !== JSON.stringify([
+  "Full line; still one bullet.",
+  "Fits: F-150, Ranger",
+])) fail(`null price bullets were ${JSON.stringify(nullPriceBullets)}`);
+
 const goodCover = items.find((item) => item.id === "soft-roll-up-cover-f-150-5-5-6-5-bed-truxedo-ford");
-const goodChoices = tierChoices(goodCover, items);
-if (goodChoices.some((choice) => choice.id === goodCover.id || choice.tier === "good")) {
-  fail("tier choices must not include the current tier");
+const goodSwitch = tierSwitch(goodCover, items);
+if (goodSwitch.map((segment) => segment.label).join("|") !== "Good|Better|Best") {
+  fail(`tier switch labels were ${goodSwitch.map((segment) => segment.label).join("|")}`);
 }
-if (!goodChoices.some((choice) => choice.tier === "better") || !goodChoices.some((choice) => choice.tier === "best")) {
-  fail("a good cover should link to better and best covers");
-}
+if (!goodSwitch[0].current || goodSwitch[0].id !== goodCover.id) fail("the current good tier must be highlighted");
+if (goodSwitch.some((segment) => segment.tier !== "good" && segment.current)) fail("only the current tier is highlighted");
 const betterCover = items.find((item) => item.id === "hard-folding-cover-f-150-6-5-bed-advantage-rev-ford");
-const betterChoices = tierChoices(betterCover, items);
-if (betterChoices.some((choice) => choice.tier === "better")) fail("better covers must not list other better covers");
-if (!betterChoices.some((choice) => choice.id === goodCover.id)) fail("better cover should link back to the good cover");
+const betterSwitch = tierSwitch(betterCover, items);
+const betterSegments = betterSwitch.filter((segment) => segment.tier === "better");
+if (betterSegments.length !== 1 || betterSegments[0].id !== betterCover.id || !betterSegments[0].current) {
+  fail("the switch highlights the current item instead of every item in that tier");
+}
+if (!betterSwitch.some((segment) => segment.id === goodCover.id && !segment.current)) {
+  fail("the good segment must link to the good cover");
+}
 
 const html = readFileSync(join(root, "index.html"), "utf8");
 const css = readFileSync(join(root, "css/menu.css"), "utf8");
@@ -269,6 +289,9 @@ if (!html.includes('class="price" id="tray-total"') || !html.includes('class="pr
   fail("build tray totals must use the price style so the toggle can hide them");
 }
 if (!css.includes("body.prices-off .price")) fail("price toggle must hide every price, including the tray total");
+if (!/class="seg-label"[\s\S]{0,160}class="price"/.test(menuJs)) {
+  fail("tier switch prices must use the price class so Hide prices leaves only the tier label");
+}
 
 const fixture = [
   { price: null, expect: "Ask for price" },
