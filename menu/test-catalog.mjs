@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { bulletsFor, tierSwitch } from "./js/copy.js";
 import { photosFor, PHOTOS } from "./js/photos.js";
 import { priceLabel } from "./js/price-label.js";
+import { quoteTotals } from "./js/quote-math.js";
 import { inflateSync } from "node:zlib";
 
 const root = dirname(fileURLToPath(import.meta.url));
@@ -38,6 +39,7 @@ const PAGE_FILES = [
   "js/copy.js",
   "js/price-label.js",
   "js/photos.js",
+  "js/quote-math.js",
 ];
 
 const MISMATCHED_COVERS = [
@@ -304,6 +306,29 @@ fixture.forEach((row) => {
   const actual = priceLabel(row.price);
   if (actual !== row.expect) fail(`price fixture ${JSON.stringify(row.price)} rendered ${JSON.stringify(actual)}`);
 });
+
+const taxed = quoteTotals([
+  { price: 1000, qty: 1 },
+  { price: 1200, qty: 1 },
+  { price: 1213, qty: 1 },
+]);
+if (taxed.subtotal !== 3413 || taxed.tax !== 303.76 || taxed.total !== 3716.76) {
+  fail(`3 items totaling $3,413 must tax to $303.76 and total $3,716.76, got ${JSON.stringify(taxed)}`);
+}
+const withCall = quoteTotals([
+  { price: 3413, qty: 1 },
+  { price: null, qty: 2 },
+]);
+if (withCall.subtotal !== 3413 || withCall.tax !== 303.76 || withCall.total !== 3716.76 || !withCall.callForPrice) {
+  fail(`a missing price must stay out of the tax math, got ${JSON.stringify(withCall)}`);
+}
+if (!html.includes('id="vehicle-filter"')) fail("the vehicle filter must live in the top bar");
+if (!html.includes('id="make-quote"')) fail("the tray needs a Make quote button");
+if (!menuJs.includes('parts[0] === "quote"')) fail("the quote must live at #/quote");
+if (!menuJs.includes("Landon Alexander")) fail("salesperson must default to Landon Alexander");
+if (!menuJs.includes("Call for price")) fail("missing prices on a quote must read Call for price");
+if (!css.includes("@media print") || !css.includes("size: letter")) fail("print layout must target letter paper");
+if (!css.includes("body.prices-off .quote-page .price")) fail("the quote page must keep prices visible when the price switch is off");
 
 const stray = [];
 function walk(dir) {

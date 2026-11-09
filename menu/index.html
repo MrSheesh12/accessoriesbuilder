@@ -25,6 +25,17 @@
       </span>
     </a>
     <div class="top-actions">
+      <label class="vehicle-filter">Vehicle
+        <select id="vehicle-filter" aria-label="Vehicle">
+          <option value="All">All</option>
+          <option value="F-150">F-150</option>
+          <option value="Super Duty">Super Duty</option>
+          <option value="Ranger">Ranger</option>
+          <option value="Maverick">Maverick</option>
+          <option value="Bronco">Bronco</option>
+          <option value="Other">Other</option>
+        </select>
+      </label>
       <button class="header-btn" id="price-toggle" type="button" role="switch" aria-checked="true">Hide prices</button>
     </div>
   </header>
@@ -48,7 +59,8 @@
           <strong class="price" id="tray-total">$0.00</strong>
           <strong class="prices-hidden-label">Prices hidden</strong>
         </p>
-        <button class="clear-btn" id="tray-clear" type="button">Clear</button>
+        <button class="add-wide" id="make-quote" type="button">Make quote</button>
+        <button class="clear-btn" id="tray-clear" type="button">Clear quote</button>
         <p class="fine">Clear this list before handing the iPad to the next customer. Prices are starting, installed.</p>
       </div>
     </div>

@@ -95,6 +95,25 @@ main a:not(.card-link):not(.tile) { color: var(--accent); }
   justify-content: center;
 }
 .header-btn:active { background: rgba(255, 255, 255, 0.12); }
+.vehicle-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 650;
+}
+.vehicle-filter select {
+  min-height: 44px;
+  min-width: 9.5rem;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 1rem;
+}
 
 main {
   min-height: 0;
@@ -505,7 +524,62 @@ p.brand { margin: 0; color: var(--muted); font-size: 0.82rem; font-weight: 700; 
 @keyframes tray-pulse { 50% { background: #1d4e38; } }
 .prices-hidden-label { display: none; margin-left: auto; font-weight: 700; }
 body.prices-off .price { display: none !important; }
+body.prices-off .quote-page .price { display: inline !important; }
+body.prices-off .quote-page td.price { display: table-cell !important; }
 body.prices-off .prices-hidden-label { display: inline; }
+
+.quote-page { max-width: 960px; margin: 0 auto; }
+.quote-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 0 0 16px;
+}
+.quote-fields label { display: flex; flex-direction: column; gap: 6px; font-weight: 650; }
+.quote-fields input,
+.qty {
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 8px 12px;
+  font: inherit;
+  background: #fff;
+  color: var(--ink);
+}
+.qty { width: 4.5rem; text-align: right; }
+.quote-table { width: 100%; border-collapse: collapse; background: var(--card); }
+.quote-table th,
+.quote-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #d5dbe8;
+  text-align: left;
+  vertical-align: middle;
+}
+.quote-table .num { text-align: right; }
+.quote-totals { margin-top: 12px; }
+.quote-totals p {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: 22rem;
+  margin: 4px 0 4px auto;
+}
+.quote-grand { font-size: 1.25rem; }
+.quote-note { color: var(--amber); }
+.quote-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+.quote-actions .add-wide,
+.quote-actions .clear-btn { flex: 1 1 16rem; }
+.print-sheet { background: #fff; border-radius: var(--radius); padding: 16px; margin-bottom: 12px; }
+.print-head h1 { margin: 0; color: var(--brand); font-size: 1.6rem; }
+.print-head p { margin: 2px 0 0; }
+.print-meta { display: flex; justify-content: space-between; gap: 12px; margin: 8px 0; }
+.print-who { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; margin: 0; }
+.print-who div { margin: 0; }
+.print-who dt { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+.print-who dd { margin: 0; font-weight: 700; }
+.print-only { display: none; }
+.print-foot { color: var(--muted); }
+.tray-tier { margin-left: 6px; }
 
 .lightbox {
   position: fixed;
@@ -560,4 +634,26 @@ body.prices-off .prices-hidden-label { display: inline; }
 
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
+}
+
+@media print {
+  @page { size: letter; margin: 0.45in; }
+  html, body { height: auto; background: #fff; color: #000; }
+  body { display: block; font-size: 11pt; }
+  .topbar, .tray, .lightbox, .no-print, .noscript, .sr { display: none !important; }
+  main { overflow: visible; padding: 0; display: block; }
+  .print-only { display: inline !important; }
+  .quote-page { max-width: none; }
+  .print-sheet { padding: 0; margin: 0 0 8px; }
+  .print-head h1 { font-size: 16pt; color: #000; }
+  .print-head p { margin: 0 0 6px; }
+  .print-who dt { color: #333; }
+  .quote-table { font-size: 10pt; }
+  .quote-table th, .quote-table td { padding: 3px 4px; }
+  .quote-totals { margin-top: 8px; }
+  .quote-totals p { margin: 0 0 2px auto; }
+  .print-foot { margin: 10px 0 0; font-size: 9pt; color: #333; }
+  .quote-table tr, .quote-totals, .print-head, .print-who { break-inside: avoid; }
+  body.prices-off .quote-page .price { display: inline !important; }
+  body.prices-off .quote-page td.price { display: table-cell !important; }
 }

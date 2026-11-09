@@ -3,9 +3,14 @@
 
 import { bulletsFor, tierSwitch } from "./copy.js";
 import { hasPrice, money, priceLabel } from "./price-label.js";
+import { quoteTotals } from "./quote-math.js";
 import { photosFor } from "./photos.js";
 
 const PRICE_KEY = "accessory-menu-show-prices";
+const FILTER_KEY = "accessory-menu-vehicle";
+const QUOTE_KEY = "accessory-menu-quote";
+const VEHICLES = ["All", "F-150", "Super Duty", "Ranger", "Maverick", "Bronco", "Other"];
+const FIT_NAMES = VEHICLES.slice(1);
 const TIERS = ["good", "better", "best"];
 const TIER_LABEL = { good: "Good", better: "Better", best: "Best" };
 
@@ -48,7 +53,8 @@ const ICONS = {
 const state = {
   catalog: null,
   showPrices: localStorage.getItem(PRICE_KEY) !== "0",
-  tray: [],
+  vehicleFilter: VEHICLES.includes(localStorage.getItem(FILTER_KEY)) ? localStorage.getItem(FILTER_KEY) : "All",
+  quote: loadQuote(),
   trayOpen: false,
   slideByItem: {},
   lightbox: null,
@@ -72,6 +78,22 @@ function items() {
   return (state.catalog.items || []).filter((item) => item.review !== true);
 }
 
+function isUniversal(item) {
+  const fits = item.fits || [];
+  if (!fits.length) return true;
+  return FIT_NAMES.every((name) => fits.includes(name));
+}
+
+function itemMatchesFilter(item) {
+  if (state.vehicleFilter === "All") return true;
+  if (isUniversal(item)) return true;
+  return (item.fits || []).includes(state.vehicleFilter);
+}
+
+function visibleItems() {
+  return items().filter(itemMatchesFilter);
+}
+
 function categoryById(id) {
   return (state.catalog.categories || []).find((category) => category.id === id);
 }
@@ -81,7 +103,7 @@ function itemById(id) {
 }
 
 function itemsIn(categoryId) {
-  return items().filter((item) => item.category === categoryId);
+  return visibleItems().filter((item) => item.category === categoryId);
 }
 
 function homeCategories() {
@@ -110,17 +132,8 @@ function slidesFor(item) {
   if (images.length >= 2) {
     return images.map((src, index) => ({ kind: "img", src, label: `${item.name} photo ${index + 1}` }));
   }
-  if (images.length === 1) {
-    return [
-      { kind: "img", src: images[0], label: item.name },
-      { kind: "ph", label: "Another angle coming" },
-    ];
-  }
-  return [
-    { kind: "ph", label: "Photo coming" },
-    { kind: "ph", label: "Another angle coming" },
-    { kind: "ph", label: "Detail photo coming" },
-  ];
+  if (images.length === 1) return [{ kind: "img", src: images[0], label: item.name }];
+  return [{ kind: "ph", label: "Photo coming" }];
 }
 
 function priceHtml(price) {
@@ -133,7 +146,7 @@ function tierBadge(tier) {
 }
 
 function tierSwitchHtml(item) {
-  const segments = tierSwitch(item, items());
+  const segments = tierSwitch(item, visibleItems().some((entry) => entry.id === item.id) ? visibleItems() : visibleItems().concat(item));
   if (!segments.length) return "";
   const html = segments.map((segment) => {
     const priceText = hasPrice(segment.price) ? money(segment.price) : "Ask for price";
@@ -150,6 +163,7 @@ function parseRoute() {
   if (parts.length === 0) return { name: "home" };
   if (parts[0] === "c" && parts[1]) return { name: "category", id: parts[1] };
   if (parts[0] === "p" && parts[1]) return { name: "product", id: parts[1] };
+  if (parts[0] === "quote") return { name: "quote" };
   return { name: "missing" };
 }
 
@@ -161,6 +175,7 @@ function render() {
   if (route.name === "home") renderHome();
   else if (route.name === "category") renderCategory(route.id);
   else if (route.name === "product") renderProduct(route.id);
+  else if (route.name === "quote") renderQuote();
   else {
     view.innerHTML = `<div class="message"><h1>That page is not on the menu.</h1><p><a href="#/">Back to categories</a></p></div>`;
   }
@@ -210,7 +225,8 @@ function renderCategory(id) {
   const category = categoryById(id);
   const list = itemsIn(id);
   if (!category || !list.length) {
-    view.innerHTML = `<div class="message"><h1>Nothing in that category.</h1><button class="back" type="button" data-back="#/">Back</button></div>`;
+    const why = state.vehicleFilter === "All" ? "Nothing in that category." : `Nothing in that category for ${state.vehicleFilter}.`;
+    view.innerHTML = `<div class="message"><h1>${esc(why)}</h1><button class="back" type="button" data-back="#/">Back</button></div>`;
     return;
   }
   const tiered = TIERS
@@ -253,27 +269,27 @@ function renderProduct(id) {
   const category = categoryById(item.category);
   const accent = accentFor(item.category);
   const slides = slidesFor(item);
-  const index = Math.min(state.slideByItem[item.id] || 0, slides.length - 1);
-  state.slideByItem[item.id] = index;
+  const single = slides.length < 2;
+  const index = 0;
+  state.slideByItem[item.id] = 0;
   const slideHtml = slides.map((slide, slideIndex) => {
     const hidden = slideIndex === index ? "" : " hidden";
-    if (slide.kind === "img") {
-      return `<div class="slide" data-slide="${slideIndex}"${hidden}>${photoTag(slide.src, slide.label)}</div>`;
-    }
+    if (slide.kind === "img") return `<div class="slide" data-slide="${slideIndex}"${hidden}>${photoTag(slide.src, slide.label)}</div>`;
     return `<div class="slide" data-slide="${slideIndex}"${hidden}>${placeholderBlock(accent, item.category)}</div>`;
   }).join("");
-  const dots = slides.map((slide, slideIndex) => {
+  const dots = single ? "" : slides.map((slide, slideIndex) => {
     const current = slideIndex === index ? ' aria-current="true"' : "";
     return `<button class="dot" type="button" data-goto="${slideIndex}" aria-label="Photo ${slideIndex + 1}"${current}><span></span></button>`;
   }).join("");
-  const brand = item.brand ? `<p class="brand">${esc(item.brand)}</p>` : "";
-  view.innerHTML = `<article class="product" data-product="${esc(item.id)}">
-    <div class="gallery">
-      <button class="g-nav g-prev" type="button" data-nudge="-1" aria-label="Previous photo">‹</button>
-      <div class="gallery-stage" id="gallery-stage">${slideHtml}</div>
+  const controls = single ? "" : `<button class="g-nav g-prev" type="button" data-nudge="-1" aria-label="Previous photo">‹</button>
       <button class="g-nav g-next" type="button" data-nudge="1" aria-label="Next photo">›</button>
       <div class="dots">${dots}</div>
-      <p class="slide-count" id="slide-count">${index + 1} of ${slides.length}. Tap the photo to view full screen.</p>
+      <p class="slide-count" id="slide-count">${index + 1} of ${slides.length}. Tap the photo to view full screen.</p>`;
+  const brand = item.brand ? `<p class="brand">${esc(item.brand)}</p>` : "";
+  view.innerHTML = `<article class="product" data-product="${esc(item.id)}">
+    <div class="gallery${single ? " is-single" : ""}">
+      <div class="gallery-stage" id="gallery-stage">${slideHtml}</div>
+      ${controls}
     </div>
     <div class="details">
       <div class="page-head">
@@ -289,11 +305,19 @@ function renderProduct(id) {
       <button class="add-wide" type="button" data-add="${esc(item.id)}">Add to my truck</button>
     </div>
   </article>`;
-  mountSwipe(document.getElementById("gallery-stage"), {
-    onLeft: () => nudgeSlide(1),
-    onRight: () => nudgeSlide(-1),
-    onTap: () => openLightbox(item.id, state.slideByItem[item.id] || 0),
-  });
+  const stage = document.getElementById("gallery-stage");
+  if (!single && slides[0].kind === "img") {
+    mountSwipe(stage, {
+      onLeft: () => nudgeSlide(1),
+      onRight: () => nudgeSlide(-1),
+      onTap: () => openLightbox(item.id, state.slideByItem[item.id] || 0),
+    });
+  } else if (single && slides[0].kind === "img") {
+    stage.addEventListener("click", (event) => {
+      if (event.target.closest("button, a")) return;
+      openLightbox(item.id, 0);
+    });
+  }
 }
 
 function nudgeSlide(delta) {
@@ -301,6 +325,7 @@ function nudgeSlide(delta) {
   if (!root) return;
   const item = itemById(root.dataset.product);
   const slides = slidesFor(item);
+  if (slides.length < 2) return;
   const next = ((state.slideByItem[item.id] || 0) + delta + slides.length) % slides.length;
   state.slideByItem[item.id] = next;
   root.querySelectorAll(".slide").forEach((slide) => {
@@ -418,42 +443,108 @@ function closeLightbox() {
   document.body.classList.remove("lb-open");
 }
 
+function defaultQuote() {
+  return {
+    customerName: "",
+    phone: "",
+    vehicle: "",
+    vehicleTouched: false,
+    salesperson: "Landon Alexander",
+    number: "",
+    lines: [],
+  };
+}
+
+function loadQuote() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(QUOTE_KEY) || "null");
+    if (!raw || typeof raw !== "object") return defaultQuote();
+    const base = defaultQuote();
+    base.customerName = String(raw.customerName || "");
+    base.phone = String(raw.phone || "");
+    base.vehicle = String(raw.vehicle || "");
+    base.vehicleTouched = Boolean(raw.vehicleTouched);
+    base.salesperson = String(raw.salesperson || "Landon Alexander");
+    base.number = String(raw.number || "");
+    base.lines = Array.isArray(raw.lines) ? raw.lines.map((line) => ({
+      id: String(line.id || ""),
+      name: String(line.name || ""),
+      tier: line.tier || "",
+      price: hasPrice(line.price) ? Number(line.price) : null,
+      qty: Math.max(1, Math.round(Number(line.qty) || 1)),
+    })).filter((line) => line.id && line.name) : [];
+    return base;
+  } catch (error) {
+    return defaultQuote();
+  }
+}
+
+function quoteNumber() {
+  if (!state.quote.number) {
+    const now = new Date();
+    const pad = (value) => String(value).padStart(2, "0");
+    state.quote.number = `Q-${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}`;
+    saveQuote();
+  }
+  return state.quote.number;
+}
+
+function suggestedVehicle() {
+  return state.vehicleFilter === "All" ? "" : state.vehicleFilter;
+}
+
+function vehicleText() {
+  if (state.quote.vehicleTouched) return state.quote.vehicle;
+  return state.quote.vehicle || suggestedVehicle();
+}
+
+function saveQuote() {
+  localStorage.setItem(QUOTE_KEY, JSON.stringify(state.quote));
+}
+
 function addToTray(itemId) {
   const item = itemById(itemId);
   if (!item) return;
-  state.tray.push({
-    uid: `${item.id}-${Date.now()}-${state.tray.length}`,
-    name: item.name,
-    price: hasPrice(item.price) ? Number(item.price) : null,
-  });
+  const existing = state.quote.lines.find((line) => line.id === item.id);
+  if (existing) existing.qty += 1;
+  else {
+    state.quote.lines.push({
+      id: item.id,
+      name: item.name,
+      tier: item.tier || "",
+      price: hasPrice(item.price) ? Number(item.price) : null,
+      qty: 1,
+    });
+  }
+  quoteNumber();
+  saveQuote();
   renderTray();
   const handle = document.getElementById("tray-handle");
   handle.classList.remove("pulse");
   void handle.offsetWidth;
   handle.classList.add("pulse");
-  const total = trayTotalLabel();
-  live.textContent = state.showPrices ? `Added ${item.name}. Installed total ${total}.` : `Added ${item.name}.`;
-}
-
-function trayTotalLabel() {
-  if (!state.tray.length) return money(0);
-  if (state.tray.some((line) => !hasPrice(line.price))) return "Ask for price";
-  return money(state.tray.reduce((sum, line) => sum + Number(line.price), 0));
+  live.textContent = `Added ${item.name}.`;
+  if (parseRoute().name === "quote") renderQuote();
 }
 
 function renderTray() {
   const list = document.getElementById("tray-list");
   const empty = document.getElementById("tray-empty");
-  const total = trayTotalLabel();
-  document.getElementById("tray-count").textContent = String(state.tray.length);
-  document.getElementById("tray-total").textContent = total;
-  document.getElementById("tray-handle-total").textContent = total;
-  list.innerHTML = state.tray.map((line) => `<li>
-    <span class="tray-name">${esc(line.name)}</span>
-    <span class="price">${esc(hasPrice(line.price) ? money(line.price) : "Ask for price")}</span>
-    <button class="remove-btn" type="button" data-remove="${esc(line.uid)}">Remove</button>
-  </li>`).join("");
-  empty.hidden = state.tray.length > 0;
+  const totals = quoteTotals(state.quote.lines);
+  const count = state.quote.lines.reduce((sum, line) => sum + line.qty, 0);
+  document.getElementById("tray-count").textContent = String(count);
+  document.getElementById("tray-total").textContent = money(totals.subtotal);
+  document.getElementById("tray-handle-total").textContent = money(totals.subtotal);
+  list.innerHTML = state.quote.lines.map((line) => {
+    const tier = TIER_LABEL[line.tier] ? `<span class="tray-tier">${esc(TIER_LABEL[line.tier])}</span>` : "";
+    const priceText = hasPrice(line.price) ? money(line.price) : "Call for price";
+    return `<li>
+      <span class="tray-name">${esc(line.name)}${tier}${line.qty > 1 ? ` × ${line.qty}` : ""}</span>
+      <span class="price">${esc(priceText)}</span>
+      <button class="remove-btn" type="button" data-remove="${esc(line.id)}">Remove</button>
+    </li>`;
+  }).join("");
+  empty.hidden = state.quote.lines.length > 0;
 }
 
 function openTray() {
@@ -461,21 +552,141 @@ function openTray() {
   tray.classList.add("is-open");
   document.getElementById("tray-handle").setAttribute("aria-expanded", "true");
   document.getElementById("tray-panel").hidden = false;
+  document.querySelector(".scrim").hidden = false;
 }
 
 function closeTray() {
   state.trayOpen = false;
   tray.classList.remove("is-open");
   document.getElementById("tray-handle").setAttribute("aria-expanded", "false");
+  document.querySelector(".scrim").hidden = true;
   window.setTimeout(() => {
     if (!state.trayOpen) document.getElementById("tray-panel").hidden = true;
   }, 280);
 }
 
-function clearTray() {
-  state.tray = [];
+function clearQuote() {
+  state.quote = defaultQuote();
+  saveQuote();
   renderTray();
-  live.textContent = "Build cleared.";
+  live.textContent = "Quote cleared.";
+  if (parseRoute().name === "quote") renderQuote();
+}
+
+function renderQuote() {
+  const totals = quoteTotals(state.quote.lines);
+  const today = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+  const number = state.quote.lines.length ? quoteNumber() : (state.quote.number || "");
+  const vehicle = vehicleText();
+  const rows = state.quote.lines.map((line) => {
+    const tier = TIER_LABEL[line.tier] || "";
+    const priceText = hasPrice(line.price) ? money(line.price) : "Call for price";
+    const extended = hasPrice(line.price) ? money(Number(line.price) * line.qty) : "Call for price";
+    return `<tr>
+      <td>${esc(line.name)}</td>
+      <td>${esc(tier)}</td>
+      <td class="num price">${esc(priceText)}</td>
+      <td class="num"><input class="qty no-print" type="number" min="1" step="1" inputmode="numeric" data-qty="${esc(line.id)}" value="${line.qty}" aria-label="Quantity for ${esc(line.name)}"><span class="print-only">${line.qty}</span></td>
+      <td class="num price">${esc(extended)}</td>
+      <td class="no-print"><button class="remove-btn" type="button" data-remove="${esc(line.id)}">Remove</button></td>
+    </tr>`;
+  }).join("");
+  const note = totals.callForPrice ? `<p class="quote-note">Items marked Call for price are not included in the totals.</p>` : "";
+  view.innerHTML = `<article class="quote-page">
+    <div class="page-head no-print">
+      <button class="back" type="button" data-back="#/">Back</button>
+      <div><h1>Quote</h1><p>Prices stay visible here, even when the price switch is off.</p></div>
+    </div>
+    <form class="quote-fields no-print" id="quote-form">
+      <label>Customer name <input id="quote-name" type="text" autocomplete="name" value="${esc(state.quote.customerName)}"></label>
+      <label>Phone <input id="quote-phone" type="tel" autocomplete="tel" inputmode="tel" value="${esc(state.quote.phone)}"></label>
+      <label>Vehicle <input id="quote-vehicle" type="text" autocomplete="off" placeholder="Year, model, and trim" value="${esc(vehicle)}"></label>
+      <label>Salesperson <input id="quote-seller" type="text" autocomplete="name" value="${esc(state.quote.salesperson || "Landon Alexander")}"></label>
+    </form>
+    <div class="print-sheet">
+      <header class="print-head">
+        <h1>Corwin Ford Tri-Cities</h1>
+        <p>Accessory quote</p>
+      </header>
+      <p class="print-meta"><span>Quote ${esc(number || "Q-draft")}</span><span>${esc(today)}</span></p>
+      <dl class="print-who">
+        <div><dt>Customer</dt><dd>${esc(state.quote.customerName || "—")}</dd></div>
+        <div><dt>Phone</dt><dd>${esc(state.quote.phone || "—")}</dd></div>
+        <div><dt>Vehicle</dt><dd>${esc(vehicle || "—")}</dd></div>
+        <div><dt>Salesperson</dt><dd>${esc(state.quote.salesperson || "Landon Alexander")}</dd></div>
+      </dl>
+    </div>
+    ${state.quote.lines.length ? "" : `<p class="tray-empty">Nothing in this quote yet. Add accessories from the menu.</p>`}
+    <table class="quote-table">
+      <thead><tr><th>Item</th><th>Tier</th><th>Price</th><th>Qty</th><th>Amount</th><th class="no-print"><span class="sr">Remove</span></th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div class="quote-totals">
+      <p><span>Subtotal</span><strong class="price">${esc(money(totals.subtotal))}</strong></p>
+      <p><span>Sales tax (8.9%)</span><strong class="price">${esc(money(totals.tax))}</strong></p>
+      <p class="quote-grand"><span>Total</span><strong class="price">${esc(money(totals.total))}</strong></p>
+      ${note}
+    </div>
+    <p class="print-foot">Prices subject to change; quote valid 30 days.</p>
+    <div class="quote-actions no-print">
+      <button class="add-wide" id="quote-print" type="button">Print / Save PDF</button>
+      <button class="clear-btn" id="quote-clear" type="button">Clear quote</button>
+    </div>
+  </article>`;
+  const page = view.querySelector(".quote-page");
+  page.addEventListener("input", (event) => {
+    const target = event.target;
+    if (target.id === "quote-name") state.quote.customerName = target.value;
+    if (target.id === "quote-phone") state.quote.phone = target.value;
+    if (target.id === "quote-vehicle") {
+      state.quote.vehicle = target.value;
+      state.quote.vehicleTouched = true;
+    }
+    if (target.id === "quote-seller") state.quote.salesperson = target.value;
+    if (target.dataset.qty) {
+      const line = state.quote.lines.find((entry) => entry.id === target.dataset.qty);
+      if (line) line.qty = Math.max(1, Math.round(Number(target.value) || 1));
+      const printed = target.parentElement.querySelector(".print-only");
+      if (printed && line) printed.textContent = String(line.qty);
+      saveQuote();
+      renderTray();
+      const totalsNow = quoteTotals(state.quote.lines);
+      view.querySelectorAll(".quote-totals .price").forEach((node, index) => {
+        const values = [money(totalsNow.subtotal), money(totalsNow.tax), money(totalsNow.total)];
+        if (values[index]) node.textContent = values[index];
+      });
+      const row = target.closest("tr");
+      const amount = row && row.querySelector("td:nth-child(5)");
+      if (line && amount) amount.textContent = hasPrice(line.price) ? money(Number(line.price) * line.qty) : "Call for price";
+      return;
+    }
+    saveQuote();
+    const printed = view.querySelectorAll(".print-who dd");
+    const shown = vehicleText();
+    const values = [
+      state.quote.customerName || "—",
+      state.quote.phone || "—",
+      shown || "—",
+      state.quote.salesperson || "Landon Alexander",
+    ];
+    printed.forEach((node, index) => {
+      if (values[index]) node.textContent = values[index];
+    });
+  });
+  document.getElementById("quote-print").addEventListener("click", () => {
+    quoteNumber();
+    saveQuote();
+    window.print();
+  });
+  document.getElementById("quote-clear").addEventListener("click", clearQuote);
+  view.querySelectorAll("[data-remove]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.quote.lines = state.quote.lines.filter((line) => line.id !== button.dataset.remove);
+      saveQuote();
+      renderTray();
+      renderQuote();
+    });
+  });
 }
 
 function applyPriceVisibility() {
@@ -509,14 +720,27 @@ function bind() {
     if (state.trayOpen) closeTray();
     else openTray();
   });
-  document.getElementById("tray-clear").addEventListener("click", clearTray);
+  document.getElementById("tray-clear").addEventListener("click", clearQuote);
+  document.getElementById("make-quote").addEventListener("click", () => {
+    closeTray();
+    location.hash = "#/quote";
+  });
+  document.getElementById("vehicle-filter").addEventListener("change", (event) => {
+    state.vehicleFilter = event.target.value;
+    localStorage.setItem(FILTER_KEY, state.vehicleFilter);
+    if (!state.quote.vehicleTouched) state.quote.vehicle = suggestedVehicle();
+    saveQuote();
+    render();
+  });
   tray.addEventListener("click", (event) => {
     if (event.target.closest("[data-close-tray]")) closeTray();
     const remove = event.target.closest("[data-remove]");
     if (!remove) return;
-    state.tray = state.tray.filter((line) => line.uid !== remove.dataset.remove);
+    state.quote.lines = state.quote.lines.filter((line) => line.id !== remove.dataset.remove);
+    saveQuote();
     renderTray();
-    live.textContent = state.showPrices ? `Removed. Installed total ${trayTotalLabel()}.` : "Removed.";
+    if (parseRoute().name === "quote") renderQuote();
+    live.textContent = "Removed.";
   });
   view.addEventListener("click", (event) => {
     const back = event.target.closest("[data-back]");
@@ -558,6 +782,8 @@ function bind() {
 async function boot() {
   bind();
   applyPriceVisibility();
+  const vehicleSelect = document.getElementById("vehicle-filter");
+  if (vehicleSelect) vehicleSelect.value = state.vehicleFilter;
   renderTray();
   try {
     const response = await fetch("catalog.json", { cache: "no-store" });
