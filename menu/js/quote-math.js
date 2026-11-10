@@ -1,4 +1,4 @@
-import { hasPrice } from "./price-label.js";
+import { hasPrice, PARTS_ONLY_NOTE } from "./price-label.js";
 
 export const TAX_RATE = 0.089;
 
@@ -6,9 +6,27 @@ export function roundCents(amount) {
   return Math.round((Number(amount) + Number.EPSILON) * 100) / 100;
 }
 
-/** Sales tax is 8.9% of the full installed subtotal, rounded to cents. */
+/** Empty means a no-charge add-on. Negative and non-numeric values are rejected. */
+export function parseDollars(value) {
+  if (typeof value === "number") return Number.isFinite(value) ? roundCents(value) : null;
+  const text = String(value ?? "").trim().replace(/[$,\s]/g, "");
+  if (text === "") return 0;
+  if (!/^\d+(\.\d+)?$/.test(text)) return null;
+  return roundCents(Number(text));
+}
+
+/** A custom line needs a name. Zero is allowed. A negative price is not. */
+export function customItemError(draft) {
+  if (!String(draft?.name ?? "").trim()) return "Enter a name.";
+  const amount = parseDollars(draft?.price);
+  if (amount === null || amount < 0) return "Enter a price that is zero or more.";
+  return "";
+}
+
+/** Sales tax is 8.9% of the taxable lines only, rounded to cents. */
 export function quoteTotals(lines) {
   let subtotal = 0;
+  let taxable = 0;
   let callForPrice = false;
   (lines || []).forEach((line) => {
     const qty = Math.max(1, Math.round(Number(line.qty) || 1));
@@ -16,10 +34,20 @@ export function quoteTotals(lines) {
       callForPrice = true;
       return;
     }
-    subtotal += Number(line.price) * qty;
+    const amount = Number(line.price) * qty;
+    subtotal += amount;
+    if (line.taxable !== false) taxable += amount;
   });
   subtotal = roundCents(subtotal);
-  const tax = roundCents(subtotal * TAX_RATE);
+  taxable = roundCents(taxable);
+  const tax = roundCents(taxable * TAX_RATE);
   const total = roundCents(subtotal + tax);
   return { subtotal, tax, total, callForPrice };
+}
+
+export function quoteNotes(lines, totals) {
+  const notes = [];
+  if (totals?.callForPrice) notes.push("Items marked Call for price are not included in the totals.");
+  if ((lines || []).some((line) => line && line.listPrice)) notes.push(PARTS_ONLY_NOTE);
+  return notes;
 }

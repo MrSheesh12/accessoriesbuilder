@@ -3,7 +3,7 @@
 
 import { bulletsFor, tierSwitch } from "./copy.js";
 import { PARTS_ONLY_NOTE, PARTS_ONLY_TAG, hasPrice, money, priceLabel } from "./price-label.js";
-import { quoteTotals } from "./quote-math.js";
+import { customItemError, parseDollars, quoteNotes, quoteTotals } from "./quote-math.js";
 import { photosFor } from "./photos.js";
 import { itemMatchesVehicle } from "./vehicle-filter.js";
 
@@ -157,7 +157,8 @@ function linePriceText(line) {
 
 function linePriceHtml(line) {
   const tag = isListPrice(line) ? partsTag() : "";
-  return `<span class="price">${esc(linePriceText(line))}</span>${tag}`;
+  const untaxed = line && line.taxable === false ? `<span class="tag tag-custom">Not taxed</span>` : "";
+  return `<span class="price">${esc(linePriceText(line))}</span>${tag}${untaxed}`;
 }
 
 function tierBadge(tier) {
@@ -506,10 +507,13 @@ function loadQuote() {
     base.lines = Array.isArray(raw.lines) ? raw.lines.map((line) => ({
       id: String(line.id || ""),
       name: String(line.name || ""),
+      description: String(line.description || ""),
       tier: line.tier || "",
       price: hasPrice(line.price) ? Number(line.price) : null,
       qty: Math.max(1, Math.round(Number(line.qty) || 1)),
       listPrice: Boolean(line.listPrice),
+      custom: Boolean(line.custom),
+      taxable: line.taxable !== false,
     })).filter((line) => line.id && line.name) : [];
     return base;
   } catch (error) {
@@ -551,10 +555,13 @@ function addToTray(itemId) {
     state.quote.lines.push({
       id: item.id,
       name: item.name,
+      description: "",
       tier: item.tier || "",
       price: hasPrice(item.price) ? Number(item.price) : null,
       qty: 1,
       listPrice: item.listPrice === true,
+      custom: false,
+      taxable: true,
     });
   }
   quoteNumber();
@@ -577,7 +584,9 @@ function renderTray() {
   document.getElementById("tray-total").textContent = money(totals.subtotal);
   document.getElementById("tray-handle-total").textContent = money(totals.subtotal);
   list.innerHTML = state.quote.lines.map((line) => {
-    const tier = TIER_LABEL[line.tier] ? `<span class="tray-tier">${esc(TIER_LABEL[line.tier])}</span>` : "";
+    const tier = line.custom
+      ? `<span class="tag tag-custom">Custom</span>`
+      : (TIER_LABEL[line.tier] ? `<span class="tray-tier">${esc(TIER_LABEL[line.tier])}</span>` : "");
     return `<li>
       <span class="tray-name">${esc(line.name)}${tier}${line.qty > 1 ? ` × ${line.qty}` : ""}</span>
       <span class="tray-price">${linePriceHtml(line)}</span>
@@ -613,27 +622,102 @@ function clearQuote() {
   if (parseRoute().name === "quote") renderQuote();
 }
 
+function customLineId() {
+  return `custom-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+}
+
+function setPartsMode(form, partsOnly) {
+  form.dataset.parts = partsOnly ? "1" : "0";
+  form.querySelectorAll("[data-parts]").forEach((button) => {
+    const on = button.dataset.parts === form.dataset.parts;
+    button.classList.toggle("is-current", on);
+    button.setAttribute("aria-pressed", on ? "true" : "false");
+  });
+}
+
+function openCustomForm(line) {
+  const form = document.getElementById("custom-form");
+  form.hidden = false;
+  form.dataset.editId = line?.id || "";
+  document.getElementById("custom-name").value = line?.name || "";
+  document.getElementById("custom-desc").value = line?.description || "";
+  document.getElementById("custom-price").value = line ? String(line.price) : "";
+  document.getElementById("custom-qty").value = line ? String(line.qty) : "1";
+  document.getElementById("custom-taxable").checked = line ? line.taxable !== false : true;
+  setPartsMode(form, Boolean(line && isListPrice(line)));
+  document.getElementById("custom-error").textContent = "";
+  document.getElementById("custom-save").textContent = line ? "Save item" : "Add to quote";
+  form.scrollIntoView({ block: "nearest" });
+  document.getElementById("custom-name").focus();
+}
+
+function saveCustomItem() {
+  const form = document.getElementById("custom-form");
+  const draft = {
+    name: document.getElementById("custom-name").value,
+    description: document.getElementById("custom-desc").value.trim(),
+    price: document.getElementById("custom-price").value,
+    qty: Math.max(1, Math.round(Number(document.getElementById("custom-qty").value) || 1)),
+    listPrice: form.dataset.parts === "1",
+    taxable: document.getElementById("custom-taxable").checked,
+  };
+  const error = customItemError(draft);
+  document.getElementById("custom-error").textContent = error;
+  if (error) return;
+  const price = parseDollars(draft.price);
+  const editId = form.dataset.editId;
+  const existing = editId ? state.quote.lines.find((line) => line.id === editId) : null;
+  if (existing) {
+    existing.name = draft.name.trim();
+    existing.description = draft.description;
+    existing.price = price;
+    existing.qty = draft.qty;
+    existing.listPrice = draft.listPrice;
+    existing.taxable = draft.taxable;
+    existing.custom = true;
+  } else {
+    state.quote.lines.push({
+      id: customLineId(),
+      name: draft.name.trim(),
+      description: draft.description,
+      tier: "",
+      price,
+      qty: draft.qty,
+      listPrice: draft.listPrice,
+      custom: true,
+      taxable: draft.taxable,
+    });
+  }
+  quoteNumber();
+  saveQuote();
+  renderTray();
+  renderQuote();
+  live.textContent = existing ? "Custom item updated." : "Custom item added.";
+}
+
 function renderQuote() {
   const totals = quoteTotals(state.quote.lines);
   const today = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
   const number = state.quote.lines.length ? quoteNumber() : (state.quote.number || "");
   const vehicle = vehicleText();
   const rows = state.quote.lines.map((line) => {
-    const tier = TIER_LABEL[line.tier] || "";
+    const tier = line.custom
+      ? `<span class="tag tag-custom">Custom</span>`
+      : esc(TIER_LABEL[line.tier] || "");
+    const detail = line.description ? `<span class="line-desc">${esc(line.description)}</span>` : "";
     const extended = hasPrice(line.price) ? money(Number(line.price) * line.qty) : "Call for price";
+    const edit = line.custom ? `<button class="remove-btn" type="button" data-edit="${esc(line.id)}">Edit</button>` : "";
     return `<tr>
-      <td>${esc(line.name)}</td>
-      <td>${esc(tier)}</td>
+      <td><span class="line-name">${esc(line.name)}</span>${detail}</td>
+      <td>${tier}</td>
       <td class="num">${linePriceHtml(line)}</td>
       <td class="num"><input class="qty no-print" type="number" min="1" step="1" inputmode="numeric" data-qty="${esc(line.id)}" value="${line.qty}" aria-label="Quantity for ${esc(line.name)}"><span class="print-only">${line.qty}</span></td>
       <td class="num price">${esc(extended)}</td>
-      <td class="no-print"><button class="remove-btn" type="button" data-remove="${esc(line.id)}">Remove</button></td>
+      <td class="no-print line-actions">${edit}<button class="remove-btn" type="button" data-remove="${esc(line.id)}">Remove</button></td>
     </tr>`;
   }).join("");
-  const notes = [
-    totals.callForPrice ? "Items marked Call for price are not included in the totals." : "",
-    state.quote.lines.some((line) => isListPrice(line)) ? PARTS_ONLY_NOTE : "",
-  ].filter(Boolean).map((text) => `<p class="quote-note">${esc(text)}</p>`).join("");
+  const noted = state.quote.lines.map((line) => ({ ...line, listPrice: isListPrice(line) }));
+  const notes = quoteNotes(noted, totals).map((text) => `<p class="quote-note">${esc(text)}</p>`).join("");
   view.innerHTML = `<article class="quote-page">
     <div class="page-head no-print">
       <button class="back" type="button" data-back="#/">Back</button>
@@ -658,6 +742,39 @@ function renderQuote() {
         <div><dt>Salesperson</dt><dd>${esc(state.quote.salesperson || "Landon Alexander")}</dd></div>
       </dl>
     </div>
+    <div class="custom-bar no-print">
+      <button class="add-wide" id="custom-open" type="button">Add custom item</button>
+    </div>
+    <form class="custom-form no-print" id="custom-form" hidden>
+      <label class="span-2">Name
+        <input id="custom-name" type="text" autocomplete="off" required>
+      </label>
+      <label class="span-2">Description
+        <input id="custom-desc" type="text" autocomplete="off" placeholder="Optional">
+      </label>
+      <label>Price
+        <input id="custom-price" type="text" inputmode="decimal" autocomplete="off" placeholder="0.00" aria-label="Price in dollars">
+      </label>
+      <label>Quantity
+        <input id="custom-qty" type="number" min="1" step="1" inputmode="numeric" value="1">
+      </label>
+      <div class="span-2">
+        <p class="custom-label" id="custom-kind-label">How this item is priced</p>
+        <div class="parts-toggle" role="group" aria-labelledby="custom-kind-label">
+          <button class="is-current" type="button" data-parts="0" aria-pressed="true">Installed</button>
+          <button type="button" data-parts="1" aria-pressed="false">Parts only</button>
+        </div>
+      </div>
+      <label class="check-row span-2">
+        <input id="custom-taxable" type="checkbox" checked>
+        Taxable
+      </label>
+      <p class="custom-error span-2" id="custom-error" role="alert"></p>
+      <div class="custom-form-actions span-2">
+        <button class="add-wide" id="custom-save" type="submit">Add to quote</button>
+        <button class="clear-btn" id="custom-cancel" type="button">Cancel</button>
+      </div>
+    </form>
     ${state.quote.lines.length ? "" : `<p class="tray-empty">Nothing in this quote yet. Add accessories from the menu.</p>`}
     <table class="quote-table">
       <thead><tr><th>Item</th><th>Tier</th><th>Price</th><th>Qty</th><th>Amount</th><th class="no-print"><span class="sr">Remove</span></th></tr></thead>
@@ -676,8 +793,21 @@ function renderQuote() {
     </div>
   </article>`;
   const page = view.querySelector(".quote-page");
+  const customForm = document.getElementById("custom-form");
+  document.getElementById("custom-open").addEventListener("click", () => openCustomForm(null));
+  document.getElementById("custom-cancel").addEventListener("click", () => {
+    customForm.hidden = true;
+  });
+  customForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    saveCustomItem();
+  });
+  customForm.querySelectorAll("[data-parts]").forEach((button) => {
+    button.addEventListener("click", () => setPartsMode(customForm, button.dataset.parts === "1"));
+  });
   page.addEventListener("input", (event) => {
     const target = event.target;
+    if (target.closest("#custom-form")) return;
     if (target.id === "quote-name") state.quote.customerName = target.value;
     if (target.id === "quote-phone") state.quote.phone = target.value;
     if (target.id === "quote-vehicle") {
@@ -727,6 +857,12 @@ function renderQuote() {
       saveQuote();
       renderTray();
       renderQuote();
+    });
+  });
+  view.querySelectorAll("[data-edit]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const line = state.quote.lines.find((entry) => entry.id === button.dataset.edit);
+      if (line) openCustomForm(line);
     });
   });
 }

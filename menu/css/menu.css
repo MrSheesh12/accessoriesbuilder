@@ -287,14 +287,15 @@ p.brand { margin: 0; color: var(--muted); font-size: 0.82rem; font-weight: 700; 
   vertical-align: 2px;
 }
 .tag-new { background: var(--accent); color: #fff; margin-right: 6px; }
-.tag-parts {
+.tag-parts,
+.tag-custom {
   text-transform: none;
   letter-spacing: 0;
   margin: 0 0 0 6px;
-  background: var(--amber-bg);
-  color: var(--amber);
   white-space: normal;
 }
+.tag-parts { background: var(--amber-bg); color: var(--amber); }
+.tag-custom { background: var(--brand-2); color: #fff; }
 .price-line { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 4px 0 0; }
 .price-line .price { margin: 0; }
 .quote-table .tag-parts,
@@ -613,6 +614,55 @@ body.prices-off .prices-hidden-label { display: inline; }
 }
 .quote-grand { font-size: 1.25rem; }
 .quote-note { color: var(--amber); }
+.custom-bar { margin: 0 0 12px; }
+.custom-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 0 0 16px;
+  padding: 16px;
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.custom-form[hidden] { display: none; }
+.custom-form label,
+.custom-label { display: flex; flex-direction: column; gap: 6px; font-weight: 650; margin: 0; }
+.custom-form input {
+  min-height: 48px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 8px 12px;
+  font: inherit;
+  font-size: 1.05rem;
+  background: #fff;
+  color: var(--ink);
+}
+.custom-form .span-2 { grid-column: 1 / -1; }
+.parts-toggle { display: flex; gap: 8px; }
+.parts-toggle button {
+  flex: 1;
+  min-height: 48px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: #fff;
+  font-weight: 750;
+}
+.parts-toggle button.is-current { background: var(--brand); color: #fff; border-color: var(--brand); }
+.check-row {
+  flex-direction: row !important;
+  align-items: center;
+  min-height: 48px;
+  gap: 12px;
+}
+.check-row input { width: 28px; height: 28px; min-height: 28px; }
+.custom-error { min-height: 1.2em; margin: 0; color: #8a2a2a; font-weight: 650; }
+.custom-form-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.custom-form-actions .add-wide,
+.custom-form-actions .clear-btn { flex: 1 1 12rem; }
+.line-name { font-weight: 650; }
+.line-desc { display: block; color: var(--muted); font-size: 0.9rem; }
+.line-actions { display: flex; gap: 8px; justify-content: flex-end; }
 .quote-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
 .quote-actions .add-wide,
 .quote-actions .clear-btn { flex: 1 1 16rem; }

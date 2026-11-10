@@ -4,8 +4,8 @@ import { fileURLToPath } from "node:url";
 import { bulletsFor, tierSwitch } from "./js/copy.js";
 import { photosFor, PHOTOS } from "./js/photos.js";
 import { itemMatchesVehicle } from "./js/vehicle-filter.js";
-import { PARTS_ONLY_NOTE, PARTS_ONLY_TAG, priceLabel } from "./js/price-label.js";
-import { quoteTotals } from "./js/quote-math.js";
+import { money, PARTS_ONLY_NOTE, PARTS_ONLY_TAG, priceLabel } from "./js/price-label.js";
+import { customItemError, quoteNotes, quoteTotals } from "./js/quote-math.js";
 import { inflateSync } from "node:zlib";
 
 const root = dirname(fileURLToPath(import.meta.url));
@@ -327,6 +327,41 @@ const withCall = quoteTotals([
 ]);
 if (withCall.subtotal !== 3413 || withCall.tax !== 303.76 || withCall.total !== 3716.76 || !withCall.callForPrice) {
   fail(`a missing price must stay out of the tax math, got ${JSON.stringify(withCall)}`);
+}
+const withCustom = quoteTotals([
+  { price: 3413, qty: 1 },
+  { price: 500, qty: 1, custom: true, taxable: true },
+]);
+if (withCustom.subtotal !== 3913 || withCustom.tax !== 348.26 || withCustom.total !== 4261.26) {
+  fail(`$500 custom taxable plus $3,413 must tax to $348.26 and total $4,261.26, got ${JSON.stringify(withCustom)}`);
+}
+const untaxed = quoteTotals([
+  { price: 3413, qty: 1 },
+  { price: 500, qty: 1, custom: true, taxable: false },
+]);
+if (untaxed.subtotal !== 3913 || untaxed.tax !== 303.76 || untaxed.total !== 4216.76) {
+  fail(`a non-taxable custom item must stay out of tax, got ${JSON.stringify(untaxed)}`);
+}
+const installedAndParts = [
+  { price: 500, qty: 1, listPrice: false, taxable: true, custom: true },
+  { price: 200, qty: 1, listPrice: true, taxable: true, custom: true },
+];
+const mixedKind = quoteTotals(installedAndParts);
+if (mixedKind.subtotal !== 700 || mixedKind.tax !== 62.3 || mixedKind.total !== 762.3 || money(mixedKind.tax) !== "$62.30" || money(mixedKind.total) !== "$762.30") {
+  fail(`$500 installed plus $200 parts-only must total $762.30, got ${JSON.stringify(mixedKind)}`);
+}
+if (!quoteNotes(installedAndParts, mixedKind).includes(PARTS_ONLY_NOTE)) {
+  fail("the parts-only note must show when a custom line is parts only");
+}
+if (customItemError({ name: "Shop towels", price: 0 }) || customItemError({ name: "Shop towels", price: "0" }) || customItemError({ name: "Shop towels", price: "" })) {
+  fail("a $0 custom price must be allowed");
+}
+if (!customItemError({ name: "   ", price: 25 })) fail("a blank custom name must be blocked");
+if (!customItemError({ name: "Credit", price: -1 }) || !customItemError({ name: "Credit", price: "-4.00" })) {
+  fail("a negative custom price must be blocked");
+}
+if (!menuJs.includes("Add custom item") || !menuJs.includes('inputmode="decimal"') || !menuJs.includes("customItemError(")) {
+  fail("the quote needs an iPad custom item form");
 }
 if (!html.includes('id="vehicle-filter"')) fail("the vehicle filter must live in the top bar");
 if (!html.includes('id="make-quote"')) fail("the tray needs a Make quote button");
