@@ -1,11 +1,11 @@
 /* Corwin Ford Tri-Cities — iPad accessory menu.
    Item names and prices come from catalog.json. Photos are mapped locally. */
 
-import { bulletsFor, tierSwitch } from "./copy.js?v=2fe6a3a";
-import { PARTS_ONLY_NOTE, PARTS_ONLY_TAG, hasPrice, money, priceLabel } from "./price-label.js?v=2fe6a3a";
-import { bedLengthsFor, customItemError, linePartNumber, parseDollars, quoteForBed, quoteNotes, quoteTotals } from "./quote-math.js?v=2fe6a3a";
-import { photosFor } from "./photos.js?v=2fe6a3a";
-import { itemMatchesVehicle } from "./vehicle-filter.js?v=2fe6a3a";
+import { bulletsFor, tierSwitch } from "./copy.js?v=cfe7182";
+import { PARTS_ONLY_NOTE, PARTS_ONLY_TAG, hasPrice, money, priceLabel } from "./price-label.js?v=cfe7182";
+import { bedLengthsFor, customItemError, linePartNumber, parseDollars, quoteForBed, quoteNotes, quoteTotals } from "./quote-math.js?v=cfe7182";
+import { photosFor } from "./photos.js?v=cfe7182";
+import { itemMatchesVehicle } from "./vehicle-filter.js?v=cfe7182";
 
 const PRICE_KEY = "accessory-menu-show-prices";
 const FILTER_KEY = "accessory-menu-vehicle";
@@ -755,7 +755,7 @@ function renderQuote() {
       <td class="num qty-cell"><input class="qty no-print" type="number" min="1" step="1" inputmode="numeric" data-qty="${esc(line.id)}" value="${line.qty}" aria-label="Quantity for ${esc(line.name)}"><span class="print-only">${line.qty}</span></td>
       <td class="num price">${esc(unit)}</td>
       <td class="num line-total price">${esc(extended)}</td>
-      <td class="no-print line-actions"><button class="remove-btn" type="button" data-remove="${esc(line.id)}">Remove</button></td>
+      <td class="no-print line-actions"><button class="remove-btn" type="button" data-remove="${esc(line.id)}" aria-label="Remove"><span aria-hidden="true">×</span></button></td>
     </tr>`;
   });
   const bodyRows = rows.slice(0, -1).join("");
@@ -1049,7 +1049,7 @@ async function boot() {
   if (vehicleSelect) vehicleSelect.value = state.vehicleFilter;
   renderTray();
   try {
-    const response = await fetch("catalog.json?v=2fe6a3a", { cache: "no-store" });
+    const response = await fetch("catalog.json?v=cfe7182", { cache: "no-store" });
     if (!response.ok) throw new Error(`Catalog request failed (${response.status})`);
     state.catalog = await response.json();
   } catch (error) {

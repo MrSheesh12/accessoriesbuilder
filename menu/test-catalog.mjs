@@ -512,6 +512,9 @@ if (!css.includes(".quote-table.quote-dense") || !css.includes("padding: 5px")) 
   fail("quotes over 10 items must print with 5px row padding");
 }
 if (!css.includes("white-space: nowrap")) fail("list prices and the parts tag must stay on one line");
+if (!rowSrc.includes('aria-label="Remove"') || !rowSrc.includes('aria-hidden="true">×')) {
+  fail("the quote remove control must be a labeled × button, not clipped Remove text");
+}
 const actionCell = rowSrc.slice(rowSrc.lastIndexOf('class="no-print line-actions"'));
 if (actionCell.includes("PARTS_ONLY_TAG")) fail("the parts tag must stay on the printed item, not in the remove cell");
 const lineFn = menuJs.slice(menuJs.indexOf("function linePriceHtml"), menuJs.indexOf("function tierBadge"));

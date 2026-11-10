@@ -1,4 +1,4 @@
-import { hasPrice } from "./price-label.js?v=2fe6a3a";
+import { hasPrice } from "./price-label.js?v=cfe7182";
 
 const TIERS = ["good", "better", "best"];
 const TIER_LABEL = { good: "Good", better: "Better", best: "Best" };
