@@ -1,11 +1,11 @@
 /* Corwin Ford Tri-Cities — iPad accessory menu.
    Item names and prices come from catalog.json. Photos are mapped locally. */
 
-import { bulletsFor, tierSwitch } from "./copy.js?v=a91f143";
-import { PARTS_ONLY_NOTE, PARTS_ONLY_TAG, hasPrice, money, priceLabel } from "./price-label.js?v=a91f143";
-import { bedLengthsFor, customItemError, linePartNumber, parseDollars, quoteForBed, quoteNotes, quoteTotals } from "./quote-math.js?v=a91f143";
-import { photosFor } from "./photos.js?v=a91f143";
-import { itemMatchesVehicle } from "./vehicle-filter.js?v=a91f143";
+import { bulletsFor, tierSwitch } from "./copy.js?v=4092866";
+import { PARTS_ONLY_NOTE, PARTS_ONLY_TAG, hasPrice, money, priceLabel } from "./price-label.js?v=4092866";
+import { bedLengthsFor, customItemError, linePartNumber, parseDollars, quoteForBed, quoteNotes, quoteTotals } from "./quote-math.js?v=4092866";
+import { photosFor } from "./photos.js?v=4092866";
+import { itemMatchesVehicle } from "./vehicle-filter.js?v=4092866";
 
 const PRICE_KEY = "accessory-menu-show-prices";
 const FILTER_KEY = "accessory-menu-vehicle";
@@ -152,9 +152,15 @@ function isListPrice(line) {
 
 function partLineHtml(line) {
   const value = String(line.partNumber || "");
-  const editor = `<label class="part-edit no-print">Part #:<input class="part-input" type="text" data-part="${esc(line.id)}" value="${esc(value)}" autocomplete="off" aria-label="Part number for ${esc(line.name)}"></label>`;
-  const shown = value ? `<p class="part-line">Part #: ${esc(value)}</p>` : "";
+  const editor = `<label class="part-edit no-print">Part #<input class="part-input" type="text" data-part="${esc(line.id)}" value="${esc(value)}" autocomplete="off" aria-label="Part number for ${esc(line.name)}"></label>`;
+  const shown = value ? `<span class="part-line">Part #: ${esc(value)}</span>` : "";
   return `${editor}${shown}`;
+}
+
+function quoteTitle(name) {
+  const match = String(name || "").match(/^(.*), (\d+(?:\.\d+)? ft) bed$/);
+  if (!match) return { title: name, size: "" };
+  return { title: match[1], size: `${match[2]} bed` };
 }
 
 function linePriceText(line) {
@@ -720,19 +726,23 @@ function renderQuote() {
   const number = state.quote.lines.length ? quoteNumber() : (state.quote.number || "");
   const vehicle = vehicleText();
   const rows = state.quote.lines.map((line) => {
-    const tier = line.custom
-      ? `<span class="tag tag-custom">Custom</span>`
-      : esc(TIER_LABEL[line.tier] || "");
+    const titled = quoteTitle(line.name);
+    const sizeLine = titled.size ? `<span class="line-size">${esc(titled.size)}</span>` : "";
     const detail = line.description ? `<span class="line-desc">${esc(line.description)}</span>` : "";
-    const part = partLineHtml(line);
+    const notes = [];
+    if (line.custom) notes.push("Custom");
+    else if (TIER_LABEL[line.tier]) notes.push(TIER_LABEL[line.tier]);
+    if (isListPrice(line)) notes.push(PARTS_ONLY_TAG);
+    if (line.taxable === false) notes.push("Not taxed");
+    const noteHtml = notes.map((text) => `<span class="line-note">${esc(text)}</span>`).join("");
+    const unit = hasPrice(line.price) ? money(line.price) : "Call for price";
     const extended = hasPrice(line.price) ? money(Number(line.price) * line.qty) : "Call for price";
     const edit = line.custom ? `<button class="remove-btn" type="button" data-edit="${esc(line.id)}">Edit</button>` : "";
     return `<tr>
-      <td><span class="line-name">${esc(line.name)}</span>${detail}${part}</td>
-      <td>${tier}</td>
-      <td class="num">${linePriceHtml(line)}</td>
-      <td class="num"><input class="qty no-print" type="number" min="1" step="1" inputmode="numeric" data-qty="${esc(line.id)}" value="${line.qty}" aria-label="Quantity for ${esc(line.name)}"><span class="print-only">${line.qty}</span></td>
-      <td class="num price">${esc(extended)}</td>
+      <td class="quote-item"><span class="line-name">${esc(titled.title)}</span>${sizeLine}${detail}${partLineHtml(line)}${noteHtml}</td>
+      <td class="num qty-cell"><input class="qty no-print" type="number" min="1" step="1" inputmode="numeric" data-qty="${esc(line.id)}" value="${line.qty}" aria-label="Quantity for ${esc(line.name)}"><span class="print-only">${line.qty}</span></td>
+      <td class="num price">${esc(unit)}</td>
+      <td class="num line-total price">${esc(extended)}</td>
       <td class="no-print line-actions">${edit}<button class="remove-btn" type="button" data-remove="${esc(line.id)}">Remove</button></td>
     </tr>`;
   }).join("");
@@ -800,7 +810,14 @@ function renderQuote() {
     </form>
     ${state.quote.lines.length ? "" : `<p class="tray-empty">Nothing in this quote yet. Add accessories from the menu.</p>`}
     <table class="quote-table">
-      <thead><tr><th>Item</th><th>Tier</th><th>Price</th><th>Qty</th><th>Amount</th><th class="no-print"><span class="sr">Remove</span></th></tr></thead>
+      <colgroup>
+        <col>
+        <col class="col-qty">
+        <col class="col-price">
+        <col class="col-total">
+        <col class="col-act">
+      </colgroup>
+      <thead><tr><th>Item</th><th class="num">Qty</th><th class="num">Price</th><th class="num">Amount</th><th class="no-print"><span class="sr">Remove</span></th></tr></thead>
       <tbody>${rows}</tbody>
     </table>
     <div class="quote-totals">
@@ -865,7 +882,7 @@ function renderQuote() {
         if (values[index]) node.textContent = values[index];
       });
       const row = target.closest("tr");
-      const amount = row && row.querySelector("td:nth-child(5)");
+      const amount = row && row.querySelector(".line-total");
       if (line && amount) amount.textContent = hasPrice(line.price) ? money(Number(line.price) * line.qty) : "Call for price";
       return;
     }
@@ -1007,7 +1024,7 @@ async function boot() {
   if (vehicleSelect) vehicleSelect.value = state.vehicleFilter;
   renderTray();
   try {
-    const response = await fetch("catalog.json?v=a91f143", { cache: "no-store" });
+    const response = await fetch("catalog.json?v=4092866", { cache: "no-store" });
     if (!response.ok) throw new Error(`Catalog request failed (${response.status})`);
     state.catalog = await response.json();
   } catch (error) {

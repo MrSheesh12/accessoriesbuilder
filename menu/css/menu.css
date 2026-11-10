@@ -580,7 +580,7 @@ body.prices-off .prices-hidden-label { display: inline; }
 .quote-fields {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 12px 20px;
   margin: 0 0 16px;
 }
 .quote-fields label { display: flex; flex-direction: column; gap: 6px; font-weight: 650; }
@@ -594,26 +594,70 @@ body.prices-off .prices-hidden-label { display: inline; }
   background: #fff;
   color: var(--ink);
 }
-.qty { width: 4.5rem; text-align: right; }
-.quote-table { width: 100%; border-collapse: collapse; background: var(--card); }
+.qty { width: 100%; max-width: 4.75rem; margin-left: auto; text-align: right; font-variant-numeric: tabular-nums; }
+.quote-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  background: var(--card);
+  font-variant-numeric: tabular-nums;
+}
+.col-qty { width: 5.75rem; }
+.col-price, .col-total { width: 7.5rem; }
+.col-act { width: 8.5rem; }
 .quote-table th,
 .quote-table td {
-  padding: 10px 8px;
-  border-bottom: 1px solid #d5dbe8;
+  padding: 12px;
   text-align: left;
-  vertical-align: middle;
+  vertical-align: top;
 }
-.quote-table .num { text-align: right; }
-.quote-totals { margin-top: 12px; }
+.quote-table thead th {
+  border-bottom: 1.5px solid #8d97a8;
+  color: var(--muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.quote-table tbody tr { border-bottom: 1px solid #e3e7ee; }
+.quote-table .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.quote-item { overflow-wrap: anywhere; }
+.line-name { display: block; font-weight: 700; }
+.line-size,
+.line-desc,
+.line-note,
+.part-line {
+  display: block;
+  margin-top: 2px;
+  color: #5c6570;
+  font-size: 0.82rem;
+  font-weight: 500;
+  line-height: 1.35;
+}
+.quote-totals {
+  width: min(100%, 3in);
+  margin: 18px 0 0 auto;
+}
 .quote-totals p {
   display: flex;
   justify-content: space-between;
   gap: 16px;
-  max-width: 22rem;
-  margin: 4px 0 4px auto;
+  margin: 0 0 4px;
+  font-variant-numeric: tabular-nums;
 }
-.quote-grand { font-size: 1.25rem; }
-.quote-note { color: var(--amber); }
+.quote-grand {
+  border-top: 1.5px solid #243044;
+  margin-top: 4px;
+  padding-top: 4px;
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+.quote-totals .quote-note {
+  display: block;
+  margin: 8px 0 0;
+  text-align: right;
+  font-weight: 500;
+  color: var(--amber);
+}
 .custom-bar { margin: 0 0 12px; }
 .custom-form {
   display: grid;
@@ -660,16 +704,16 @@ body.prices-off .prices-hidden-label { display: inline; }
 .custom-form-actions { display: flex; flex-wrap: wrap; gap: 12px; }
 .custom-form-actions .add-wide,
 .custom-form-actions .clear-btn { flex: 1 1 12rem; }
-.line-name { font-weight: 650; }
+.line-name { font-weight: 700; }
 .line-desc { display: block; color: var(--muted); font-size: 0.9rem; }
 .part-edit {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-top: 6px;
-  color: var(--muted);
-  font-size: 0.85rem;
-  font-weight: 650;
+  margin-top: 2px;
+  color: #5c6570;
+  font-size: 0.82rem;
+  font-weight: 500;
 }
 .part-input {
   flex: 1;
@@ -681,7 +725,7 @@ body.prices-off .prices-hidden-label { display: inline; }
   color: var(--ink);
   background: #fff;
 }
-.part-line { display: none; margin: 4px 0 0; color: var(--muted); font-size: 0.85rem; }
+.part-line { display: none; }
 .bed-lengths { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 12px; }
 .bed-lengths button {
   min-height: 44px;
@@ -696,11 +740,11 @@ body.prices-off .prices-hidden-label { display: inline; }
 .quote-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
 .quote-actions .add-wide,
 .quote-actions .clear-btn { flex: 1 1 16rem; }
-.print-sheet { background: #fff; border-radius: var(--radius); padding: 16px; margin-bottom: 12px; }
+.print-sheet { background: #fff; border-radius: var(--radius); padding: 16px; margin: 0 0 16px; }
 .print-head h1 { margin: 0; color: var(--brand); font-size: 1.6rem; }
-.print-head p { margin: 2px 0 0; }
-.print-meta { display: flex; justify-content: space-between; gap: 12px; margin: 8px 0; }
-.print-who { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; margin: 0; }
+.print-head p { margin: 4px 0 0; }
+.print-meta { display: flex; justify-content: space-between; gap: 12px; margin: 8px 0 12px; }
+.print-who { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 24px; margin: 0; }
 .print-who div { margin: 0; }
 .print-who dt { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
 .print-who dd { margin: 0; font-weight: 700; }
@@ -766,23 +810,32 @@ body.prices-off .prices-hidden-label { display: inline; }
 @media print {
   @page { size: letter; margin: 0.45in; }
   html, body { height: auto; background: #fff; color: #000; }
-  body { display: block; font-size: 11pt; }
+  body { display: block; font-size: 8pt; line-height: 1.35; }
   .topbar, .tray, .lightbox, .no-print, .noscript, .sr { display: none !important; }
   main { overflow: visible; padding: 0; display: block; }
   .print-only { display: inline !important; }
   .quote-page { max-width: none; }
-  .print-sheet { padding: 0; margin: 0 0 8px; }
-  .print-head h1 { font-size: 16pt; color: #000; }
-  .print-head p { margin: 0 0 6px; }
+  .print-sheet { padding: 0; margin: 0; border-radius: 0; }
+  .print-head h1 { font-size: 13pt; color: #000; line-height: 1.15; }
+  .print-head p { margin: 2pt 0 0; }
+  .print-meta { margin: 4pt 0 8pt; }
+  .print-who { gap: 4pt 16pt; margin: 0 0 14pt; }
   .print-who dt { color: #333; }
-  .quote-table { font-size: 10pt; }
-  .quote-table th, .quote-table td { padding: 3px 4px; }
-  .quote-totals { margin-top: 8px; }
-  .quote-totals p { margin: 0 0 2px auto; }
-  .print-foot { margin: 10px 0 0; font-size: 9pt; color: #333; }
-  .quote-table tr, .quote-totals, .print-head, .print-who { break-inside: avoid; }
+  .quote-table { font-size: 8pt; line-height: 1.35; }
+  .col-qty { width: 0.6in; }
+  .col-price, .col-total { width: 1.1in; }
+  .col-act { width: 0; }
+  .quote-table th, .quote-table td { padding: 6px 8px; line-height: 1.35; }
+  .quote-table thead th { border-bottom: 1.5px solid #333; color: #222; }
+  .quote-table tbody tr { border-bottom: 1px solid #d5d5d5; }
+  .line-size, .line-desc, .line-note, .part-line { color: #555; font-size: 8pt; margin-top: 2px; }
+  .quote-totals { width: 3in; margin-top: 8pt; }
+  .quote-totals p { margin: 0 0 4px; font-size: 10pt; }
+  .quote-grand { font-size: 12pt; font-weight: 800; }
+  .quote-totals .quote-note { font-size: 8pt; }
+  .print-foot { margin: 12pt 0 0; font-size: 8pt; color: #333; }
+  .quote-table tr, .quote-totals, .print-head, .print-who { break-inside: avoid; page-break-inside: avoid; }
   body.prices-off .quote-page .price { display: inline !important; }
   body.prices-off .quote-page td.price { display: table-cell !important; }
-  .tag-parts { display: inline-block !important; }
-  .part-line { display: block !important; color: #444; }
+  .part-line { display: block !important; }
 }

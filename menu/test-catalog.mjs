@@ -500,12 +500,13 @@ if (!priceFn.includes("partsTag()") || !priceFn.includes("item.listPrice") || !p
   fail("product cards must show the parts-only tag next to a list price");
 }
 const rowStart = menuJs.indexOf("const rows = state.quote.lines.map");
-const rowEnd = menuJs.indexOf("const notes =", rowStart);
+const rowEnd = menuJs.indexOf("const noted =", rowStart);
 const rowSrc = menuJs.slice(rowStart, rowEnd);
-const priceCell = rowSrc.slice(rowSrc.indexOf('<td class="num">${linePriceHtml(line)}</td>'), rowSrc.indexOf("<td class=\"num\"><input"));
-if (!priceCell.startsWith('<td class="num">${linePriceHtml(line)}</td>') || priceCell.includes("no-print")) {
-  fail("each quote line must carry the parts tag on screen and in print");
+if (!rowSrc.includes("PARTS_ONLY_TAG") || !rowSrc.includes('class="line-note"')) {
+  fail("each quote line must show the parts tag under the item name");
 }
+const actionCell = rowSrc.slice(rowSrc.lastIndexOf('class="no-print line-actions"'));
+if (actionCell.includes("PARTS_ONLY_TAG")) fail("the parts tag must stay on the printed item, not in the remove cell");
 const lineFn = menuJs.slice(menuJs.indexOf("function linePriceHtml"), menuJs.indexOf("function tierBadge"));
 if (!lineFn.includes("partsTag()") || !lineFn.includes("isListPrice(line)")) {
   fail("quote lines for list prices must render the parts tag");
