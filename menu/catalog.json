@@ -329,7 +329,8 @@
       "sellingPoint": "Rough Country 3\" lift + alignment; F-150 4WD.",
       "fits": [
         "F-150"
-      ]
+      ],
+      "partNumber": "41431"
     },
     {
       "id": "leveling-kit-f-150-readylift-2in-66-2120",
@@ -839,10 +840,11 @@
       "brand": "Rough Country",
       "price": 795,
       "tier": null,
-      "sellingPoint": "Fender flares (paint-match available).",
+      "sellingPoint": "Starting price is the unpainted 4-door kit for a 2021-2026 Bronco 4-door. Paint-match is available for extra.",
       "fits": [
         "Bronco"
-      ]
+      ],
+      "partNumber": "O-F12124"
     },
     {
       "id": "rain-guards-wind-deflectors",

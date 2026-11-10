@@ -373,11 +373,19 @@ const knownParts = {
   "maverick-bed-divider": "NZ6Z-99286A72-A",
   "rough-country-bronco-lift-40400": "40400",
   "covercraft-carhartt-seatsaver": "SSC3489CAGY",
+  "lift-kit-3in-f-150-rough-country-41431": "41431",
+  "fender-flares": "O-F12124",
 };
 Object.entries(knownParts).forEach(([id, number]) => {
   const item = items.find((entry) => entry.id === id);
   if (!item || item.partNumber !== number) fail(`${id} part number should be ${number}`);
 });
+const flares = items.find((item) => item.id === "fender-flares");
+if (!flares || flares.price !== 795) fail("fender flares stay at the $795 starting price");
+if (!/unpainted 4-door kit/.test(flares.sellingPoint) || !/Paint-match is available for extra/.test(flares.sellingPoint)) {
+  fail("fender flares must say the start price is the unpainted 4-door kit and paint-match is extra");
+}
+if (/https?:\/\/|\$\d/.test(flares.sellingPoint)) fail("the fender flare note must not carry a vendor price or URL");
 ["decked-drawer-system", "leitner-acs-forged", "yakima-overhaul-hd", "spray-in-bedliner", "front-window-tint-2-fronts-carbon"].forEach((id) => {
   const item = items.find((entry) => entry.id === id);
   if (!item) fail(`missing ${id}`);
