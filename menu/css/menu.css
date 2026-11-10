@@ -682,8 +682,16 @@ body.prices-off .prices-hidden-label { display: inline; }
   background: #fff;
 }
 .part-line { display: none; margin: 4px 0 0; color: var(--muted); font-size: 0.85rem; }
-.bed-size { margin: 8px 0 12px; }
-.bed-size button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
+.bed-lengths { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 12px; }
+.bed-lengths button {
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #fff;
+  font-weight: 750;
+}
+.bed-lengths button.is-current { background: var(--brand); color: #fff; border-color: var(--brand); }
 .line-actions { display: flex; gap: 8px; justify-content: flex-end; }
 .quote-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
 .quote-actions .add-wide,

@@ -59,20 +59,63 @@ export function linePartNumber(saved, catalogPart) {
   return String(catalogPart || "");
 }
 
-export const BED_SIZES = [
-  { id: "under-8", label: "Under 8 ft", price: 650, quoteName: "Spray-in bedliner, under 8 ft bed" },
-  { id: "8-plus", label: "8 ft or longer", price: 700, quoteName: "Spray-in bedliner, 8 ft+ bed" },
-];
+export const VEHICLE_BEDS = {
+  "F-150": [
+    { id: "5.5", label: "5.5 ft", feet: 5.5 },
+    { id: "6.5", label: "6.5 ft", feet: 6.5 },
+    { id: "8", label: "8 ft", feet: 8 },
+  ],
+  "Super Duty": [
+    { id: "6.75", label: "6.75 ft", feet: 6.75 },
+    { id: "8", label: "8 ft", feet: 8 },
+  ],
+  Ranger: [
+    { id: "5", label: "5 ft", feet: 5 },
+    { id: "6", label: "6 ft", feet: 6 },
+  ],
+  Maverick: [
+    { id: "4.5", label: "4.5 ft", feet: 4.5 },
+  ],
+};
 
-export function bedSizesFor(item) {
-  if (!item) return [];
-  const name = String(item.name || "");
-  if (item.id === "spray-in-bedliner" || /spray-in bedliner/i.test(name)) return BED_SIZES.slice();
-  return [];
+export function isBedProduct(item) {
+  if (!item) return false;
+  if (item.category === "bed-covers" || item.category === "bedliners") return true;
+  const text = `${item.id} ${item.name || ""}`.toLowerCase();
+  return /bed-divider|bed divider|drawer|bed rack|headache rack|bed-step|bed step|tool-box|tool box|tonneau|bed mat|bedliner/.test(text);
 }
 
-export function bedChoice(item, sizeId) {
-  const sizes = bedSizesFor(item);
-  if (!sizes.length) return null;
-  return sizes.find((size) => size.id === sizeId) || sizes[0];
+export function isSprayIn(item) {
+  if (!item) return false;
+  return item.id === "spray-in-bedliner" || /spray-in bedliner/i.test(item.name || "");
+}
+
+/** Lengths for the chosen vehicle, or every truck the item fits when the filter is All. */
+export function bedLengthsFor(item, vehicle) {
+  if (!isBedProduct(item)) return [];
+  const fits = Array.isArray(item.fits) ? item.fits : [];
+  const names = vehicle && vehicle !== "All" ? (fits.includes(vehicle) ? [vehicle] : []) : fits;
+  const seen = new Set();
+  const lengths = [];
+  names.forEach((name) => {
+    (VEHICLE_BEDS[name] || []).forEach((length) => {
+      if (seen.has(length.label)) return;
+      seen.add(length.label);
+      lengths.push(length);
+    });
+  });
+  return lengths;
+}
+
+/** Same price and part number for every length, except spray-in: under 8 ft is $650 and 8 ft is $700. */
+export function quoteForBed(item, length) {
+  const baseName = String(item?.name || "");
+  const name = length ? `${baseName}, ${length.label} bed` : baseName;
+  let price = item?.price;
+  if (isSprayIn(item) && length) price = length.feet >= 8 ? 700 : 650;
+  return {
+    name,
+    price,
+    partNumber: item?.partNumber || "",
+  };
 }

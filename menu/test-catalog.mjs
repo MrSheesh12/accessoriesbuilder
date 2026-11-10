@@ -5,7 +5,7 @@ import { bulletsFor, tierSwitch } from "./js/copy.js";
 import { photosFor, PHOTOS } from "./js/photos.js";
 import { itemMatchesVehicle } from "./js/vehicle-filter.js";
 import { money, PARTS_ONLY_NOTE, PARTS_ONLY_TAG, priceLabel } from "./js/price-label.js";
-import { bedChoice, bedSizesFor, customItemError, linePartNumber, quoteNotes, quoteTotals } from "./js/quote-math.js";
+import { bedLengthsFor, customItemError, isBedProduct, linePartNumber, quoteForBed, quoteNotes, quoteTotals } from "./js/quote-math.js";
 import { inflateSync } from "node:zlib";
 
 const root = dirname(fileURLToPath(import.meta.url));
@@ -160,7 +160,7 @@ HOME.forEach(([id, name], index) => {
   }
 });
 
-if (items.length !== 74) fail(`expected 74 public items, found ${items.length}`);
+if (items.length !== 75) fail(`expected 75 public items, found ${items.length}`);
 if (items.some((item) => item && item.review === true)) fail("catalog.json still has a review item");
 if (rawCatalog.includes("full-vehicle-tint")) fail("full-vehicle-tint must not be in the public catalog");
 if (/"review"\s*:/.test(rawCatalog)) fail("review flags must not be stored in catalog.json");
@@ -421,11 +421,33 @@ if (cardFn.includes("partNumber") || cardFn.includes("Part #")) fail("menu cards
 const liner = items.find((item) => item.id === "spray-in-bedliner");
 const sprayItems = items.filter((item) => /spray-in bedliner/i.test(item.name));
 if (sprayItems.length !== 1 || !liner || liner.price !== 650) fail("spray-in bedliner stays one item at the $650 starting price");
-const underBed = bedChoice(liner, "under-8");
-const longBed = bedChoice(liner, "8-plus");
-if (!underBed || underBed.price !== 650 || bedSizesFor(liner).length !== 2) fail("under 8 ft bed must be $650");
-if (!longBed || longBed.price !== 700 || longBed.quoteName !== "Spray-in bedliner, 8 ft+ bed") fail("8 ft or longer must quote as Spray-in bedliner, 8 ft+ bed at $700");
-const underTotals = quoteTotals([{ price: underBed.price, qty: 1 }]);
+const f150Beds = bedLengthsFor(liner, "F-150");
+if (f150Beds.map((length) => length.label).join("|") !== "5.5 ft|6.5 ft|8 ft") fail("F-150 beds must be 5.5, 6.5, and 8 ft");
+const shortBed = quoteForBed(liner, f150Beds[0]);
+const midBed = quoteForBed(liner, f150Beds[1]);
+const longBed = quoteForBed(liner, f150Beds[2]);
+if (shortBed.price !== 650 || midBed.price !== 650 || !shortBed.name.endsWith("5.5 ft bed")) fail("beds under 8 ft stay $650");
+if (longBed.price !== 700 || longBed.name !== "Spray-in bedliner, 8 ft bed") fail("an 8 ft bed uses the $700 spray-in price");
+if (shortBed.partNumber || longBed.partNumber) fail("spray-in bed length must not invent a part number");
+const cover = items.find((item) => item.id === "bakflip-mx4");
+const coverBeds = bedLengthsFor(cover, "F-150");
+const coverShort = quoteForBed(cover, coverBeds[0]);
+const coverLong = quoteForBed(cover, coverBeds[2]);
+if (coverShort.price !== cover.price || coverLong.price !== cover.price || coverShort.partNumber !== cover.partNumber || coverLong.partNumber !== cover.partNumber) {
+  fail("bed length must keep the cover price and part number");
+}
+if (!coverShort.name.endsWith("5.5 ft bed")) fail("the quote line must name the bed length");
+if (bedLengthsFor(cover, "Maverick").length !== 0) fail("an F-150 cover has no Maverick bed lengths");
+if (bedLengthsFor({ id: "tint", name: "Tint", category: "tint", fits: ["F-150"] }, "F-150").length !== 0) fail("tint is not a bed product");
+const maverickDivider = items.find((item) => item.id === "maverick-bed-divider");
+if (bedLengthsFor(maverickDivider, "Maverick").length !== 1) fail("Maverick has a single 4.5 ft bed");
+if (bedLengthsFor({ id: "sd-cover", name: "Cover", category: "bed-covers", fits: ["Super Duty"] }, "Super Duty").map((length) => length.label).join("|") !== "6.75 ft|8 ft") {
+  fail("Super Duty beds must be 6.75 and 8 ft");
+}
+if (bedLengthsFor({ id: "ranger-cover", name: "Cover", category: "bed-covers", fits: ["Ranger"] }, "Ranger").map((length) => length.label).join("|") !== "5 ft|6 ft") {
+  fail("Ranger beds must be 5 and 6 ft");
+}
+const underTotals = quoteTotals([{ price: shortBed.price, qty: 1 }]);
 const longTotals = quoteTotals([{ price: longBed.price, qty: 1 }]);
 if (underTotals.tax !== 57.85 || underTotals.total !== 707.85 || money(underTotals.tax) !== "$57.85" || money(underTotals.total) !== "$707.85") {
   fail(`$650 bedliner tax was ${JSON.stringify(underTotals)}`);
@@ -433,7 +455,8 @@ if (underTotals.tax !== 57.85 || underTotals.total !== 707.85 || money(underTota
 if (longTotals.tax !== 62.3 || longTotals.total !== 762.3 || money(longTotals.tax) !== "$62.30" || money(longTotals.total) !== "$762.30") {
   fail(`$700 bedliner tax was ${JSON.stringify(longTotals)}`);
 }
-if (!menuJs.includes("Bed size") || !menuJs.includes("data-bed")) fail("the bedliner page needs a bed size switch");
+if (!menuJs.includes('aria-label="Bed length"') || !menuJs.includes("data-bed")) fail("bed products need a compact bed length picker");
+if (isBedProduct(liner) !== true) fail("spray-in bedliner is a bed product");
 if (!html.includes('id="vehicle-filter"')) fail("the vehicle filter must live in the top bar");
 if (!html.includes('id="make-quote"')) fail("the tray needs a Make quote button");
 if (!menuJs.includes('parts[0] === "quote"')) fail("the quote must live at #/quote");
@@ -476,8 +499,8 @@ additions.forEach((item) => {
   if (item.listPrice !== true) fail(`${item.id} must be marked as a list price`);
 });
 const withPhotos = items.filter((item) => photosFor(item.id).length);
-if (withPhotos.length !== 73) fail(`expected 73 of 74 items with photos, found ${withPhotos.length}`);
-const photoComing = ["mud-flaps"];
+if (withPhotos.length !== 73) fail(`expected 73 of 75 items with photos, found ${withPhotos.length}`);
+const photoComing = ["mud-flaps", "ford-5th-wheel-prep-package"];
 const credits = readFileSync(join(root, "images/CREDITS.md"), "utf8");
 photoComing.forEach((id) => {
   if (photosFor(id).length) fail(`${id} must show Photo coming until a matching photo is added`);
@@ -508,7 +531,15 @@ if (itemMatchesVehicle({ fits: ["Ranger"] }, "Other")) fail("a Ranger-only item 
 if (!itemMatchesVehicle({ universal: true, fits: ["F-150"] }, "Other")) fail("an item marked universal must show under Other");
 if (!itemMatchesVehicle({ fits: ["universal"] }, "Bronco")) fail("a fits value of universal must show under every vehicle");
 if (!menuJs.includes("itemMatchesVehicle")) fail("the menu filter must use the shared vehicle match");
-if (!menuJs.includes("New additions") || !menuJs.includes("tag-new")) fail("new additions need a home row and a New badge");
+if (menuJs.includes("New additions") || menuJs.includes("tag-new") || menuJs.includes("newBadge")) {
+  fail("the New additions row and badges must not render");
+}
+const fifth = items.find((item) => item.id === "ford-5th-wheel-prep-package");
+if (!fifth || fifth.name !== "Ford 5th Wheel Prep Package" || fifth.brand !== "Ford" || fifth.price !== 2250 || fifth.category !== "towing-5th-wheel") {
+  fail("Ford 5th Wheel Prep Package must be a $2,250 installed towing item");
+}
+if (!fifth.fits || fifth.fits.join("|") !== "Super Duty" || fifth.partNumber) fail("the 5th-wheel prep fits Super Duty and has no made-up part number");
+if (/https?:\/\//.test(JSON.stringify(fifth))) fail("the 5th-wheel prep must not carry a source URL");
 if (/priceSource|photoSourceUrl/.test(rawCatalog)) fail("public catalog must not carry source fields");
 if (/https?:\/\//.test(rawCatalog)) fail("public catalog must not carry source URLs");
 const bannedKey = /(^|[^a-z])(source|cost|gross|vendor|labor|notes|times_sold|rmac|keystone)([^a-z]|$)|priceSource|photoSourceUrl/i;

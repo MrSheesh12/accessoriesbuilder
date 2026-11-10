@@ -822,6 +822,18 @@
       ]
     },
     {
+      "id": "ford-5th-wheel-prep-package",
+      "category": "towing-5th-wheel",
+      "name": "Ford 5th Wheel Prep Package",
+      "brand": "Ford",
+      "price": 2250,
+      "tier": null,
+      "sellingPoint": "Factory 5th-wheel prep for F-250, F-350, and F-450 Super Duty pickups.",
+      "fits": [
+        "Super Duty"
+      ]
+    },
+    {
       "id": "mud-flaps",
       "category": "bumper-grille",
       "name": "Mud flaps",

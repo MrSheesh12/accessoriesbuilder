@@ -3,7 +3,7 @@
 
 import { bulletsFor, tierSwitch } from "./copy.js";
 import { PARTS_ONLY_NOTE, PARTS_ONLY_TAG, hasPrice, money, priceLabel } from "./price-label.js";
-import { bedChoice, bedSizesFor, customItemError, linePartNumber, parseDollars, quoteNotes, quoteTotals } from "./quote-math.js";
+import { bedLengthsFor, customItemError, linePartNumber, parseDollars, quoteForBed, quoteNotes, quoteTotals } from "./quote-math.js";
 import { photosFor } from "./photos.js";
 import { itemMatchesVehicle } from "./vehicle-filter.js";
 
@@ -55,7 +55,7 @@ const state = {
   showPrices: localStorage.getItem(PRICE_KEY) !== "0",
   vehicleFilter: VEHICLES.includes(localStorage.getItem(FILTER_KEY)) ? localStorage.getItem(FILTER_KEY) : "All",
   quote: loadQuote(),
-  bedSize: {},
+  bedLength: {},
   trayOpen: false,
   slideByItem: {},
   lightbox: null,
@@ -139,10 +139,6 @@ function priceHtml(item) {
   return `<p class="price-line"><span class="price">${esc(label)}</span>${tag}</p>`;
 }
 
-function newBadge(item) {
-  return item && item.newAddition ? `<span class="tag tag-new">New</span>` : "";
-}
-
 function catalogItemForLine(line) {
   if (!state.catalog || !line || line.custom) return null;
   return itemById(String(line.id || "").split("--")[0]);
@@ -215,21 +211,6 @@ function render() {
 }
 
 function renderHome() {
-  const fresh = visibleItems().filter((item) => item.newAddition);
-  const row = fresh.length ? `<section class="new-row" aria-label="New additions">
-    <h2>New additions</h2>
-    <div class="new-scroller">${fresh.map((item) => {
-      const photo = photosFor(item.id)[0];
-      return `<a class="new-card" href="#/p/${esc(item.id)}">
-        ${photo ? photoTag(photo, "") : ""}
-        <span class="new-copy">
-          <span class="tag tag-new">New</span>
-          <span class="new-name">${esc(item.name)}</span>
-          ${priceHtml(item)}
-        </span>
-      </a>`;
-    }).join("")}</div>
-  </section>` : "";
   const tiles = homeCategories().map((category) => {
     const count = itemsIn(category.id).length;
     const noun = count === 1 ? "accessory" : "accessories";
@@ -245,7 +226,7 @@ function renderHome() {
       </div>
     </a>`;
   }).join("");
-  view.innerHTML = `<div class="view-home">${row}<div class="home-grid">${tiles}</div></div>`;
+  view.innerHTML = `<div class="view-home"><div class="home-grid">${tiles}</div></div>`;
 }
 
 function cardHtml(item, category) {
@@ -258,7 +239,6 @@ function cardHtml(item, category) {
     <a class="card-link" href="#/p/${esc(item.id)}">
       <div class="media">${media}</div>
       <div class="card-body">
-        ${newBadge(item)}
         ${tierBadge(item.tier)}
         <h2>${esc(item.name)}</h2>
         ${brand}
@@ -335,12 +315,13 @@ function renderProduct(id) {
       <div class="dots">${dots}</div>
       <p class="slide-count" id="slide-count">${index + 1} of ${slides.length}. Tap the photo to view full screen.</p>`;
   const brand = item.brand ? `<p class="brand">${esc(item.brand)}</p>` : "";
-  const sizes = bedSizesFor(item);
-  const chosen = selectedBed(item);
-  const priced = chosen ? { ...item, price: chosen.price } : item;
-  const bedSwitch = sizes.length ? `<div class="parts-toggle bed-size" role="group" aria-label="Bed size">${sizes.map((size) => {
-    const on = chosen && size.id === chosen.id;
-    return `<button type="button" data-bed="${esc(size.id)}" class="${on ? "is-current" : ""}" aria-pressed="${on ? "true" : "false"}"><span class="seg-label">${esc(size.label)}</span><span class="price">${esc(money(size.price))}</span></button>`;
+  const lengths = bedLengthsFor(item, state.vehicleFilter);
+  const chosen = selectedLength(item);
+  const quoted = chosen ? quoteForBed(item, chosen) : null;
+  const priced = quoted ? { ...item, price: quoted.price } : item;
+  const bedSwitch = lengths.length > 1 ? `<div class="bed-lengths" role="group" aria-label="Bed length">${lengths.map((length) => {
+    const on = chosen && length.id === chosen.id;
+    return `<button type="button" data-bed="${esc(length.id)}" class="${on ? "is-current" : ""}" aria-pressed="${on ? "true" : "false"}">${esc(length.label)}</button>`;
   }).join("")}</div>` : "";
   view.innerHTML = `<article class="product" data-product="${esc(item.id)}">
     <div class="gallery${single ? " is-single" : ""}">
@@ -353,7 +334,6 @@ function renderProduct(id) {
         <div><p>${esc(category ? category.name : "")}</p></div>
       </div>
       <h1>${esc(item.name)}</h1>
-      ${newBadge(item)}
       ${tierBadge(item.tier)}
       ${brand}
       ${priceHtml(priced)}
@@ -566,15 +546,18 @@ function saveQuote() {
   localStorage.setItem(QUOTE_KEY, JSON.stringify(state.quote));
 }
 
-function selectedBed(item) {
-  return bedChoice(item, state.bedSize[item.id]);
+function selectedLength(item) {
+  const lengths = bedLengthsFor(item, state.vehicleFilter);
+  if (!lengths.length) return null;
+  return lengths.find((length) => length.id === state.bedLength[item.id]) || lengths[0];
 }
 
 function addToTray(itemId) {
   const item = itemById(itemId);
   if (!item) return;
-  const choice = selectedBed(item);
-  const lineId = choice ? `${item.id}--${choice.id}` : item.id;
+  const length = selectedLength(item);
+  const quoted = quoteForBed(item, length);
+  const lineId = length ? `${item.id}--bed-${length.id}` : item.id;
   const existing = state.quote.lines.find((line) => line.id === lineId);
   if (existing) {
     existing.qty += 1;
@@ -582,10 +565,10 @@ function addToTray(itemId) {
   } else {
     state.quote.lines.push({
       id: lineId,
-      name: choice ? choice.quoteName : item.name,
+      name: quoted.name,
       description: "",
       tier: item.tier || "",
-      price: choice ? choice.price : (hasPrice(item.price) ? Number(item.price) : null),
+      price: hasPrice(quoted.price) ? Number(quoted.price) : null,
       qty: 1,
       listPrice: item.listPrice === true,
       custom: false,
@@ -982,7 +965,7 @@ function bind() {
     }
     const bed = event.target.closest("[data-bed]");
     if (bed && view.querySelector("[data-product]")) {
-      state.bedSize[view.querySelector("[data-product]").dataset.product] = bed.dataset.bed;
+      state.bedLength[view.querySelector("[data-product]").dataset.product] = bed.dataset.bed;
       renderProduct(view.querySelector("[data-product]").dataset.product);
       return;
     }
