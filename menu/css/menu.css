@@ -926,9 +926,38 @@ body.prices-off .prices-hidden-label { display: inline; }
     overflow-wrap: normal;
     word-break: normal;
   }
+  .quote-table td.price-cell,
+  .quote-table td.line-total,
+  .quote-table td.price-cell .price,
+  .quote-table td.line-total .price,
+  .quote-table .line-price { font-size: inherit; }
+  .quote-table .line-price {
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    appearance: none;
+    -webkit-appearance: none;
+    padding: 0;
+    margin: 0;
+    min-height: 0;
+    height: auto;
+    width: auto;
+    max-width: 100%;
+    color: inherit;
+    font-weight: inherit;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .quote-table .line-price::-webkit-outer-spin-button,
+  .quote-table .line-price::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
+  }
   .quote-totals { margin-top: 8pt; }
-  .quote-totals p { margin: 0 0 4px; font-size: 10pt; }
-  .quote-grand { font-size: 12pt; font-weight: 800; }
+  .quote-totals p { margin: 0 0 4px; font-size: inherit; }
+  .quote-totals p.quote-grand { font-size: 12pt; font-weight: 800; }
   .quote-totals .quote-note { font-size: 8pt; }
   .print-foot { margin: 12pt 0 0; font-size: 8pt; color: #333; }
   .quote-table tr, .quote-totals, .print-head, .print-who, .quote-tail { break-inside: avoid; page-break-inside: avoid; }
