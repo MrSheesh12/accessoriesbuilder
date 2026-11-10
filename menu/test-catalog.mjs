@@ -505,6 +505,13 @@ const rowSrc = menuJs.slice(rowStart, rowEnd);
 if (!rowSrc.includes("PARTS_ONLY_TAG") || !rowSrc.includes('class="line-note"')) {
   fail("each quote line must show the parts tag under the item name");
 }
+if (!rowSrc.includes('joined.join(" · ")') || !menuJs.includes("quote-dense") || !menuJs.includes("quote-tail")) {
+  fail("print details must share one line, and quotes over 10 items must use the dense table");
+}
+if (!css.includes(".quote-table.quote-dense") || !css.includes("padding: 5px")) {
+  fail("quotes over 10 items must print with 5px row padding");
+}
+if (!css.includes("white-space: nowrap")) fail("list prices and the parts tag must stay on one line");
 const actionCell = rowSrc.slice(rowSrc.lastIndexOf('class="no-print line-actions"'));
 if (actionCell.includes("PARTS_ONLY_TAG")) fail("the parts tag must stay on the printed item, not in the remove cell");
 const lineFn = menuJs.slice(menuJs.indexOf("function linePriceHtml"), menuJs.indexOf("function tierBadge"));

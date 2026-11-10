@@ -271,6 +271,7 @@ p.brand { margin: 0; color: var(--muted); font-size: 0.82rem; font-weight: 700; 
   font-weight: 750;
   font-variant-numeric: tabular-nums;
   font-size: 1rem;
+  white-space: nowrap;
 }
 .price-note { display: block; color: var(--muted); font-weight: 500; font-size: 0.82rem; }
 .tag {
@@ -292,7 +293,7 @@ p.brand { margin: 0; color: var(--muted); font-size: 0.82rem; font-weight: 700; 
   text-transform: none;
   letter-spacing: 0;
   margin: 0 0 0 6px;
-  white-space: normal;
+  white-space: nowrap;
 }
 .tag-parts { background: var(--amber-bg); color: var(--amber); }
 .tag-custom { background: var(--brand-2); color: #fff; }
@@ -596,6 +597,9 @@ body.prices-off .prices-hidden-label { display: inline; }
 }
 .qty { width: 100%; max-width: 4.75rem; margin-left: auto; text-align: right; font-variant-numeric: tabular-nums; }
 .quote-table {
+  --col-act: 44px;
+  --col-total: 7.5rem;
+  --row-pad-x: 12px;
   width: 100%;
   table-layout: fixed;
   border-collapse: collapse;
@@ -603,8 +607,8 @@ body.prices-off .prices-hidden-label { display: inline; }
   font-variant-numeric: tabular-nums;
 }
 .col-qty { width: 5.75rem; }
-.col-price, .col-total { width: 7.5rem; }
-.col-act { width: 8.5rem; }
+.col-price, .col-total { width: var(--col-total); }
+.col-act { width: var(--col-act); }
 .quote-table th,
 .quote-table td {
   padding: 12px;
@@ -618,8 +622,25 @@ body.prices-off .prices-hidden-label { display: inline; }
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
-.quote-table tbody tr { border-bottom: 1px solid #e3e7ee; }
+.quote-table tbody td { border-bottom: 1px solid #e3e7ee; }
+.quote-table th.num { text-align: right; }
 .quote-table .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.quote-table td.line-actions {
+  width: 44px;
+  padding: 0;
+  vertical-align: middle;
+  text-align: center;
+}
+.line-actions .remove-btn {
+  width: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  height: 100%;
+  padding: 0 1px;
+  font-size: 11px;
+  line-height: 1.05;
+  white-space: nowrap;
+}
 .quote-item { overflow-wrap: anywhere; }
 .line-name { display: block; font-weight: 700; }
 .line-size,
@@ -633,16 +654,23 @@ body.prices-off .prices-hidden-label { display: inline; }
   font-weight: 500;
   line-height: 1.35;
 }
+.totals-hold td { padding: 0; border-bottom: 0; }
 .quote-totals {
-  width: min(100%, 3in);
-  margin: 18px 0 0 auto;
+  width: max-content;
+  max-width: calc(100% - var(--col-act) - var(--row-pad-x));
+  margin: 18px calc(var(--col-act) + var(--row-pad-x)) 0 auto;
 }
 .quote-totals p {
   display: flex;
-  justify-content: space-between;
-  gap: 16px;
+  justify-content: flex-end;
+  align-items: baseline;
+  gap: 12px;
   margin: 0 0 4px;
   font-variant-numeric: tabular-nums;
+}
+.quote-totals .price {
+  width: calc(var(--col-total) - (2 * var(--row-pad-x)));
+  text-align: right;
 }
 .quote-grand {
   border-top: 1.5px solid #243044;
@@ -736,7 +764,8 @@ body.prices-off .prices-hidden-label { display: inline; }
   font-weight: 750;
 }
 .bed-lengths button.is-current { background: var(--brand); color: #fff; border-color: var(--brand); }
-.line-actions { display: flex; gap: 8px; justify-content: flex-end; }
+.quote-table td.line-actions { display: table-cell; }
+.edit-line { margin-top: 6px; }
 .quote-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
 .quote-actions .add-wide,
 .quote-actions .clear-btn { flex: 1 1 16rem; }
@@ -822,19 +851,33 @@ body.prices-off .prices-hidden-label { display: inline; }
   .print-who { gap: 4pt 16pt; margin: 0 0 14pt; }
   .print-who dt { color: #333; }
   .quote-table { font-size: 8pt; line-height: 1.35; }
+  .quote-table { --col-act: 0px; --col-total: 1.1in; --row-pad-x: 8px; }
   .col-qty { width: 0.6in; }
   .col-price, .col-total { width: 1.1in; }
-  .col-act { width: 0; }
+  .act-col, .line-actions { display: none !important; }
   .quote-table th, .quote-table td { padding: 6px 8px; line-height: 1.35; }
+  .quote-table.quote-dense { --row-pad-x: 5px; }
+  .quote-table.quote-dense th,
+  .quote-table.quote-dense td { padding: 5px; }
   .quote-table thead th { border-bottom: 1.5px solid #333; color: #222; }
-  .quote-table tbody tr { border-bottom: 1px solid #d5d5d5; }
-  .line-size, .line-desc, .line-note, .part-line { color: #555; font-size: 8pt; margin-top: 2px; }
-  .quote-totals { width: 3in; margin-top: 8pt; }
+  .quote-table tbody td { border-bottom: 1px solid #d5d5d5; }
+  .screen-meta { display: none !important; }
+  .part-line {
+    display: block !important;
+    margin-top: 2px;
+    color: #555;
+    font-size: inherit;
+    font-weight: 500;
+    white-space: normal;
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+  .quote-totals { margin-top: 8pt; }
   .quote-totals p { margin: 0 0 4px; font-size: 10pt; }
   .quote-grand { font-size: 12pt; font-weight: 800; }
   .quote-totals .quote-note { font-size: 8pt; }
   .print-foot { margin: 12pt 0 0; font-size: 8pt; color: #333; }
-  .quote-table tr, .quote-totals, .print-head, .print-who { break-inside: avoid; page-break-inside: avoid; }
+  .quote-table tr, .quote-totals, .print-head, .print-who, .quote-tail { break-inside: avoid; page-break-inside: avoid; }
   body.prices-off .quote-page .price { display: inline !important; }
   body.prices-off .quote-page td.price { display: table-cell !important; }
   .part-line { display: block !important; }

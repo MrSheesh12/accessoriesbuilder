@@ -1,11 +1,11 @@
 /* Corwin Ford Tri-Cities — iPad accessory menu.
    Item names and prices come from catalog.json. Photos are mapped locally. */
 
-import { bulletsFor, tierSwitch } from "./copy.js?v=4092866";
-import { PARTS_ONLY_NOTE, PARTS_ONLY_TAG, hasPrice, money, priceLabel } from "./price-label.js?v=4092866";
-import { bedLengthsFor, customItemError, linePartNumber, parseDollars, quoteForBed, quoteNotes, quoteTotals } from "./quote-math.js?v=4092866";
-import { photosFor } from "./photos.js?v=4092866";
-import { itemMatchesVehicle } from "./vehicle-filter.js?v=4092866";
+import { bulletsFor, tierSwitch } from "./copy.js?v=2fe6a3a";
+import { PARTS_ONLY_NOTE, PARTS_ONLY_TAG, hasPrice, money, priceLabel } from "./price-label.js?v=2fe6a3a";
+import { bedLengthsFor, customItemError, linePartNumber, parseDollars, quoteForBed, quoteNotes, quoteTotals } from "./quote-math.js?v=2fe6a3a";
+import { photosFor } from "./photos.js?v=2fe6a3a";
+import { itemMatchesVehicle } from "./vehicle-filter.js?v=2fe6a3a";
 
 const PRICE_KEY = "accessory-menu-show-prices";
 const FILTER_KEY = "accessory-menu-vehicle";
@@ -152,9 +152,19 @@ function isListPrice(line) {
 
 function partLineHtml(line) {
   const value = String(line.partNumber || "");
-  const editor = `<label class="part-edit no-print">Part #<input class="part-input" type="text" data-part="${esc(line.id)}" value="${esc(value)}" autocomplete="off" aria-label="Part number for ${esc(line.name)}"></label>`;
-  const shown = value ? `<span class="part-line">Part #: ${esc(value)}</span>` : "";
-  return `${editor}${shown}`;
+  return `<label class="part-edit no-print">Part #<input class="part-input" type="text" data-part="${esc(line.id)}" value="${esc(value)}" autocomplete="off" aria-label="Part number for ${esc(line.name)}"></label>`;
+}
+
+function metaBits(line, titled) {
+  const bits = [];
+  if (titled.size) bits.push(titled.size);
+  if (line.description) bits.push(line.description);
+  if (line.partNumber) bits.push(`Part #: ${line.partNumber}`);
+  if (line.custom) bits.push("Custom");
+  else if (TIER_LABEL[line.tier]) bits.push(TIER_LABEL[line.tier]);
+  if (isListPrice(line)) bits.push(PARTS_ONLY_TAG);
+  if (line.taxable === false) bits.push("Not taxed");
+  return bits;
 }
 
 function quoteTitle(name) {
@@ -735,17 +745,22 @@ function renderQuote() {
     if (isListPrice(line)) notes.push(PARTS_ONLY_TAG);
     if (line.taxable === false) notes.push("Not taxed");
     const noteHtml = notes.map((text) => `<span class="line-note">${esc(text)}</span>`).join("");
+    const joined = metaBits(line, titled);
+    const printMeta = joined.length ? `<span class="part-line">${esc(joined.join(" · "))}</span>` : "";
     const unit = hasPrice(line.price) ? money(line.price) : "Call for price";
     const extended = hasPrice(line.price) ? money(Number(line.price) * line.qty) : "Call for price";
-    const edit = line.custom ? `<button class="remove-btn" type="button" data-edit="${esc(line.id)}">Edit</button>` : "";
+    const edit = line.custom ? `<button class="remove-btn edit-line no-print" type="button" data-edit="${esc(line.id)}">Edit</button>` : "";
     return `<tr>
-      <td class="quote-item"><span class="line-name">${esc(titled.title)}</span>${sizeLine}${detail}${partLineHtml(line)}${noteHtml}</td>
+      <td class="quote-item"><span class="line-name">${esc(titled.title)}</span><div class="screen-meta">${sizeLine}${detail}${partLineHtml(line)}${noteHtml}</div>${printMeta}${edit}</td>
       <td class="num qty-cell"><input class="qty no-print" type="number" min="1" step="1" inputmode="numeric" data-qty="${esc(line.id)}" value="${line.qty}" aria-label="Quantity for ${esc(line.name)}"><span class="print-only">${line.qty}</span></td>
       <td class="num price">${esc(unit)}</td>
       <td class="num line-total price">${esc(extended)}</td>
-      <td class="no-print line-actions">${edit}<button class="remove-btn" type="button" data-remove="${esc(line.id)}">Remove</button></td>
+      <td class="no-print line-actions"><button class="remove-btn" type="button" data-remove="${esc(line.id)}">Remove</button></td>
     </tr>`;
-  }).join("");
+  });
+  const bodyRows = rows.slice(0, -1).join("");
+  const tailRow = rows.at(-1) || "";
+  const dense = state.quote.lines.length > 10 ? " quote-dense" : "";
   const noted = state.quote.lines.map((line) => ({ ...line, listPrice: isListPrice(line) }));
   const notes = quoteNotes(noted, totals).map((text) => `<p class="quote-note">${esc(text)}</p>`).join("");
   view.innerHTML = `<article class="quote-page">
@@ -809,7 +824,7 @@ function renderQuote() {
       </div>
     </form>
     ${state.quote.lines.length ? "" : `<p class="tray-empty">Nothing in this quote yet. Add accessories from the menu.</p>`}
-    <table class="quote-table">
+    <table class="quote-table${dense}">
       <colgroup>
         <col>
         <col class="col-qty">
@@ -817,15 +832,22 @@ function renderQuote() {
         <col class="col-total">
         <col class="col-act">
       </colgroup>
-      <thead><tr><th>Item</th><th class="num">Qty</th><th class="num">Price</th><th class="num">Amount</th><th class="no-print"><span class="sr">Remove</span></th></tr></thead>
-      <tbody>${rows}</tbody>
+      <thead><tr><th>Item</th><th class="num">Qty</th><th class="num">Price</th><th class="num">Amount</th><th class="no-print act-col"><span class="sr">Remove</span></th></tr></thead>
+      <tbody>${bodyRows}</tbody>
+      <tbody class="quote-tail">
+        ${tailRow}
+        <tr class="totals-hold">
+          <td colspan="5">
+            <div class="quote-totals">
+              <p><span>Subtotal</span><strong class="price">${esc(money(totals.subtotal))}</strong></p>
+              <p><span>Sales tax (8.9%)</span><strong class="price">${esc(money(totals.tax))}</strong></p>
+              <p class="quote-grand"><span>Total</span><strong class="price">${esc(money(totals.total))}</strong></p>
+              ${notes}
+            </div>
+          </td>
+        </tr>
+      </tbody>
     </table>
-    <div class="quote-totals">
-      <p><span>Subtotal</span><strong class="price">${esc(money(totals.subtotal))}</strong></p>
-      <p><span>Sales tax (8.9%)</span><strong class="price">${esc(money(totals.tax))}</strong></p>
-      <p class="quote-grand"><span>Total</span><strong class="price">${esc(money(totals.total))}</strong></p>
-      ${notes}
-    </div>
     <p class="print-foot">Prices subject to change; quote valid 30 days.</p>
     <div class="quote-actions no-print">
       <button class="add-wide" id="quote-print" type="button">Print / Save PDF</button>
@@ -855,10 +877,13 @@ function renderQuote() {
       line.partTouched = true;
       saveQuote();
       const cell = target.closest("td");
+      const titled = quoteTitle(line.name);
+      const joined = metaBits(line, titled);
       const shown = cell && cell.querySelector(".part-line");
-      if (line.partNumber) {
-        if (shown) shown.textContent = `Part #: ${line.partNumber}`;
-        else cell.insertAdjacentHTML("beforeend", `<p class="part-line">Part #: ${esc(line.partNumber)}</p>`);
+      if (joined.length) {
+        const text = joined.join(" · ");
+        if (shown) shown.textContent = text;
+        else cell.insertAdjacentHTML("beforeend", `<span class="part-line">${esc(text)}</span>`);
       } else if (shown) shown.remove();
       return;
     }
@@ -1024,7 +1049,7 @@ async function boot() {
   if (vehicleSelect) vehicleSelect.value = state.vehicleFilter;
   renderTray();
   try {
-    const response = await fetch("catalog.json?v=4092866", { cache: "no-store" });
+    const response = await fetch("catalog.json?v=2fe6a3a", { cache: "no-store" });
     if (!response.ok) throw new Error(`Catalog request failed (${response.status})`);
     state.catalog = await response.json();
   } catch (error) {
