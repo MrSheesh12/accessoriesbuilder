@@ -395,7 +395,8 @@ const roughCountry = items.filter((item) => item.id.startsWith("rc-"));
 if (roughCountry.length !== 26) fail(`expected 26 Rough Country items, found ${roughCountry.length}`);
 const universalLights = ["rc-50in-led-bar-70950bda", "rc-20in-led-bar-70720bl", "rc-2in-led-pods-70903blkdrla"];
 roughCountry.forEach((item) => {
-  if (item.listPrice !== true || item.newAddition !== true) fail(`${item.id} must be a new list-price item`);
+  if (item.listPrice !== true) fail(`${item.id} must be a list-price item`);
+  if ("newAddition" in item) fail(`${item.id} must not keep a newAddition flag`);
   if (typeof item.partNumber !== "string" || !item.partNumber.trim()) fail(`${item.id} needs a part number`);
   if (!photosFor(item.id).includes(`images/${item.id}.webp`)) fail(`${item.id} needs its photo`);
   if (/https?:\/\//.test(JSON.stringify(item))) fail(`${item.id} must not carry a source URL`);
@@ -429,15 +430,36 @@ const longBed = quoteForBed(liner, f150Beds[2]);
 if (shortBed.price !== 650 || midBed.price !== 650 || !shortBed.name.endsWith("5.5 ft bed")) fail("beds under 8 ft stay $650");
 if (longBed.price !== 700 || longBed.name !== "Spray-in bedliner, 8 ft bed") fail("an 8 ft bed uses the $700 spray-in price");
 if (shortBed.partNumber || longBed.partNumber) fail("spray-in bed length must not invent a part number");
-const cover = items.find((item) => item.id === "bakflip-mx4");
-const coverBeds = bedLengthsFor(cover, "F-150");
-const coverShort = quoteForBed(cover, coverBeds[0]);
-const coverLong = quoteForBed(cover, coverBeds[2]);
-if (coverShort.price !== cover.price || coverLong.price !== cover.price || coverShort.partNumber !== cover.partNumber || coverLong.partNumber !== cover.partNumber) {
-  fail("bed length must keep the cover price and part number");
+const oneLength = {
+  "rc-bed-mat-rcm671": "5.5 ft",
+  "bakflip-mx4": "5.5 ft",
+  "rc-trifold-f150-49221550": "5.5 ft",
+  "rc-lowprofile-f150-47221550b": "5.5 ft",
+  "hard-folding-cover-f-150-6-5-bed-advantage-rev-ford": "6.5 ft",
+  "retractable-cover-f-150-5-5-bed-embark-ford": "5.5 ft",
+  "powered-retractable-cover-f-150-6-5-bed-leer-ford": "6.5 ft",
+  "rc-trifold-sd-49220651": "6.75 ft",
+};
+Object.entries(oneLength).forEach(([id, label]) => {
+  const item = items.find((entry) => entry.id === id);
+  const lengths = bedLengthsFor(item, item.fits[0]);
+  if (lengths.length !== 1 || lengths[0].label !== label) {
+    fail(`${id} fits only ${label}, got ${lengths.map((length) => length.label).join("|")}`);
+  }
+  const quoted = quoteForBed(item, lengths[0]);
+  if (quoted.price !== item.price || quoted.partNumber !== (item.partNumber || "") || !quoted.name.endsWith(`${label} bed`)) {
+    fail(`${id} must keep its price and part number and name ${label}`);
+  }
+});
+const soft = items.find((item) => item.id === "soft-roll-up-cover-f-150-5-5-6-5-bed-truxedo-ford");
+if (bedLengthsFor(soft, "F-150").map((length) => length.label).join("|") !== "5.5 ft|6.5 ft") {
+  fail("the soft roll-up offers only its 5.5 and 6.5 ft beds");
 }
-if (!coverShort.name.endsWith("5.5 ft bed")) fail("the quote line must name the bed length");
-if (bedLengthsFor(cover, "Maverick").length !== 0) fail("an F-150 cover has no Maverick bed lengths");
+const bedStep = items.find((item) => item.id === "amp-bedstep2-f150");
+if (bedLengthsFor(bedStep, "F-150").map((length) => length.label).join("|") !== "5.5 ft|6.5 ft") {
+  fail("AMP BedStep2 must not offer an 8 ft bed");
+}
+if (!menuJs.includes("lengths.length > 1")) fail("a product that fits one bed length must not show a picker");
 if (bedLengthsFor({ id: "tint", name: "Tint", category: "tint", fits: ["F-150"] }, "F-150").length !== 0) fail("tint is not a bed product");
 const maverickDivider = items.find((item) => item.id === "maverick-bed-divider");
 if (bedLengthsFor(maverickDivider, "Maverick").length !== 1) fail("Maverick has a single 4.5 ft bed");
@@ -493,11 +515,9 @@ if (!menuJs.includes("PARTS_ONLY_NOTE") || !menuJs.includes('class="quote-totals
 }
 const totalsBlock = menuJs.slice(menuJs.indexOf('class="quote-totals"'), menuJs.indexOf('class="print-foot"'));
 if (!totalsBlock.includes("${notes}")) fail("the parts note must sit under the totals and print with them");
-const additions = items.filter((item) => item.newAddition);
-if (additions.length !== 38) fail(`expected 38 new additions, found ${additions.length}`);
-additions.forEach((item) => {
-  if (item.listPrice !== true) fail(`${item.id} must be marked as a list price`);
-});
+if (/"newAddition"\s*:/.test(rawCatalog)) fail("newAddition flags must be removed from the catalog");
+const listPriced = items.filter((item) => item.listPrice === true);
+if (listPriced.length !== 38) fail(`expected 38 list-price items, found ${listPriced.length}`);
 const withPhotos = items.filter((item) => photosFor(item.id).length);
 if (withPhotos.length !== 73) fail(`expected 73 of 75 items with photos, found ${withPhotos.length}`);
 const photoComing = ["mud-flaps", "ford-5th-wheel-prep-package"];

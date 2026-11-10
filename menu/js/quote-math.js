@@ -90,15 +90,38 @@ export function isSprayIn(item) {
   return item.id === "spray-in-bedliner" || /spray-in bedliner/i.test(item.name || "");
 }
 
-/** Lengths for the chosen vehicle, or every truck the item fits when the filter is All. */
+/** Lengths named in the product itself. An empty list means it fits every bed of its trucks. */
+export function lengthsNamedIn(item) {
+  const text = `${item?.name || ""} ${item?.sellingPoint || ""}`;
+  const found = [];
+  const add = (id) => { if (!found.includes(id)) found.push(id); };
+  if (/5\.5\s*(?:ft|['’])|5\s*['’]?\s*7\s*(?:["”]|inch)|5-foot-7/i.test(text)) add("5.5");
+  if (/6\.5\s*(?:ft|['’])/i.test(text)) add("6.5");
+  if (/6\.75\s*(?:ft|['’])|6\s*['’]?\s*10\s*(?:["”]|inch)|6-foot-10/i.test(text)) add("6.75");
+  if (/(?<![0-9.])8\s*(?:ft|['’])|(?<![0-9])8-foot(?!-)/i.test(text)) add("8");
+  if (/4\.5\s*(?:ft|['’])/i.test(text)) add("4.5");
+  if (/(?<![0-9.])5\s*(?:ft|['’])(?!\s*7)/i.test(text)) add("5");
+  if (/(?<![0-9.])6\s*(?:ft|['’])(?!\s*(?:5|6|7|10))/i.test(text)) add("6");
+  return found;
+}
+
+function allowedBedIds(item) {
+  if (Array.isArray(item?.bedLengths) && item.bedLengths.length) return item.bedLengths.map(String);
+  return lengthsNamedIn(item);
+}
+
+/** Lengths this exact part fits on the chosen vehicle. One length means no picker. */
 export function bedLengthsFor(item, vehicle) {
   if (!isBedProduct(item)) return [];
   const fits = Array.isArray(item.fits) ? item.fits : [];
   const names = vehicle && vehicle !== "All" ? (fits.includes(vehicle) ? [vehicle] : []) : fits;
+  const named = allowedBedIds(item);
+  const allowed = named.length ? new Set(named) : null;
   const seen = new Set();
   const lengths = [];
   names.forEach((name) => {
     (VEHICLE_BEDS[name] || []).forEach((length) => {
+      if (allowed && !allowed.has(length.id)) return;
       if (seen.has(length.label)) return;
       seen.add(length.label);
       lengths.push(length);

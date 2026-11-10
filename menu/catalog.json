@@ -72,6 +72,9 @@
       "sellingPoint": "Ford OEM hard tri-fold.",
       "fits": [
         "F-150"
+      ],
+      "bedLengths": [
+        "6.5"
       ]
     },
     {
@@ -84,6 +87,10 @@
       "sellingPoint": "Ford OEM TruXedo soft roll-up.",
       "fits": [
         "F-150"
+      ],
+      "bedLengths": [
+        "5.5",
+        "6.5"
       ]
     },
     {
@@ -96,6 +103,9 @@
       "sellingPoint": "Ford OEM Embark retractable.",
       "fits": [
         "F-150"
+      ],
+      "bedLengths": [
+        "5.5"
       ]
     },
     {
@@ -108,6 +118,11 @@
       "sellingPoint": "Ford OEM Rev hard roll-up.",
       "fits": [
         "F-150"
+      ],
+      "bedLengths": [
+        "5.5",
+        "6.5",
+        "8"
       ]
     },
     {
@@ -120,6 +135,9 @@
       "sellingPoint": "Ford OEM LEER powered retractable; 4 hr install.",
       "fits": [
         "F-150"
+      ],
+      "bedLengths": [
+        "6.5"
       ]
     },
     {
@@ -134,8 +152,10 @@
         "F-150"
       ],
       "listPrice": true,
-      "newAddition": true,
-      "partNumber": "448339"
+      "partNumber": "448339",
+      "bedLengths": [
+        "5.5"
+      ]
     },
     {
       "id": "rc-trifold-f150-49221550",
@@ -150,8 +170,10 @@
       ],
       "partNumber": "49221550",
       "listPrice": true,
-      "newAddition": true,
-      "years": "2021-2027"
+      "years": "2021-2027",
+      "bedLengths": [
+        "5.5"
+      ]
     },
     {
       "id": "rc-lowprofile-f150-47221550b",
@@ -166,8 +188,10 @@
       ],
       "partNumber": "47221550B",
       "listPrice": true,
-      "newAddition": true,
-      "years": "2021-2027"
+      "years": "2021-2027",
+      "bedLengths": [
+        "5.5"
+      ]
     },
     {
       "id": "rc-trifold-sd-49220651",
@@ -182,8 +206,10 @@
       ],
       "partNumber": "49220651",
       "listPrice": true,
-      "newAddition": true,
-      "years": "2017-2026"
+      "years": "2017-2026",
+      "bedLengths": [
+        "6.75"
+      ]
     },
     {
       "id": "fixed-running-boards-nerf-bars-dee-zee-etc",
@@ -223,8 +249,11 @@
         "F-150"
       ],
       "listPrice": true,
-      "newAddition": true,
-      "partNumber": "75412-01A"
+      "partNumber": "75412-01A",
+      "bedLengths": [
+        "5.5",
+        "6.5"
+      ]
     },
     {
       "id": "amp-powerstep-xl-f150",
@@ -238,7 +267,6 @@
         "F-150"
       ],
       "listPrice": true,
-      "newAddition": true,
       "partNumber": "77152-01A"
     },
     {
@@ -255,7 +283,6 @@
       ],
       "partNumber": "41010A",
       "listPrice": true,
-      "newAddition": true,
       "years": "2015-2027"
     },
     {
@@ -271,7 +298,6 @@
       ],
       "partNumber": "41007",
       "listPrice": true,
-      "newAddition": true,
       "years": "2021-2026"
     },
     {
@@ -288,7 +314,6 @@
       ],
       "partNumber": "SRB151791A",
       "listPrice": true,
-      "newAddition": true,
       "years": "2015-2027"
     },
     {
@@ -304,8 +329,12 @@
       ],
       "partNumber": "PW049807",
       "listPrice": true,
-      "newAddition": true,
-      "years": "2021-2027"
+      "years": "2021-2027",
+      "bedLengths": [
+        "5.5",
+        "6.5",
+        "8"
+      ]
     },
     {
       "id": "air-suspension-airbags-compressor",
@@ -356,7 +385,6 @@
         "Ranger"
       ],
       "listPrice": true,
-      "newAddition": true,
       "partNumber": "50100"
     },
     {
@@ -371,7 +399,6 @@
         "Bronco"
       ],
       "listPrice": true,
-      "newAddition": true,
       "partNumber": "40400"
     },
     {
@@ -387,7 +414,6 @@
       ],
       "partNumber": "57100",
       "listPrice": true,
-      "newAddition": true,
       "years": "2021-2027"
     },
     {
@@ -403,7 +429,6 @@
       ],
       "partNumber": "51017",
       "listPrice": true,
-      "newAddition": true,
       "years": "2017-2026"
     },
     {
@@ -419,7 +444,6 @@
       ],
       "partNumber": "51063",
       "listPrice": true,
-      "newAddition": true,
       "years": "2022-2026"
     },
     {
@@ -435,7 +459,6 @@
       ],
       "partNumber": "501068",
       "listPrice": true,
-      "newAddition": true,
       "years": "2014-2027"
     },
     {
@@ -451,7 +474,6 @@
       ],
       "partNumber": "51028",
       "listPrice": true,
-      "newAddition": true,
       "years": "2021-2026"
     },
     {
@@ -467,7 +489,6 @@
       ],
       "partNumber": "51144",
       "listPrice": true,
-      "newAddition": true,
       "years": "2024-2026"
     },
     {
@@ -483,7 +504,6 @@
       ],
       "partNumber": "43630",
       "listPrice": true,
-      "newAddition": true,
       "years": "2023-2026"
     },
     {
@@ -499,7 +519,6 @@
       ],
       "partNumber": "591141",
       "listPrice": true,
-      "newAddition": true,
       "years": "2021-2026"
     },
     {
@@ -544,6 +563,14 @@
         "Ranger",
         "Super Duty",
         "Other"
+      ],
+      "bedLengths": [
+        "5.5",
+        "6.5",
+        "8",
+        "5",
+        "6",
+        "6.75"
       ]
     },
     {
@@ -558,6 +585,13 @@
         "Super Duty",
         "Ranger",
         "Maverick"
+      ],
+      "bedLengths": [
+        "6.75",
+        "8",
+        "5",
+        "6",
+        "4.5"
       ]
     },
     {
@@ -573,8 +607,10 @@
       ],
       "partNumber": "RCM671",
       "listPrice": true,
-      "newAddition": true,
-      "years": "2015-2027"
+      "years": "2015-2027",
+      "bedLengths": [
+        "5.5"
+      ]
     },
     {
       "id": "front-window-tint-2-fronts-carbon",
@@ -659,7 +695,6 @@
         "Maverick"
       ],
       "listPrice": true,
-      "newAddition": true,
       "partNumber": "487801"
     },
     {
@@ -678,8 +713,7 @@
         "Maverick"
       ],
       "partNumber": "70950BDA",
-      "listPrice": true,
-      "newAddition": true
+      "listPrice": true
     },
     {
       "id": "rc-20in-led-bar-70720bl",
@@ -697,8 +731,7 @@
         "Maverick"
       ],
       "partNumber": "70720BL",
-      "listPrice": true,
-      "newAddition": true
+      "listPrice": true
     },
     {
       "id": "rc-2in-led-pods-70903blkdrla",
@@ -716,8 +749,7 @@
         "Maverick"
       ],
       "partNumber": "70903BLKDRLA",
-      "listPrice": true,
-      "newAddition": true
+      "listPrice": true
     },
     {
       "id": "rc-f150-ditch-71028",
@@ -732,7 +764,6 @@
       ],
       "partNumber": "71028",
       "listPrice": true,
-      "newAddition": true,
       "years": "2015-2027"
     },
     {
@@ -775,7 +806,6 @@
       ],
       "partNumber": "M-5115",
       "listPrice": true,
-      "newAddition": true,
       "years": "2015-2027"
     },
     {
@@ -791,7 +821,6 @@
       ],
       "partNumber": "M-51173",
       "listPrice": true,
-      "newAddition": true,
       "years": "2017-2026"
     },
     {
@@ -942,7 +971,6 @@
         "Bronco"
       ],
       "listPrice": true,
-      "newAddition": true,
       "partNumber": "M-19008-BTD4"
     },
     {
@@ -958,7 +986,6 @@
       ],
       "partNumber": "13012",
       "listPrice": true,
-      "newAddition": true,
       "years": "2021-2026"
     },
     {
@@ -985,7 +1012,6 @@
         "F-150"
       ],
       "listPrice": true,
-      "newAddition": true,
       "partNumber": "SSC3489CAGY"
     },
     {
@@ -1002,7 +1028,6 @@
       ],
       "partNumber": "91018",
       "listPrice": true,
-      "newAddition": true,
       "years": "2015-2027"
     },
     {
@@ -1018,7 +1043,6 @@
       ],
       "partNumber": "51122",
       "listPrice": true,
-      "newAddition": true,
       "years": "2021-2026"
     },
     {
@@ -1056,6 +1080,11 @@
       "sellingPoint": "Ford bed divider.",
       "fits": [
         "F-150"
+      ],
+      "bedLengths": [
+        "5.5",
+        "6.5",
+        "8"
       ]
     },
     {
@@ -1073,6 +1102,15 @@
         "Bronco",
         "Maverick",
         "Other"
+      ],
+      "bedLengths": [
+        "5.5",
+        "6.5",
+        "8",
+        "6.75",
+        "5",
+        "6",
+        "4.5"
       ]
     },
     {
@@ -1088,7 +1126,12 @@
         "Super Duty"
       ],
       "listPrice": true,
-      "newAddition": true
+      "bedLengths": [
+        "5.5",
+        "6.5",
+        "8",
+        "6.75"
+      ]
     },
     {
       "id": "leitner-acs-forged",
@@ -1104,7 +1147,14 @@
         "Super Duty"
       ],
       "listPrice": true,
-      "newAddition": true
+      "bedLengths": [
+        "5.5",
+        "6.5",
+        "8",
+        "5",
+        "6",
+        "6.75"
+      ]
     },
     {
       "id": "maverick-bed-divider",
@@ -1118,8 +1168,10 @@
         "Maverick"
       ],
       "listPrice": true,
-      "newAddition": true,
-      "partNumber": "NZ6Z-99286A72-A"
+      "partNumber": "NZ6Z-99286A72-A",
+      "bedLengths": [
+        "4.5"
+      ]
     },
     {
       "id": "yakima-overhaul-hd",
@@ -1135,7 +1187,14 @@
         "Ranger"
       ],
       "listPrice": true,
-      "newAddition": true
+      "bedLengths": [
+        "5.5",
+        "6.5",
+        "8",
+        "6.75",
+        "5",
+        "6"
+      ]
     },
     {
       "id": "rc-headache-rack-24000a",
@@ -1150,8 +1209,12 @@
       ],
       "partNumber": "24000A",
       "listPrice": true,
-      "newAddition": true,
-      "years": "2015-2027"
+      "years": "2015-2027",
+      "bedLengths": [
+        "5.5",
+        "6.5",
+        "8"
+      ]
     }
   ]
 }
