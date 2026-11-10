@@ -5,7 +5,7 @@ import { bulletsFor, tierSwitch } from "./js/copy.js";
 import { photosFor, PHOTOS } from "./js/photos.js";
 import { itemMatchesVehicle } from "./js/vehicle-filter.js";
 import { money, PARTS_ONLY_NOTE, PARTS_ONLY_TAG, priceLabel } from "./js/price-label.js";
-import { customItemError, quoteNotes, quoteTotals } from "./js/quote-math.js";
+import { bedChoice, bedSizesFor, customItemError, linePartNumber, quoteNotes, quoteTotals } from "./js/quote-math.js";
 import { inflateSync } from "node:zlib";
 
 const root = dirname(fileURLToPath(import.meta.url));
@@ -363,6 +363,55 @@ if (!customItemError({ name: "Credit", price: -1 }) || !customItemError({ name: 
 if (!menuJs.includes("Add custom item") || !menuJs.includes('inputmode="decimal"') || !menuJs.includes("customItemError(")) {
   fail("the quote needs an iPad custom item form");
 }
+const knownParts = {
+  "bakflip-mx4": "448339",
+  "decked-drawer-system": "XF4/XF5",
+  "rough-country-ranger-leveling-50100": "50100",
+  "amp-bedstep2-f150": "75412-01A",
+  "amp-powerstep-xl-f150": "77152-01A",
+  "baja-s2-pro-led-pair": "487801",
+  "ford-bronco-tube-doors-4dr": "M-19008-BTD4",
+  "maverick-bed-divider": "NZ6Z-99286A72-A",
+  "rough-country-bronco-lift-40400": "40400",
+  "covercraft-carhartt-seatsaver": "SSC3489CAGY",
+};
+Object.entries(knownParts).forEach(([id, number]) => {
+  const item = items.find((entry) => entry.id === id);
+  if (!item || item.partNumber !== number) fail(`${id} part number should be ${number}`);
+});
+["leitner-acs-forged", "yakima-overhaul-hd", "spray-in-bedliner", "front-window-tint-2-fronts-carbon"].forEach((id) => {
+  const item = items.find((entry) => entry.id === id);
+  if (!item) fail(`missing ${id}`);
+  else if (item.partNumber) fail(`${id} should not have a part number yet`);
+});
+if (linePartNumber({}, "448339") !== "448339") fail("a quote line should prefill the catalog part number");
+if (linePartNumber({ partTouched: true, partNumber: "FIT-1" }, "448339") !== "FIT-1") fail("an edited part number must persist");
+if (linePartNumber({ partTouched: true, partNumber: "" }, "448339") !== "") fail("Clear or a blank override must not invent a part number");
+const withPart = quoteTotals([{ price: 1000, qty: 1, partNumber: "448339" }, { price: 1200, qty: 1 }, { price: 1213, qty: 1 }]);
+if (withPart.subtotal !== taxed.subtotal || withPart.tax !== taxed.tax || withPart.total !== taxed.total) {
+  fail("a part number must not change the quote totals");
+}
+if (!menuJs.includes("Part #: ") || !menuJs.includes("data-part") || !menuJs.includes('class="part-line"')) {
+  fail("the quote and print must show Part #: under the item name");
+}
+const cardFn = menuJs.slice(menuJs.indexOf("function cardHtml"), menuJs.indexOf("function renderCategory"));
+if (cardFn.includes("partNumber") || cardFn.includes("Part #")) fail("menu cards must not show part numbers");
+const liner = items.find((item) => item.id === "spray-in-bedliner");
+const sprayItems = items.filter((item) => /spray-in bedliner/i.test(item.name));
+if (sprayItems.length !== 1 || !liner || liner.price !== 650) fail("spray-in bedliner stays one item at the $650 starting price");
+const underBed = bedChoice(liner, "under-8");
+const longBed = bedChoice(liner, "8-plus");
+if (!underBed || underBed.price !== 650 || bedSizesFor(liner).length !== 2) fail("under 8 ft bed must be $650");
+if (!longBed || longBed.price !== 700 || longBed.quoteName !== "Spray-in bedliner, 8 ft+ bed") fail("8 ft or longer must quote as Spray-in bedliner, 8 ft+ bed at $700");
+const underTotals = quoteTotals([{ price: underBed.price, qty: 1 }]);
+const longTotals = quoteTotals([{ price: longBed.price, qty: 1 }]);
+if (underTotals.tax !== 57.85 || underTotals.total !== 707.85 || money(underTotals.tax) !== "$57.85" || money(underTotals.total) !== "$707.85") {
+  fail(`$650 bedliner tax was ${JSON.stringify(underTotals)}`);
+}
+if (longTotals.tax !== 62.3 || longTotals.total !== 762.3 || money(longTotals.tax) !== "$62.30" || money(longTotals.total) !== "$762.30") {
+  fail(`$700 bedliner tax was ${JSON.stringify(longTotals)}`);
+}
+if (!menuJs.includes("Bed size") || !menuJs.includes("data-bed")) fail("the bedliner page needs a bed size switch");
 if (!html.includes('id="vehicle-filter"')) fail("the vehicle filter must live in the top bar");
 if (!html.includes('id="make-quote"')) fail("the tray needs a Make quote button");
 if (!menuJs.includes('parts[0] === "quote"')) fail("the quote must live at #/quote");
@@ -438,9 +487,9 @@ if (!itemMatchesVehicle({ universal: true, fits: ["F-150"] }, "Other")) fail("an
 if (!itemMatchesVehicle({ fits: ["universal"] }, "Bronco")) fail("a fits value of universal must show under every vehicle");
 if (!menuJs.includes("itemMatchesVehicle")) fail("the menu filter must use the shared vehicle match");
 if (!menuJs.includes("New additions") || !menuJs.includes("tag-new")) fail("new additions need a home row and a New badge");
-if (/priceSource|photoSourceUrl|partNumber/.test(rawCatalog)) fail("public catalog must not carry source fields");
+if (/priceSource|photoSourceUrl/.test(rawCatalog)) fail("public catalog must not carry source fields");
 if (/https?:\/\//.test(rawCatalog)) fail("public catalog must not carry source URLs");
-const bannedKey = /(^|[^a-z])(source|cost|gross|vendor|times_sold|rmac|keystone)([^a-z]|$)|priceSource|photoSourceUrl|partNumber/i;
+const bannedKey = /(^|[^a-z])(source|cost|gross|vendor|labor|notes|times_sold|rmac|keystone)([^a-z]|$)|priceSource|photoSourceUrl/i;
 function walkKeys(value, path) {
   if (Array.isArray(value)) {
     value.forEach((entry, index) => walkKeys(entry, `${path}[${index}]`));

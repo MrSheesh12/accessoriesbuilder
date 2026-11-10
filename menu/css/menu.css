@@ -662,6 +662,28 @@ body.prices-off .prices-hidden-label { display: inline; }
 .custom-form-actions .clear-btn { flex: 1 1 12rem; }
 .line-name { font-weight: 650; }
 .line-desc { display: block; color: var(--muted); font-size: 0.9rem; }
+.part-edit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 650;
+}
+.part-input {
+  flex: 1;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 6px 10px;
+  font: inherit;
+  color: var(--ink);
+  background: #fff;
+}
+.part-line { display: none; margin: 4px 0 0; color: var(--muted); font-size: 0.85rem; }
+.bed-size { margin: 8px 0 12px; }
+.bed-size button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
 .line-actions { display: flex; gap: 8px; justify-content: flex-end; }
 .quote-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
 .quote-actions .add-wide,
@@ -754,4 +776,5 @@ body.prices-off .prices-hidden-label { display: inline; }
   body.prices-off .quote-page .price { display: inline !important; }
   body.prices-off .quote-page td.price { display: table-cell !important; }
   .tag-parts { display: inline-block !important; }
+  .part-line { display: block !important; color: #444; }
 }

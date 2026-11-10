@@ -3,7 +3,7 @@
 
 import { bulletsFor, tierSwitch } from "./copy.js";
 import { PARTS_ONLY_NOTE, PARTS_ONLY_TAG, hasPrice, money, priceLabel } from "./price-label.js";
-import { customItemError, parseDollars, quoteNotes, quoteTotals } from "./quote-math.js";
+import { bedChoice, bedSizesFor, customItemError, linePartNumber, parseDollars, quoteNotes, quoteTotals } from "./quote-math.js";
 import { photosFor } from "./photos.js";
 import { itemMatchesVehicle } from "./vehicle-filter.js";
 
@@ -55,6 +55,7 @@ const state = {
   showPrices: localStorage.getItem(PRICE_KEY) !== "0",
   vehicleFilter: VEHICLES.includes(localStorage.getItem(FILTER_KEY)) ? localStorage.getItem(FILTER_KEY) : "All",
   quote: loadQuote(),
+  bedSize: {},
   trayOpen: false,
   slideByItem: {},
   lightbox: null,
@@ -142,11 +143,22 @@ function newBadge(item) {
   return item && item.newAddition ? `<span class="tag tag-new">New</span>` : "";
 }
 
+function catalogItemForLine(line) {
+  if (!state.catalog || !line || line.custom) return null;
+  return itemById(String(line.id || "").split("--")[0]);
+}
+
 function isListPrice(line) {
   if (line && line.listPrice) return true;
-  if (!state.catalog || !line) return false;
-  const item = itemById(line.id);
+  const item = catalogItemForLine(line);
   return Boolean(item && item.listPrice);
+}
+
+function partLineHtml(line) {
+  const value = String(line.partNumber || "");
+  const editor = `<label class="part-edit no-print">Part #:<input class="part-input" type="text" data-part="${esc(line.id)}" value="${esc(value)}" autocomplete="off" aria-label="Part number for ${esc(line.name)}"></label>`;
+  const shown = value ? `<p class="part-line">Part #: ${esc(value)}</p>` : "";
+  return `${editor}${shown}`;
 }
 
 function linePriceText(line) {
@@ -323,6 +335,13 @@ function renderProduct(id) {
       <div class="dots">${dots}</div>
       <p class="slide-count" id="slide-count">${index + 1} of ${slides.length}. Tap the photo to view full screen.</p>`;
   const brand = item.brand ? `<p class="brand">${esc(item.brand)}</p>` : "";
+  const sizes = bedSizesFor(item);
+  const chosen = selectedBed(item);
+  const priced = chosen ? { ...item, price: chosen.price } : item;
+  const bedSwitch = sizes.length ? `<div class="parts-toggle bed-size" role="group" aria-label="Bed size">${sizes.map((size) => {
+    const on = chosen && size.id === chosen.id;
+    return `<button type="button" data-bed="${esc(size.id)}" class="${on ? "is-current" : ""}" aria-pressed="${on ? "true" : "false"}"><span class="seg-label">${esc(size.label)}</span><span class="price">${esc(money(size.price))}</span></button>`;
+  }).join("")}</div>` : "";
   view.innerHTML = `<article class="product" data-product="${esc(item.id)}">
     <div class="gallery${single ? " is-single" : ""}">
       <div class="gallery-stage" id="gallery-stage">${slideHtml}</div>
@@ -337,8 +356,9 @@ function renderProduct(id) {
       ${newBadge(item)}
       ${tierBadge(item.tier)}
       ${brand}
-      ${priceHtml(item)}
+      ${priceHtml(priced)}
       <ul class="bullets">${bulletsFor(item, { showPrices: state.showPrices }).map((bullet) => `<li>${esc(bullet)}</li>`).join("")}</ul>
+      ${bedSwitch}
       ${tierSwitchHtml(item)}
       <button class="add-wide" type="button" data-add="${esc(item.id)}">Add to my truck</button>
     </div>
@@ -514,6 +534,8 @@ function loadQuote() {
       listPrice: Boolean(line.listPrice),
       custom: Boolean(line.custom),
       taxable: line.taxable !== false,
+      partNumber: line.partNumber == null ? "" : String(line.partNumber),
+      partTouched: Boolean(line.partTouched),
     })).filter((line) => line.id && line.name) : [];
     return base;
   } catch (error) {
@@ -544,24 +566,32 @@ function saveQuote() {
   localStorage.setItem(QUOTE_KEY, JSON.stringify(state.quote));
 }
 
+function selectedBed(item) {
+  return bedChoice(item, state.bedSize[item.id]);
+}
+
 function addToTray(itemId) {
   const item = itemById(itemId);
   if (!item) return;
-  const existing = state.quote.lines.find((line) => line.id === item.id);
+  const choice = selectedBed(item);
+  const lineId = choice ? `${item.id}--${choice.id}` : item.id;
+  const existing = state.quote.lines.find((line) => line.id === lineId);
   if (existing) {
     existing.qty += 1;
     if (item.listPrice) existing.listPrice = true;
   } else {
     state.quote.lines.push({
-      id: item.id,
-      name: item.name,
+      id: lineId,
+      name: choice ? choice.quoteName : item.name,
       description: "",
       tier: item.tier || "",
-      price: hasPrice(item.price) ? Number(item.price) : null,
+      price: choice ? choice.price : (hasPrice(item.price) ? Number(item.price) : null),
       qty: 1,
       listPrice: item.listPrice === true,
       custom: false,
       taxable: true,
+      partNumber: linePartNumber({}, item.partNumber || ""),
+      partTouched: false,
     });
   }
   quoteNumber();
@@ -644,6 +674,7 @@ function openCustomForm(line) {
   document.getElementById("custom-price").value = line ? String(line.price) : "";
   document.getElementById("custom-qty").value = line ? String(line.qty) : "1";
   document.getElementById("custom-taxable").checked = line ? line.taxable !== false : true;
+  document.getElementById("custom-part").value = line?.partNumber || "";
   setPartsMode(form, Boolean(line && isListPrice(line)));
   document.getElementById("custom-error").textContent = "";
   document.getElementById("custom-save").textContent = line ? "Save item" : "Add to quote";
@@ -660,6 +691,7 @@ function saveCustomItem() {
     qty: Math.max(1, Math.round(Number(document.getElementById("custom-qty").value) || 1)),
     listPrice: form.dataset.parts === "1",
     taxable: document.getElementById("custom-taxable").checked,
+    partNumber: document.getElementById("custom-part").value.trim(),
   };
   const error = customItemError(draft);
   document.getElementById("custom-error").textContent = error;
@@ -675,6 +707,8 @@ function saveCustomItem() {
     existing.listPrice = draft.listPrice;
     existing.taxable = draft.taxable;
     existing.custom = true;
+    existing.partNumber = draft.partNumber;
+    existing.partTouched = true;
   } else {
     state.quote.lines.push({
       id: customLineId(),
@@ -686,6 +720,8 @@ function saveCustomItem() {
       listPrice: draft.listPrice,
       custom: true,
       taxable: draft.taxable,
+      partNumber: draft.partNumber,
+      partTouched: true,
     });
   }
   quoteNumber();
@@ -705,10 +741,11 @@ function renderQuote() {
       ? `<span class="tag tag-custom">Custom</span>`
       : esc(TIER_LABEL[line.tier] || "");
     const detail = line.description ? `<span class="line-desc">${esc(line.description)}</span>` : "";
+    const part = partLineHtml(line);
     const extended = hasPrice(line.price) ? money(Number(line.price) * line.qty) : "Call for price";
     const edit = line.custom ? `<button class="remove-btn" type="button" data-edit="${esc(line.id)}">Edit</button>` : "";
     return `<tr>
-      <td><span class="line-name">${esc(line.name)}</span>${detail}</td>
+      <td><span class="line-name">${esc(line.name)}</span>${detail}${part}</td>
       <td>${tier}</td>
       <td class="num">${linePriceHtml(line)}</td>
       <td class="num"><input class="qty no-print" type="number" min="1" step="1" inputmode="numeric" data-qty="${esc(line.id)}" value="${line.qty}" aria-label="Quantity for ${esc(line.name)}"><span class="print-only">${line.qty}</span></td>
@@ -751,6 +788,9 @@ function renderQuote() {
       </label>
       <label class="span-2">Description
         <input id="custom-desc" type="text" autocomplete="off" placeholder="Optional">
+      </label>
+      <label class="span-2">Part #
+        <input id="custom-part" type="text" autocomplete="off" placeholder="Optional">
       </label>
       <label>Price
         <input id="custom-price" type="text" inputmode="decimal" autocomplete="off" placeholder="0.00" aria-label="Price in dollars">
@@ -808,6 +848,20 @@ function renderQuote() {
   page.addEventListener("input", (event) => {
     const target = event.target;
     if (target.closest("#custom-form")) return;
+    if (target.dataset.part) {
+      const line = state.quote.lines.find((entry) => entry.id === target.dataset.part);
+      if (!line) return;
+      line.partNumber = target.value.trim();
+      line.partTouched = true;
+      saveQuote();
+      const cell = target.closest("td");
+      const shown = cell && cell.querySelector(".part-line");
+      if (line.partNumber) {
+        if (shown) shown.textContent = `Part #: ${line.partNumber}`;
+        else cell.insertAdjacentHTML("beforeend", `<p class="part-line">Part #: ${esc(line.partNumber)}</p>`);
+      } else if (shown) shown.remove();
+      return;
+    }
     if (target.id === "quote-name") state.quote.customerName = target.value;
     if (target.id === "quote-phone") state.quote.phone = target.value;
     if (target.id === "quote-vehicle") {
@@ -926,6 +980,12 @@ function bind() {
       goBack(back.dataset.back);
       return;
     }
+    const bed = event.target.closest("[data-bed]");
+    if (bed && view.querySelector("[data-product]")) {
+      state.bedSize[view.querySelector("[data-product]").dataset.product] = bed.dataset.bed;
+      renderProduct(view.querySelector("[data-product]").dataset.product);
+      return;
+    }
     const add = event.target.closest("[data-add]");
     if (add) {
       addToTray(add.dataset.add);
@@ -972,6 +1032,11 @@ async function boot() {
     document.getElementById("retry").addEventListener("click", () => location.reload());
     return;
   }
+  state.quote.lines.forEach((line) => {
+    const item = catalogItemForLine(line);
+    line.partNumber = linePartNumber(line, item?.partNumber || "");
+  });
+  saveQuote();
   if (!location.hash || location.hash === "#") history.replaceState(null, "", "#/");
   render();
   renderTray();

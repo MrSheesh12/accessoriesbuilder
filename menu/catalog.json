@@ -134,7 +134,8 @@
         "F-150"
       ],
       "listPrice": true,
-      "newAddition": true
+      "newAddition": true,
+      "partNumber": "448339"
     },
     {
       "id": "fixed-running-boards-nerf-bars-dee-zee-etc",
@@ -174,7 +175,8 @@
         "F-150"
       ],
       "listPrice": true,
-      "newAddition": true
+      "newAddition": true,
+      "partNumber": "75412-01A"
     },
     {
       "id": "amp-powerstep-xl-f150",
@@ -188,7 +190,8 @@
         "F-150"
       ],
       "listPrice": true,
-      "newAddition": true
+      "newAddition": true,
+      "partNumber": "77152-01A"
     },
     {
       "id": "air-suspension-airbags-compressor",
@@ -238,7 +241,8 @@
         "Ranger"
       ],
       "listPrice": true,
-      "newAddition": true
+      "newAddition": true,
+      "partNumber": "50100"
     },
     {
       "id": "rough-country-bronco-lift-40400",
@@ -252,7 +256,8 @@
         "Bronco"
       ],
       "listPrice": true,
-      "newAddition": true
+      "newAddition": true,
+      "partNumber": "40400"
     },
     {
       "id": "all-terrain-tire-upgrade",
@@ -395,7 +400,8 @@
         "Maverick"
       ],
       "listPrice": true,
-      "newAddition": true
+      "newAddition": true,
+      "partNumber": "487801"
     },
     {
       "id": "floor-liners-1st-and-2nd-row-weathertech-or-husky",
@@ -559,7 +565,8 @@
         "Bronco"
       ],
       "listPrice": true,
-      "newAddition": true
+      "newAddition": true,
+      "partNumber": "M-19008-BTD4"
     },
     {
       "id": "dash-camera-front-and-rear",
@@ -585,7 +592,8 @@
         "F-150"
       ],
       "listPrice": true,
-      "newAddition": true
+      "newAddition": true,
+      "partNumber": "SSC3489CAGY"
     },
     {
       "id": "cold-air-intake",
@@ -654,7 +662,8 @@
         "Super Duty"
       ],
       "listPrice": true,
-      "newAddition": true
+      "newAddition": true,
+      "partNumber": "XF4/XF5"
     },
     {
       "id": "leitner-acs-forged",
@@ -684,7 +693,8 @@
         "Maverick"
       ],
       "listPrice": true,
-      "newAddition": true
+      "newAddition": true,
+      "partNumber": "NZ6Z-99286A72-A"
     },
     {
       "id": "yakima-overhaul-hd",

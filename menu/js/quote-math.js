@@ -51,3 +51,28 @@ export function quoteNotes(lines, totals) {
   if ((lines || []).some((line) => line && line.listPrice)) notes.push(PARTS_ONLY_NOTE);
   return notes;
 }
+
+/** A saved override wins, including a cleared field. Otherwise use the catalog number. */
+export function linePartNumber(saved, catalogPart) {
+  if (saved && saved.partTouched) return String(saved.partNumber || "");
+  if (saved && saved.partNumber) return String(saved.partNumber);
+  return String(catalogPart || "");
+}
+
+export const BED_SIZES = [
+  { id: "under-8", label: "Under 8 ft", price: 650, quoteName: "Spray-in bedliner, under 8 ft bed" },
+  { id: "8-plus", label: "8 ft or longer", price: 700, quoteName: "Spray-in bedliner, 8 ft+ bed" },
+];
+
+export function bedSizesFor(item) {
+  if (!item) return [];
+  const name = String(item.name || "");
+  if (item.id === "spray-in-bedliner" || /spray-in bedliner/i.test(name)) return BED_SIZES.slice();
+  return [];
+}
+
+export function bedChoice(item, sizeId) {
+  const sizes = bedSizesFor(item);
+  if (!sizes.length) return null;
+  return sizes.find((size) => size.id === sizeId) || sizes[0];
+}
