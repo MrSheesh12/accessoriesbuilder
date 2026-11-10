@@ -862,7 +862,7 @@ body.prices-off .prices-hidden-label { display: inline; }
   .print-meta { margin: 4pt 0 8pt; }
   .print-who { gap: 4pt 16pt; margin: 0 0 14pt; }
   .print-who dt { color: #333; }
-  .quote-table { font-size: 8pt; line-height: 1.35; }
+  .quote-table { font-size: 9pt; line-height: 1.35; }
   .quote-table { --col-act: 0px; --col-total: 1.1in; --row-pad-x: 8px; }
   .col-qty { width: 0.6in; }
   .col-price, .col-total { width: 1.1in; }
@@ -878,7 +878,7 @@ body.prices-off .prices-hidden-label { display: inline; }
     display: block !important;
     margin-top: 2px;
     color: #555;
-    font-size: inherit;
+    font-size: 1em;
     font-weight: 500;
     white-space: normal;
     overflow-wrap: normal;
