@@ -511,6 +511,9 @@ if (!rowSrc.includes('joined.join(" · ")') || !menuJs.includes("quote-dense") |
 if (!css.includes(".quote-table.quote-dense") || !css.includes("padding: 5px")) {
   fail("quotes over 10 items must print with 5px row padding");
 }
+if (!css.includes(".quote-table { font-size: 10pt;") || !css.includes(".quote-table.quote-dense { font-size: 9pt; }")) {
+  fail("print quotes stay at 10pt through 10 items and drop to 9pt after that");
+}
 if (!css.includes("white-space: nowrap")) fail("list prices and the parts tag must stay on one line");
 if (!rowSrc.includes('aria-label="Remove"') || !rowSrc.includes('aria-hidden="true">×')) {
   fail("the quote remove control must be a labeled × button, not clipped Remove text");
