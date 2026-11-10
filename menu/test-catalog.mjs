@@ -576,6 +576,35 @@ function walkKeys(value, path) {
 }
 walkKeys(catalog, "catalog");
 
+const versionToken = "?v=ASSET_VERSION";
+const versionedSources = [
+  ["index.html", readFileSync(join(root, "index.html"), "utf8")],
+  ["js/menu.js", menuJs],
+  ["js/copy.js", readFileSync(join(root, "js/copy.js"), "utf8")],
+  ["js/quote-math.js", readFileSync(join(root, "js/quote-math.js"), "utf8")],
+  ["manifest.webmanifest", readFileSync(join(root, "manifest.webmanifest"), "utf8")],
+];
+versionedSources.forEach(([file, text]) => {
+  if (!text.includes(versionToken)) fail(`${file} must use the shared ${versionToken} tag`);
+});
+readdirSync(join(root, "js")).filter((name) => name.endsWith(".js")).forEach((name) => {
+  const text = name === "menu.js" ? menuJs : readFileSync(join(root, "js", name), "utf8");
+  const specifiers = text.match(/from\s+["'](\.\/[^"']+)["']/g) || [];
+  specifiers.forEach((specifier) => {
+    if (!specifier.includes(versionToken)) fail(`${name} import ${specifier} is missing the shared version tag`);
+  });
+});
+if (!html.includes(`css/menu.css${versionToken}`) || !html.includes(`js/menu.js${versionToken}`)) {
+  fail("the page stylesheet and module script must share the version tag");
+}
+if (!menuJs.includes(`catalog.json${versionToken}`)) fail("catalog.json must be fetched with the shared version tag");
+const blueprint = readFileSync(join(root, "..", "render.yaml"), "utf8");
+["/js/*", "/css/*", "/catalog.json"].forEach((path) => {
+  const rule = new RegExp(`path:\\s*${path.replaceAll("*", "\\*").replaceAll(".", "\\.")}[\\s\\S]{0,80}value:\\s*no-cache`);
+  if (!rule.test(blueprint)) fail(`render.yaml must set Cache-Control no-cache for ${path}`);
+});
+if (!blueprint.includes("node stamp-assets.mjs")) fail("the static build must stamp the shared version tag");
+
 const stray = [];
 function walk(dir) {
   readdirSync(dir, { withFileTypes: true }).forEach((entry) => {
