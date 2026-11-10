@@ -1,11 +1,11 @@
 /* Corwin Ford Tri-Cities — iPad accessory menu.
    Item names and prices come from catalog.json. Photos are mapped locally. */
 
-import { bulletsFor, tierSwitch } from "./copy.js?v=ASSET_VERSION";
-import { PARTS_ONLY_NOTE, PARTS_ONLY_TAG, hasPrice, money, priceLabel } from "./price-label.js?v=ASSET_VERSION";
-import { bedLengthsFor, customItemError, linePartNumber, parseDollars, quoteForBed, quoteNotes, quoteTotals } from "./quote-math.js?v=ASSET_VERSION";
-import { photosFor } from "./photos.js?v=ASSET_VERSION";
-import { itemMatchesVehicle } from "./vehicle-filter.js?v=ASSET_VERSION";
+import { bulletsFor, tierSwitch } from "./copy.js?v=a91f143";
+import { PARTS_ONLY_NOTE, PARTS_ONLY_TAG, hasPrice, money, priceLabel } from "./price-label.js?v=a91f143";
+import { bedLengthsFor, customItemError, linePartNumber, parseDollars, quoteForBed, quoteNotes, quoteTotals } from "./quote-math.js?v=a91f143";
+import { photosFor } from "./photos.js?v=a91f143";
+import { itemMatchesVehicle } from "./vehicle-filter.js?v=a91f143";
 
 const PRICE_KEY = "accessory-menu-show-prices";
 const FILTER_KEY = "accessory-menu-vehicle";
@@ -1007,7 +1007,7 @@ async function boot() {
   if (vehicleSelect) vehicleSelect.value = state.vehicleFilter;
   renderTray();
   try {
-    const response = await fetch("catalog.json?v=ASSET_VERSION", { cache: "no-store" });
+    const response = await fetch("catalog.json?v=a91f143", { cache: "no-store" });
     if (!response.ok) throw new Error(`Catalog request failed (${response.status})`);
     state.catalog = await response.json();
   } catch (error) {

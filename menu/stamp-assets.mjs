@@ -4,7 +4,6 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = dirname(fileURLToPath(import.meta.url));
-const token = "ASSET_VERSION";
 const files = [
   "index.html",
   "manifest.webmanifest",
@@ -19,16 +18,18 @@ function commitId() {
   return execSync("git rev-parse --short HEAD", { cwd: root, encoding: "utf8" }).trim();
 }
 
-const version = commitId();
-if (!/^[0-9a-f]{7,40}$/i.test(version)) {
-  throw new Error(`asset version must be a git commit id, got ${version}`);
+const version = process.argv[2] || commitId();
+if (!/^[A-Za-z0-9._-]{4,40}$/.test(version) || version === "ASSET_VERSION") {
+  throw new Error(`asset version must be a short commit id or a date, got ${version}`);
 }
 
 files.forEach((file) => {
   const full = join(root, file);
   const text = readFileSync(full, "utf8");
-  if (!text.includes(token)) throw new Error(`${file} is missing ${token}`);
-  writeFileSync(full, text.replaceAll(`${token}`, version));
+  const hits = text.match(/\?v=[A-Za-z0-9._-]+/g) || [];
+  if (!hits.length) throw new Error(`${file} has no ?v= references to bump`);
+  const next = text.replace(/\?v=[A-Za-z0-9._-]+/g, `?v=${version}`);
+  writeFileSync(full, next);
 });
 
 console.log(`stamped ${version}`);

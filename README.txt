@@ -39,6 +39,16 @@ Customizing
 - Add categories by extending the `category` field on items and they will auto-populate the filter.
 - Add bundles in `CONFIG.packages` mapping to item ids.
 
+Accessory menu cache version
+----------------------------
+The iPad menu in `menu/` is a separate static site. Every JS, CSS, manifest, and catalog reference shares one `?v=` tag so a deploy cannot mix a new script with a cached module.
+
+Bump that version on every menu change, before you push:
+
+    node menu/stamp-assets.mjs
+
+That rewrites every `?v=` to the current short commit id. Pass a version if you want a date instead: `node menu/stamp-assets.mjs 20261110`. Commit the stamped files with the change. The live Render site does not run `render.yaml`, so an unbumped version stays cached.
+
 
 
 ----
