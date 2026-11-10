@@ -160,7 +160,7 @@ HOME.forEach(([id, name], index) => {
   }
 });
 
-if (items.length !== 48) fail(`expected 48 public items, found ${items.length}`);
+if (items.length !== 74) fail(`expected 74 public items, found ${items.length}`);
 if (items.some((item) => item && item.review === true)) fail("catalog.json still has a review item");
 if (rawCatalog.includes("full-vehicle-tint")) fail("full-vehicle-tint must not be in the public catalog");
 if (/"review"\s*:/.test(rawCatalog)) fail("review flags must not be stored in catalog.json");
@@ -365,7 +365,6 @@ if (!menuJs.includes("Add custom item") || !menuJs.includes('inputmode="decimal"
 }
 const knownParts = {
   "bakflip-mx4": "448339",
-  "decked-drawer-system": "XF4/XF5",
   "rough-country-ranger-leveling-50100": "50100",
   "amp-bedstep2-f150": "75412-01A",
   "amp-powerstep-xl-f150": "77152-01A",
@@ -379,10 +378,25 @@ Object.entries(knownParts).forEach(([id, number]) => {
   const item = items.find((entry) => entry.id === id);
   if (!item || item.partNumber !== number) fail(`${id} part number should be ${number}`);
 });
-["leitner-acs-forged", "yakima-overhaul-hd", "spray-in-bedliner", "front-window-tint-2-fronts-carbon"].forEach((id) => {
+["decked-drawer-system", "leitner-acs-forged", "yakima-overhaul-hd", "spray-in-bedliner", "front-window-tint-2-fronts-carbon"].forEach((id) => {
   const item = items.find((entry) => entry.id === id);
   if (!item) fail(`missing ${id}`);
   else if (item.partNumber) fail(`${id} should not have a part number yet`);
+});
+const roughCountry = items.filter((item) => item.id.startsWith("rc-"));
+if (roughCountry.length !== 26) fail(`expected 26 Rough Country items, found ${roughCountry.length}`);
+const universalLights = ["rc-50in-led-bar-70950bda", "rc-20in-led-bar-70720bl", "rc-2in-led-pods-70903blkdrla"];
+roughCountry.forEach((item) => {
+  if (item.listPrice !== true || item.newAddition !== true) fail(`${item.id} must be a new list-price item`);
+  if (typeof item.partNumber !== "string" || !item.partNumber.trim()) fail(`${item.id} needs a part number`);
+  if (!photosFor(item.id).includes(`images/${item.id}.webp`)) fail(`${item.id} needs its photo`);
+  if (/https?:\/\//.test(JSON.stringify(item))) fail(`${item.id} must not carry a source URL`);
+});
+universalLights.forEach((id) => {
+  const item = items.find((entry) => entry.id === id);
+  ["All", "F-150", "Super Duty", "Ranger", "Bronco", "Maverick", "Other"].forEach((vehicle) => {
+    if (!itemMatchesVehicle(item, vehicle)) fail(`${id} must show under ${vehicle}`);
+  });
 });
 if (linePartNumber({}, "448339") !== "448339") fail("a quote line should prefill the catalog part number");
 if (linePartNumber({ partTouched: true, partNumber: "FIT-1" }, "448339") !== "FIT-1") fail("an edited part number must persist");
@@ -449,12 +463,12 @@ if (!menuJs.includes("PARTS_ONLY_NOTE") || !menuJs.includes('class="quote-totals
 const totalsBlock = menuJs.slice(menuJs.indexOf('class="quote-totals"'), menuJs.indexOf('class="print-foot"'));
 if (!totalsBlock.includes("${notes}")) fail("the parts note must sit under the totals and print with them");
 const additions = items.filter((item) => item.newAddition);
-if (additions.length !== 12) fail(`expected 12 new additions, found ${additions.length}`);
+if (additions.length !== 38) fail(`expected 38 new additions, found ${additions.length}`);
 additions.forEach((item) => {
   if (item.listPrice !== true) fail(`${item.id} must be marked as a list price`);
 });
 const withPhotos = items.filter((item) => photosFor(item.id).length);
-if (withPhotos.length !== 47) fail(`expected 47 of 48 items with photos, found ${withPhotos.length}`);
+if (withPhotos.length !== 73) fail(`expected 73 of 74 items with photos, found ${withPhotos.length}`);
 const photoComing = ["mud-flaps"];
 const credits = readFileSync(join(root, "images/CREDITS.md"), "utf8");
 photoComing.forEach((id) => {
