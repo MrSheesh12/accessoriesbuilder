@@ -1,11 +1,11 @@
 /* Corwin Ford Tri-Cities — iPad accessory menu.
    Item names and prices come from catalog.json. Photos are mapped locally. */
 
-import { bulletsFor, tierSwitch } from "./copy.js?v=3cdd0e2";
-import { PARTS_ONLY_NOTE, PARTS_ONLY_TAG, hasPrice, money, priceLabel } from "./price-label.js?v=3cdd0e2";
-import { bedLengthsFor, customItemError, linePartNumber, parseDollars, quoteForBed, quoteNotes, quoteTotals } from "./quote-math.js?v=3cdd0e2";
-import { photosFor } from "./photos.js?v=3cdd0e2";
-import { itemMatchesVehicle } from "./vehicle-filter.js?v=3cdd0e2";
+import { bulletsFor, tierSwitch } from "./copy.js?v=559be4a";
+import { PARTS_ONLY_NOTE, PARTS_ONLY_TAG, hasPrice, money, priceLabel } from "./price-label.js?v=559be4a";
+import { bedLengthsFor, commitLinePrice, customItemError, laborLine, linePartNumber, normalizeQuote, parseDollars, quoteForBed, quoteNotes, quoteTotals, resetLinePrice } from "./quote-math.js?v=559be4a";
+import { photosFor } from "./photos.js?v=559be4a";
+import { itemMatchesVehicle } from "./vehicle-filter.js?v=559be4a";
 
 const PRICE_KEY = "accessory-menu-show-prices";
 const FILTER_KEY = "accessory-menu-vehicle";
@@ -151,6 +151,7 @@ function isListPrice(line) {
 }
 
 function partLineHtml(line) {
+  if (line.labor) return `<span class="part-fixed">Part #: —</span>`;
   const value = String(line.partNumber || "");
   return `<label class="part-edit no-print">Part #<input class="part-input" type="text" data-part="${esc(line.id)}" value="${esc(value)}" autocomplete="off" aria-label="Part number for ${esc(line.name)}"></label>`;
 }
@@ -160,11 +161,23 @@ function metaBits(line, titled) {
   if (titled.size) bits.push(titled.size);
   if (line.description) bits.push(line.description);
   if (line.partNumber) bits.push(`Part #: ${line.partNumber}`);
-  if (line.custom) bits.push("Custom");
+  if (line.labor) bits.push("Labor");
+  else if (line.custom) bits.push("Custom");
   else if (TIER_LABEL[line.tier]) bits.push(TIER_LABEL[line.tier]);
   if (isListPrice(line)) bits.push(PARTS_ONLY_TAG);
   if (line.taxable === false) bits.push("Not taxed");
   return bits;
+}
+
+function listWasHtml(line) {
+  if (!line.priceTouched || !hasPrice(line.basePrice)) return "";
+  return `<span class="list-was no-print">List ${esc(money(line.basePrice))}</span><button class="reset-price no-print" type="button" data-reset-price="${esc(line.id)}" aria-label="Reset price">↺</button>`;
+}
+
+function priceEditorHtml(line) {
+  const shown = hasPrice(line.price) ? String(line.price) : "";
+  const printed = hasPrice(line.price) ? money(line.price) : "Call for price";
+  return `<input class="line-price no-print" type="text" inputmode="decimal" autocomplete="off" data-price="${esc(line.id)}" value="${esc(shown)}" aria-label="Price for ${esc(line.name)}"><span class="print-only price">${esc(printed)}</span><span class="price-extra no-print">${listWasHtml(line)}</span>`;
 }
 
 function quoteTitle(name) {
@@ -497,45 +510,11 @@ function closeLightbox() {
   document.body.classList.remove("lb-open");
 }
 
-function defaultQuote() {
-  return {
-    customerName: "",
-    phone: "",
-    vehicle: "",
-    vehicleTouched: false,
-    salesperson: "Landon Alexander",
-    number: "",
-    lines: [],
-  };
-}
-
 function loadQuote() {
   try {
-    const raw = JSON.parse(localStorage.getItem(QUOTE_KEY) || "null");
-    if (!raw || typeof raw !== "object") return defaultQuote();
-    const base = defaultQuote();
-    base.customerName = String(raw.customerName || "");
-    base.phone = String(raw.phone || "");
-    base.vehicle = String(raw.vehicle || "");
-    base.vehicleTouched = Boolean(raw.vehicleTouched);
-    base.salesperson = String(raw.salesperson || "Landon Alexander");
-    base.number = String(raw.number || "");
-    base.lines = Array.isArray(raw.lines) ? raw.lines.map((line) => ({
-      id: String(line.id || ""),
-      name: String(line.name || ""),
-      description: String(line.description || ""),
-      tier: line.tier || "",
-      price: hasPrice(line.price) ? Number(line.price) : null,
-      qty: Math.max(1, Math.round(Number(line.qty) || 1)),
-      listPrice: Boolean(line.listPrice),
-      custom: Boolean(line.custom),
-      taxable: line.taxable !== false,
-      partNumber: line.partNumber == null ? "" : String(line.partNumber),
-      partTouched: Boolean(line.partTouched),
-    })).filter((line) => line.id && line.name) : [];
-    return base;
+    return normalizeQuote(JSON.parse(localStorage.getItem(QUOTE_KEY) || "null"));
   } catch (error) {
-    return defaultQuote();
+    return normalizeQuote(null);
   }
 }
 
@@ -585,10 +564,13 @@ function addToTray(itemId) {
       description: "",
       tier: item.tier || "",
       price: hasPrice(quoted.price) ? Number(quoted.price) : null,
+      basePrice: hasPrice(quoted.price) ? Number(quoted.price) : null,
       qty: 1,
       listPrice: item.listPrice === true,
       custom: false,
+      labor: false,
       taxable: true,
+      priceTouched: false,
       partNumber: linePartNumber({}, item.partNumber || ""),
       partTouched: false,
     });
@@ -644,7 +626,7 @@ function closeTray() {
 }
 
 function clearQuote() {
-  state.quote = defaultQuote();
+  state.quote = normalizeQuote(null);
   saveQuote();
   renderTray();
   live.textContent = "Quote cleared.";
@@ -653,6 +635,42 @@ function clearQuote() {
 
 function customLineId() {
   return `custom-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+}
+
+function addLabor() {
+  const line = laborLine({});
+  state.quote.lines.push(line);
+  quoteNumber();
+  saveQuote();
+  renderTray();
+  renderQuote();
+  const field = view.querySelector(`[data-price="${line.id}"]`);
+  if (field) field.focus();
+  live.textContent = "Labor added.";
+}
+
+function bindResets(root) {
+  root.querySelectorAll("[data-reset-price]").forEach((button) => {
+    if (button.dataset.bound) return;
+    button.dataset.bound = "1";
+    button.addEventListener("click", () => {
+      const line = state.quote.lines.find((entry) => entry.id === button.dataset.resetPrice);
+      if (!line) return;
+      Object.assign(line, resetLinePrice(line));
+      saveQuote();
+      renderTray();
+      renderQuote();
+    });
+  });
+}
+
+function paintQuoteMoney() {
+  const totalsNow = quoteTotals(state.quote.lines);
+  view.querySelectorAll(".quote-totals .price").forEach((node, index) => {
+    const values = [money(totalsNow.subtotal), money(totalsNow.tax), money(totalsNow.total)];
+    if (values[index]) node.textContent = values[index];
+  });
+  renderTray();
 }
 
 function setPartsMode(form, partsOnly) {
@@ -702,6 +720,8 @@ function saveCustomItem() {
     existing.name = draft.name.trim();
     existing.description = draft.description;
     existing.price = price;
+    existing.basePrice = price;
+    existing.priceTouched = false;
     existing.qty = draft.qty;
     existing.listPrice = draft.listPrice;
     existing.taxable = draft.taxable;
@@ -715,9 +735,12 @@ function saveCustomItem() {
       description: draft.description,
       tier: "",
       price,
+      basePrice: price,
+      priceTouched: false,
       qty: draft.qty,
       listPrice: draft.listPrice,
       custom: true,
+      labor: false,
       taxable: draft.taxable,
       partNumber: draft.partNumber,
       partTouched: true,
@@ -740,20 +763,27 @@ function renderQuote() {
     const sizeLine = titled.size ? `<span class="line-size">${esc(titled.size)}</span>` : "";
     const detail = line.description ? `<span class="line-desc">${esc(line.description)}</span>` : "";
     const notes = [];
-    if (line.custom) notes.push("Custom");
+    if (line.labor) notes.push("Labor");
+    else if (line.custom) notes.push("Custom");
     else if (TIER_LABEL[line.tier]) notes.push(TIER_LABEL[line.tier]);
     if (isListPrice(line)) notes.push(PARTS_ONLY_TAG);
     if (line.taxable === false) notes.push("Not taxed");
     const noteHtml = notes.map((text) => `<span class="line-note">${esc(text)}</span>`).join("");
     const joined = metaBits(line, titled);
     const printMeta = joined.length ? `<span class="part-line">${esc(joined.join(" · "))}</span>` : "";
-    const unit = hasPrice(line.price) ? money(line.price) : "Call for price";
     const extended = hasPrice(line.price) ? money(Number(line.price) * line.qty) : "Call for price";
     const edit = line.custom ? `<button class="remove-btn edit-line no-print" type="button" data-edit="${esc(line.id)}">Edit</button>` : "";
+    const taxToggle = line.labor ? `<label class="labor-tax no-print"><input type="checkbox" data-labor-tax="${esc(line.id)}" ${line.taxable !== false ? "checked" : ""}> Taxable</label>` : "";
+    const title = line.labor
+      ? `<input class="labor-name no-print" type="text" data-labor-name="${esc(line.id)}" value="${esc(line.name)}" aria-label="Labor description"><span class="line-name print-only">${esc(line.name)}</span>`
+      : `<span class="line-name">${esc(titled.title)}</span>`;
+    const qtyCell = line.labor
+      ? `<td class="num">1</td>`
+      : `<td class="num qty-cell"><input class="qty no-print" type="number" min="1" step="1" inputmode="numeric" data-qty="${esc(line.id)}" value="${line.qty}" aria-label="Quantity for ${esc(line.name)}"><span class="print-only">${line.qty}</span></td>`;
     return `<tr>
-      <td class="quote-item"><span class="line-name">${esc(titled.title)}</span><div class="screen-meta">${sizeLine}${detail}${partLineHtml(line)}${noteHtml}</div>${printMeta}${edit}</td>
-      <td class="num qty-cell"><input class="qty no-print" type="number" min="1" step="1" inputmode="numeric" data-qty="${esc(line.id)}" value="${line.qty}" aria-label="Quantity for ${esc(line.name)}"><span class="print-only">${line.qty}</span></td>
-      <td class="num price">${esc(unit)}</td>
+      <td class="quote-item">${title}<div class="screen-meta">${sizeLine}${detail}${partLineHtml(line)}${noteHtml}${taxToggle}</div>${printMeta}${edit}</td>
+      ${qtyCell}
+      <td class="num price-cell">${priceEditorHtml(line)}</td>
       <td class="num line-total price">${esc(extended)}</td>
       <td class="no-print line-actions"><button class="remove-btn" type="button" data-remove="${esc(line.id)}" aria-label="Remove"><span aria-hidden="true">×</span></button></td>
     </tr>`;
@@ -789,6 +819,7 @@ function renderQuote() {
     </div>
     <div class="custom-bar no-print">
       <button class="add-wide" id="custom-open" type="button">Add custom item</button>
+      <button class="add-wide" id="labor-open" type="button">Add labor</button>
     </div>
     <form class="custom-form no-print" id="custom-form" hidden>
       <label class="span-2">Name
@@ -857,6 +888,7 @@ function renderQuote() {
   const page = view.querySelector(".quote-page");
   const customForm = document.getElementById("custom-form");
   document.getElementById("custom-open").addEventListener("click", () => openCustomForm(null));
+  document.getElementById("labor-open").addEventListener("click", addLabor);
   document.getElementById("custom-cancel").addEventListener("click", () => {
     customForm.hidden = true;
   });
@@ -894,18 +926,45 @@ function renderQuote() {
       state.quote.vehicleTouched = true;
     }
     if (target.id === "quote-seller") state.quote.salesperson = target.value;
+    if (target.dataset.laborName) {
+      const line = state.quote.lines.find((entry) => entry.id === target.dataset.laborName);
+      if (!line) return;
+      const name = target.value.trim() || "Installation labor";
+      line.name = name;
+      const printed = target.parentElement.querySelector(".line-name");
+      if (printed) printed.textContent = name;
+      saveQuote();
+      renderTray();
+      return;
+    }
+    if (target.dataset.price) {
+      const line = state.quote.lines.find((entry) => entry.id === target.dataset.price);
+      if (!line) return;
+      const result = commitLinePrice(line, target.value);
+      target.classList.toggle("is-invalid", !result.ok && target.value.trim() !== "" && !/^\d+\.$/.test(target.value.trim().replace(/[$,\s]/g, "")));
+      if (!result.ok) return;
+      Object.assign(line, result.line);
+      saveQuote();
+      const row = target.closest("tr");
+      const printed = target.parentElement.querySelector(".print-only");
+      if (printed) printed.textContent = hasPrice(line.price) ? money(line.price) : "Call for price";
+      const extra = target.parentElement.querySelector(".price-extra");
+      if (extra) {
+        extra.innerHTML = listWasHtml(line);
+        bindResets(extra);
+      }
+      const amount = row && row.querySelector(".line-total");
+      if (amount) amount.textContent = hasPrice(line.price) ? money(Number(line.price) * line.qty) : "Call for price";
+      paintQuoteMoney();
+      return;
+    }
     if (target.dataset.qty) {
       const line = state.quote.lines.find((entry) => entry.id === target.dataset.qty);
       if (line) line.qty = Math.max(1, Math.round(Number(target.value) || 1));
       const printed = target.parentElement.querySelector(".print-only");
       if (printed && line) printed.textContent = String(line.qty);
       saveQuote();
-      renderTray();
-      const totalsNow = quoteTotals(state.quote.lines);
-      view.querySelectorAll(".quote-totals .price").forEach((node, index) => {
-        const values = [money(totalsNow.subtotal), money(totalsNow.tax), money(totalsNow.total)];
-        if (values[index]) node.textContent = values[index];
-      });
+      paintQuoteMoney();
       const row = target.closest("tr");
       const amount = row && row.querySelector(".line-total");
       if (line && amount) amount.textContent = hasPrice(line.price) ? money(Number(line.price) * line.qty) : "Call for price";
@@ -924,6 +983,44 @@ function renderQuote() {
       if (values[index]) node.textContent = values[index];
     });
   });
+  page.addEventListener("focusout", (event) => {
+    const target = event.target;
+    if (target.dataset?.laborName) {
+      const line = state.quote.lines.find((entry) => entry.id === target.dataset.laborName);
+      if (!line) return;
+      const name = target.value.trim() || "Installation labor";
+      line.name = name;
+      target.value = name;
+      const printed = target.parentElement.querySelector(".line-name");
+      if (printed) printed.textContent = name;
+      saveQuote();
+      renderTray();
+    }
+    if (target.dataset?.price) {
+      const line = state.quote.lines.find((entry) => entry.id === target.dataset.price);
+      if (!line) return;
+      const result = commitLinePrice(line, target.value);
+      if (!result.ok) {
+        target.value = hasPrice(line.price) ? String(line.price) : "";
+        target.classList.remove("is-invalid");
+        return;
+      }
+      Object.assign(line, result.line);
+      target.value = hasPrice(line.price) ? String(line.price) : "";
+      target.classList.remove("is-invalid");
+      saveQuote();
+      paintQuoteMoney();
+    }
+  });
+  page.addEventListener("change", (event) => {
+    const target = event.target;
+    if (!target.dataset?.laborTax) return;
+    const line = state.quote.lines.find((entry) => entry.id === target.dataset.laborTax);
+    if (!line) return;
+    line.taxable = target.checked;
+    saveQuote();
+    renderQuote();
+  });
   document.getElementById("quote-print").addEventListener("click", () => {
     quoteNumber();
     saveQuote();
@@ -938,6 +1035,7 @@ function renderQuote() {
       renderQuote();
     });
   });
+  bindResets(view);
   view.querySelectorAll("[data-edit]").forEach((button) => {
     button.addEventListener("click", () => {
       const line = state.quote.lines.find((entry) => entry.id === button.dataset.edit);
@@ -1049,7 +1147,7 @@ async function boot() {
   if (vehicleSelect) vehicleSelect.value = state.vehicleFilter;
   renderTray();
   try {
-    const response = await fetch("catalog.json?v=3cdd0e2", { cache: "no-store" });
+    const response = await fetch("catalog.json?v=559be4a", { cache: "no-store" });
     if (!response.ok) throw new Error(`Catalog request failed (${response.status})`);
     state.catalog = await response.json();
   } catch (error) {

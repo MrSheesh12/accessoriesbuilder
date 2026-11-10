@@ -627,6 +627,45 @@ body.prices-off .prices-hidden-label { display: inline; }
 .quote-table tbody td { border-bottom: 1px solid #e3e7ee; }
 .quote-table th.num { text-align: right; }
 .quote-table .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.quote-table td.price-cell { white-space: normal; }
+.line-price,
+.labor-name {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 16px;
+  background: #fff;
+  color: var(--ink);
+}
+.line-price { text-align: right; font-variant-numeric: tabular-nums; }
+.line-price.is-invalid { border-color: #8a2a2a; }
+.labor-name { font-weight: 700; }
+.price-extra { display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin-top: 4px; }
+.price-extra:empty { display: none; }
+.list-was { color: #5c6570; font-size: 0.75rem; font-weight: 500; }
+.reset-price {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: #fff;
+  font-size: 20px;
+}
+.part-fixed { display: block; margin-top: 2px; color: #5c6570; font-size: 0.82rem; }
+.labor-tax {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  margin-top: 4px;
+  color: #5c6570;
+  font-size: 0.82rem;
+  font-weight: 650;
+}
+.labor-tax input { width: 22px; height: 22px; }
 .quote-table th.act-col {
   position: relative;
   overflow: hidden;
@@ -698,7 +737,8 @@ body.prices-off .prices-hidden-label { display: inline; }
   font-weight: 500;
   color: var(--amber);
 }
-.custom-bar { margin: 0 0 12px; }
+.custom-bar { display: flex; gap: 12px; margin: 0 0 12px; }
+.custom-bar .add-wide { flex: 1; }
 .custom-form {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -875,6 +915,7 @@ body.prices-off .prices-hidden-label { display: inline; }
   .quote-table thead th { border-bottom: 1.5px solid #333; color: #222; }
   .quote-table tbody td { border-bottom: 1px solid #d5d5d5; }
   .screen-meta { display: none !important; }
+  .line-name.print-only { display: block !important; }
   .part-line {
     display: block !important;
     margin-top: 2px;

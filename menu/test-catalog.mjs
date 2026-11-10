@@ -5,7 +5,7 @@ import { bulletsFor, tierSwitch } from "./js/copy.js";
 import { photosFor, PHOTOS } from "./js/photos.js";
 import { itemMatchesVehicle } from "./js/vehicle-filter.js";
 import { money, PARTS_ONLY_NOTE, PARTS_ONLY_TAG, priceLabel } from "./js/price-label.js";
-import { bedLengthsFor, customItemError, isBedProduct, linePartNumber, quoteForBed, quoteNotes, quoteTotals } from "./js/quote-math.js";
+import { bedLengthsFor, commitLinePrice, customItemError, isBedProduct, laborLine, linePartNumber, normalizeQuote, quoteForBed, quoteNotes, quoteTotals, resetLinePrice } from "./js/quote-math.js";
 import { inflateSync } from "node:zlib";
 
 const root = dirname(fileURLToPath(import.meta.url));
@@ -362,6 +362,60 @@ if (!customItemError({ name: "Credit", price: -1 }) || !customItemError({ name: 
 }
 if (!menuJs.includes("Add custom item") || !menuJs.includes('inputmode="decimal"') || !menuJs.includes("customItemError(")) {
   fail("the quote needs an iPad custom item form");
+}
+const baselineLines = [{ id: "base", name: "Package", price: 2409.93, basePrice: 2409.93, qty: 1, taxable: true, priceTouched: false }];
+const baseline = quoteTotals(baselineLines);
+if (baseline.total !== 2624.41 || money(baseline.total) !== "$2,624.41") {
+  fail(`unedited baseline must stay $2,624.41, got ${JSON.stringify(baseline)}`);
+}
+const reloaded = normalizeQuote(JSON.parse(JSON.stringify({ lines: baselineLines, customerName: "Alex" })));
+if (quoteTotals(reloaded.lines).total !== 2624.41 || reloaded.customerName !== "Alex") {
+  fail("an unedited quote must reload to the same $2,624.41 total");
+}
+const edited = commitLinePrice(baselineLines[0], "2500");
+if (!edited.ok || edited.line.price !== 2500 || !edited.line.priceTouched || edited.line.basePrice !== 2409.93) {
+  fail(`an edited price must replace the line amount, got ${JSON.stringify(edited)}`);
+}
+const editedTotal = quoteTotals([edited.line]);
+if (editedTotal.total === baseline.total) fail("an edited price must change the quote total");
+const reset = resetLinePrice(edited.line);
+if (reset.price !== 2409.93 || reset.priceTouched || quoteTotals([reset]).total !== 2624.41) {
+  fail("reset must restore the catalog price and the $2,624.41 total");
+}
+if (commitLinePrice(baselineLines[0], "").ok || commitLinePrice(baselineLines[0], "-5").ok || commitLinePrice(baselineLines[0], "abc").ok) {
+  fail("a blank, negative, or non-numeric price must be rejected");
+}
+if (!commitLinePrice(baselineLines[0], "0").ok || commitLinePrice(baselineLines[0], "0").line.price !== 0) {
+  fail("a $0 price must be allowed");
+}
+const taxedLabor = laborLine({ id: "labor-tax", price: 150, taxable: true });
+const taxedQuote = quoteTotals([...baselineLines, taxedLabor]);
+if (Math.round((taxedQuote.total - baseline.total) * 100) !== 16335) {
+  fail(`$150 taxable labor must add $163.35, got ${taxedQuote.total - baseline.total}`);
+}
+const freeLabor = laborLine({ id: "labor-free", price: 150, taxable: false });
+const freeQuote = quoteTotals([...baselineLines, freeLabor]);
+if (Math.round((freeQuote.total - baseline.total) * 100) !== 15000) {
+  fail(`non-taxable labor must add $150, got ${freeQuote.total - baseline.total}`);
+}
+const kept = normalizeQuote(JSON.parse(JSON.stringify({
+  lines: [edited.line, taxedLabor],
+})));
+if (kept.lines.length !== 2 || kept.lines[0].price !== 2500 || !kept.lines[0].priceTouched || kept.lines[1].labor !== true || kept.lines[1].price !== 150 || kept.lines[1].partNumber !== "—") {
+  fail(`edits and labor must survive a reload, got ${JSON.stringify(kept.lines)}`);
+}
+if (normalizeQuote(null).lines.length !== 0 || !menuJs.includes("state.quote = normalizeQuote(null)")) {
+  fail("Clear must wipe edited prices and labor lines");
+}
+if (!menuJs.includes("Add labor") || !menuJs.includes("data-price") || !menuJs.includes("list-was") || !menuJs.includes("data-reset-price") || !menuJs.includes('aria-label="Reset price"')) {
+  fail("the quote needs an editable price, a list price, a reset, and Add labor");
+}
+if (!menuJs.includes("Installation labor") || !menuJs.includes("data-labor-tax") || !menuJs.includes("Part #: —")) {
+  fail("labor needs a description, a taxable checkbox, and a dash part number");
+}
+if (menuJs.includes(">Edited<") || menuJs.includes('"Edited"')) fail("an edited price must not show an Edited tag");
+if (!css.includes(".line-price") || !css.includes("font-size: 16px") || !css.includes("min-height: 44px")) {
+  fail("the price field must be a 16px, 44px iPad control");
 }
 const knownParts = {
   "bakflip-mx4": "448339",

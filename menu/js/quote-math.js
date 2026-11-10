@@ -1,4 +1,4 @@
-import { hasPrice, PARTS_ONLY_NOTE } from "./price-label.js?v=3cdd0e2";
+import { hasPrice, PARTS_ONLY_NOTE } from "./price-label.js?v=559be4a";
 
 export const TAX_RATE = 0.089;
 
@@ -21,6 +21,100 @@ export function customItemError(draft) {
   const amount = parseDollars(draft?.price);
   if (amount === null || amount < 0) return "Enter a price that is zero or more.";
   return "";
+}
+
+/** A quote price may be $0. A blank, a negative, or anything else is not a price. */
+export function priceDraft(value) {
+  const text = String(value ?? "").trim().replace(/[$,\s]/g, "");
+  if (text === "" || text === ".") return { status: "blank" };
+  if (/^\d+\.$/.test(text)) return { status: "partial" };
+  if (!/^\d+(\.\d+)?$/.test(text)) return { status: "invalid" };
+  return { status: "ok", price: roundCents(Number(text)) };
+}
+
+/** Keep the catalog amount as the reset point. A matching price is not an edit. */
+export function commitLinePrice(line, value) {
+  const draft = priceDraft(value);
+  if (draft.status !== "ok") return { ok: false, line, error: "Enter a price that is zero or more." };
+  const hasBase = hasPrice(line?.basePrice);
+  const openingLabor = Boolean(line?.labor) && !line?.priceTouched && Number(line?.price) === 0 && (!hasBase || Number(line.basePrice) === 0);
+  if (openingLabor) {
+    return { ok: true, line: { ...line, price: draft.price, basePrice: draft.price, priceTouched: false }, error: "" };
+  }
+  const base = hasBase ? roundCents(line.basePrice) : (hasPrice(line?.price) ? roundCents(line.price) : null);
+  return {
+    ok: true,
+    line: { ...line, price: draft.price, basePrice: base, priceTouched: draft.price !== base },
+    error: "",
+  };
+}
+
+export function resetLinePrice(line) {
+  const base = hasPrice(line?.basePrice) ? roundCents(line.basePrice) : (hasPrice(line?.price) ? roundCents(line.price) : null);
+  return { ...line, price: base, basePrice: base, priceTouched: false };
+}
+
+export function normalizeQuoteLine(line) {
+  const price = hasPrice(line?.price) ? roundCents(line.price) : null;
+  const basePrice = line && Object.prototype.hasOwnProperty.call(line, "basePrice")
+    ? (hasPrice(line.basePrice) ? roundCents(line.basePrice) : null)
+    : price;
+  const labor = Boolean(line?.labor);
+  return {
+    id: String(line?.id || ""),
+    name: String(line?.name || ""),
+    description: String(line?.description || ""),
+    tier: line?.tier || "",
+    price,
+    basePrice,
+    qty: labor ? 1 : Math.max(1, Math.round(Number(line?.qty) || 1)),
+    listPrice: Boolean(line?.listPrice),
+    custom: Boolean(line?.custom),
+    labor,
+    taxable: line?.taxable !== false,
+    partNumber: labor ? "—" : (line?.partNumber == null ? "" : String(line.partNumber)),
+    partTouched: Boolean(line?.partTouched) || labor,
+    priceTouched: Boolean(line?.priceTouched) && price !== basePrice,
+  };
+}
+
+export function normalizeQuote(raw) {
+  const source = raw && typeof raw === "object" ? raw : {};
+  const lines = Array.isArray(source.lines)
+    ? source.lines.map(normalizeQuoteLine).filter((line) => line.id && line.name)
+    : [];
+  return {
+    customerName: String(source.customerName || ""),
+    phone: String(source.phone || ""),
+    vehicle: String(source.vehicle || ""),
+    vehicleTouched: Boolean(source.vehicleTouched),
+    salesperson: String(source.salesperson || "Landon Alexander"),
+    number: String(source.number || ""),
+    lines,
+  };
+}
+
+/** Flat install labor. Qty stays 1, tax starts on, and the part number is a dash. */
+export function laborLine(draft = {}) {
+  const name = String(draft.description ?? draft.name ?? "").trim() || "Installation labor";
+  const draftPrice = priceDraft(draft.price ?? draft.amount ?? 0);
+  const price = draftPrice.status === "ok" ? draftPrice.price : 0;
+  return normalizeQuoteLine({
+    id: draft.id || `labor-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
+    name,
+    description: "",
+    labor: true,
+    price,
+    basePrice: price,
+    qty: 1,
+    taxable: draft.taxable !== false,
+    partNumber: "—",
+    partTouched: true,
+    priceTouched: false,
+    custom: false,
+    listPrice: false,
+    tier: "",
+  });
 }
 
 /** Sales tax is 8.9% of the taxable lines only, rounded to cents. */
