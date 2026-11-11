@@ -221,9 +221,7 @@
       "sellingPoint": "Fixed boards / nerf bars; brand and cab change price.",
       "fits": [
         "Ranger",
-        "Super Duty",
-        "SUV",
-        "Car"
+        "Super Duty"
       ]
     },
     {
@@ -548,9 +546,7 @@
         "Super Duty",
         "Ranger",
         "Bronco",
-        "Maverick",
-        "SUV",
-        "Car"
+        "Maverick"
       ]
     },
     {
@@ -565,8 +561,6 @@
         "F-150",
         "Ranger",
         "Super Duty",
-        "SUV",
-        "Car",
         "Maverick"
       ],
       "bedLengths": [
@@ -1152,9 +1146,7 @@
         "Super Duty",
         "Ranger",
         "Bronco",
-        "Maverick",
-        "SUV",
-        "Car"
+        "Maverick"
       ],
       "bedLengths": [
         "5.5",

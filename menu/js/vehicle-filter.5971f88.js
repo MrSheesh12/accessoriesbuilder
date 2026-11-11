@@ -15,14 +15,18 @@ export function isUniversal(item) {
   return fits.some((fit) => fit.toLowerCase() === "universal");
 }
 
+const PICKS = ["All", "F-150", "Super Duty", "Ranger", "Maverick", "Bronco", "SUV", "Car"];
+
+/** A saved Other pick, or any unknown value, opens on All vehicles. */
+export function savedVehiclePick(value) {
+  return PICKS.includes(value) ? value : "All";
+}
+
 export function itemMatchesVehicle(item, vehicle) {
   if (!vehicle || vehicle === "All") return true;
   if (isUniversal(item)) return true;
   const fits = fitsOf(item);
   if (fits.includes(vehicle)) return true;
   if ((vehicle === "SUV" || vehicle === "Car") && fits.includes("Other")) return true;
-  const coversNamed = NAMED_VEHICLES.every((name) => fits.includes(name));
-  const namesABody = fits.some((fit) => BODY_STYLES.includes(fit) || fit === "Other");
-  if ((vehicle === "SUV" || vehicle === "Car") && coversNamed && !namesABody) return true;
   return false;
 }

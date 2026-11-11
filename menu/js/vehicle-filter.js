@@ -28,8 +28,5 @@ export function itemMatchesVehicle(item, vehicle) {
   const fits = fitsOf(item);
   if (fits.includes(vehicle)) return true;
   if ((vehicle === "SUV" || vehicle === "Car") && fits.includes("Other")) return true;
-  const coversNamed = NAMED_VEHICLES.every((name) => fits.includes(name));
-  const namesABody = fits.some((fit) => BODY_STYLES.includes(fit) || fit === "Other");
-  if ((vehicle === "SUV" || vehicle === "Car") && coversNamed && !namesABody) return true;
   return false;
 }

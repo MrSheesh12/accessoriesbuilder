@@ -1,4 +1,4 @@
-import { hasPrice, PARTS_ONLY_NOTE } from "./price-label.7ed3318.js";
+import { hasPrice, PARTS_ONLY_NOTE } from "./price-label.5971f88.js";
 
 export const TAX_RATE = 0.089;
 
@@ -76,6 +76,26 @@ export function normalizeQuoteLine(line) {
     partTouched: Boolean(line?.partTouched) || labor,
     priceTouched: Boolean(line?.priceTouched) && price !== basePrice,
   };
+}
+
+function catalogIdOf(line) {
+  const id = String(line?.id || "");
+  const bed = id.indexOf("--bed-");
+  return bed === -1 ? id : id.slice(0, bed);
+}
+
+/** Custom and labor lines stay. A catalog line whose item is gone is dropped. */
+export function dropRemovedQuoteLines(quote, catalogIds) {
+  const known = catalogIds instanceof Set ? catalogIds : new Set(catalogIds || []);
+  const source = quote && typeof quote === "object" ? quote : {};
+  const lines = (source.lines || []).filter((line) => {
+    if (!line) return false;
+    if (line.custom || line.labor) return true;
+    const id = String(line.id || "");
+    if (id.startsWith("custom-") || id.startsWith("labor-")) return true;
+    return known.has(catalogIdOf(line));
+  });
+  return { ...source, lines };
 }
 
 export function normalizeQuote(raw) {

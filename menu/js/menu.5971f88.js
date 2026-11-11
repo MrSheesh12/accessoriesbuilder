@@ -1,11 +1,11 @@
 /* Corwin Ford Tri-Cities — iPad accessory menu.
-   Item names and prices come from catalog.7ed3318.json. Photos are mapped locally. */
+   Item names and prices come from catalog.5971f88.json. Photos are mapped locally. */
 
-import { bulletsFor, tierSwitch } from "./copy.7ed3318.js";
-import { PARTS_ONLY_NOTE, PARTS_ONLY_TAG, hasPrice, money, priceLabel } from "./price-label.7ed3318.js";
-import { bedLengthsFor, commitLinePrice, customItemError, laborLine, linePartNumber, normalizeQuote, parseDollars, quoteForBed, quoteNotes, quoteTotals, resetLinePrice } from "./quote-math.7ed3318.js";
-import { photosFor } from "./photos.7ed3318.js";
-import { itemMatchesVehicle } from "./vehicle-filter.7ed3318.js";
+import { bulletsFor, tierSwitch } from "./copy.5971f88.js";
+import { PARTS_ONLY_NOTE, PARTS_ONLY_TAG, hasPrice, money, priceLabel } from "./price-label.5971f88.js";
+import { bedLengthsFor, commitLinePrice, customItemError, dropRemovedQuoteLines, laborLine, linePartNumber, normalizeQuote, parseDollars, quoteForBed, quoteNotes, quoteTotals, resetLinePrice } from "./quote-math.5971f88.js";
+import { photosFor } from "./photos.5971f88.js";
+import { itemMatchesVehicle, savedVehiclePick } from "./vehicle-filter.5971f88.js";
 
 const PRICE_KEY = "accessory-menu-show-prices";
 const FILTER_KEY = "accessory-menu-vehicle";
@@ -53,7 +53,7 @@ const ICONS = {
 const state = {
   catalog: null,
   showPrices: localStorage.getItem(PRICE_KEY) !== "0",
-  vehicleFilter: VEHICLES.includes(localStorage.getItem(FILTER_KEY)) ? localStorage.getItem(FILTER_KEY) : "All",
+  vehicleFilter: savedVehiclePick(localStorage.getItem(FILTER_KEY)),
   quote: loadQuote(),
   bedLength: {},
   trayOpen: false,
@@ -1147,9 +1147,11 @@ async function boot() {
   if (vehicleSelect) vehicleSelect.value = state.vehicleFilter;
   renderTray();
   try {
-    const response = await fetch("catalog.7ed3318.json", { cache: "no-store" });
+    const response = await fetch("catalog.5971f88.json", { cache: "no-store" });
     if (!response.ok) throw new Error(`Catalog request failed (${response.status})`);
     state.catalog = await response.json();
+    const known = new Set((state.catalog.items || []).map((item) => item.id));
+    state.quote = dropRemovedQuoteLines(state.quote, known);
   } catch (error) {
     view.innerHTML = `<div class="message"><h1>The menu did not load.</h1><p>${esc(error.message)}</p><button class="back" type="button" id="retry">Try again</button></div>`;
     document.getElementById("retry").addEventListener("click", () => location.reload());

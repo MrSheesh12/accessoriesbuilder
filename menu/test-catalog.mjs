@@ -687,14 +687,15 @@ const baja = items.find((item) => item.id === "baja-s2-pro-led-pair");
   if (!itemMatchesVehicle(baja, vehicle)) fail(`Baja S2 pods must show under ${vehicle}`);
 });
 items.forEach((item) => {
-  const coversNamed = ["F-150", "Super Duty", "Ranger", "Bronco", "Maverick"].every((name) => (item.fits || []).includes(name));
-  const namesABody = (item.fits || []).some((fit) => fit === "SUV" || fit === "Car" || fit === "Other");
-  if (coversNamed && !namesABody) {
-    if (!itemMatchesVehicle(item, "SUV") || !itemMatchesVehicle(item, "Car")) {
-      fail(`${item.id} fits every named truck and must show under SUV and Car`);
-    }
+  if (!isBedProduct(item)) return;
+  if ((item.fits || []).includes("SUV") || (item.fits || []).includes("Car") || itemMatchesVehicle(item, "SUV") || itemMatchesVehicle(item, "Car")) {
+    fail(`${item.id} is a bed item and must not fit SUV or Car`);
   }
 });
+const boards = items.find((item) => item.id === "fixed-running-boards-nerf-bars-dee-zee-etc");
+if (!boards || itemMatchesVehicle(boards, "SUV") || itemMatchesVehicle(boards, "Car")) {
+  fail("truck running boards must not show under SUV or Car");
+}
 if (itemMatchesVehicle({ fits: ["Ranger"] }, "SUV") || itemMatchesVehicle({ fits: ["Ranger"] }, "Car")) {
   fail("a Ranger-only item must stay hidden under SUV and Car");
 }
