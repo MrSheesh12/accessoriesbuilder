@@ -1,11 +1,11 @@
 /* Corwin Ford Tri-Cities — iPad accessory menu.
-   Item names and prices come from catalog.41df9f3.json. Photos are mapped locally. */
+   Item names and prices come from catalog.7f664f6.json. Photos are mapped locally. */
 
-import { bulletsFor, tierSwitch } from "./copy.41df9f3.js";
-import { PARTS_ONLY_NOTE, PARTS_ONLY_TAG, hasPrice, money, priceLabel } from "./price-label.41df9f3.js";
-import { bedLengthsFor, commitLinePrice, customItemError, dropRemovedQuoteLines, laborLine, linePartNumber, normalizeQuote, parseDollars, quoteForBed, quoteNotes, quoteTotals, resetLinePrice } from "./quote-math.41df9f3.js";
-import { photosFor } from "./photos.41df9f3.js";
-import { itemMatchesVehicle, savedVehiclePick } from "./vehicle-filter.41df9f3.js";
+import { bulletsFor, tierSwitch } from "./copy.7f664f6.js";
+import { PARTS_ONLY_NOTE, PARTS_ONLY_TAG, hasPrice, money, priceLabel } from "./price-label.7f664f6.js";
+import { bedLengthsFor, commitLinePrice, customItemError, dropRemovedQuoteLines, laborLine, linePartNumber, normalizeQuote, parseDollars, quoteForBed, quoteNotes, quoteTotals, resetLinePrice } from "./quote-math.7f664f6.js";
+import { photosFor } from "./photos.7f664f6.js";
+import { itemMatchesVehicle, savedVehiclePick } from "./vehicle-filter.7f664f6.js";
 
 const PRICE_KEY = "accessory-menu-show-prices";
 const FILTER_KEY = "accessory-menu-vehicle";
@@ -1147,7 +1147,7 @@ async function boot() {
   if (vehicleSelect) vehicleSelect.value = state.vehicleFilter;
   renderTray();
   try {
-    const response = await fetch("catalog.41df9f3.json", { cache: "no-store" });
+    const response = await fetch("catalog.7f664f6.json", { cache: "no-store" });
     if (!response.ok) throw new Error(`Catalog request failed (${response.status})`);
     state.catalog = await response.json();
     const known = new Set((state.catalog.items || []).map((item) => item.id));

@@ -75,3 +75,8 @@ Each file is a product photo from the manufacturer or Ford Accessories. Photos a
 | rc-headache-rack-24000a | Rough Country Headache Rack with MOLLE Panels (F-150), https://www.roughcountry.com/product/configurable/headache-rack-24000 |
 | rc-bed-step-pw049807 | Rough Country Retractable Bed Step (F-150), https://www.roughcountry.com/product/manual-bed-step-pw049807 |
 | rc-bed-mat-rcm671 | Rough Country Rubber Bed Mat, RC Logo (F-150 5'7" Bed), https://www.roughcountry.com/product/configurable/ford-bed-mat-rcmlf15c |
+| ceramic-full-tint-sedans-coupes | Detail360 (St. Louis), Dark Horse Mustang ceramic window tint, https://www.detail360stl.com/blog/dark-horse-mustang-ceramic-coating-window-tint |
+| ceramic-full-tint-suvs-trucks | 808 Customs, Caldwell, ID, 2026 Ford F-150 ceramic tint, https://808customs.com/projects/2026-ford-f-150-with-ceramic-tint/ |
+| ford-5th-wheel-prep-package | Ford / Genuine Ford Accessories, hitch prep package 5th wheel gooseneck, https://www.ford.com/product/hitch-prep-package-5th-wheel-gooseneck-p2908115785 |
+| heavy-duty-bed-mat-rubber | Ford / Genuine Ford Accessories, F-150 2015-2025 bed mat, https://www.ford.com/product/f150-20152025-bed-mat-p4000207426 |
+| mud-flaps | ExtremeTerrain (WeatherTech product), Bronco no-drill mud flaps, https://www.extremeterrain.com/weathertech-bronco-no-drill-mud-flaps-front-rear-black-110148-120151.html |

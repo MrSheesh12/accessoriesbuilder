@@ -654,8 +654,8 @@ if (/"newAddition"\s*:/.test(rawCatalog)) fail("newAddition flags must be remove
 const listPriced = items.filter((item) => item.listPrice === true);
 if (listPriced.length !== 38) fail(`expected 38 list-price items, found ${listPriced.length}`);
 const withPhotos = items.filter((item) => photosFor(item.id).length);
-if (withPhotos.length !== 71) fail(`expected 71 of 77 items with photos, found ${withPhotos.length}`);
-const photoComing = ["mud-flaps", "ford-5th-wheel-prep-package", "heavy-duty-bed-mat-rubber", "ceramic-full-tint-suvs-trucks", "ceramic-full-tint-sedans-coupes", "ceramic-windshield"];
+if (withPhotos.length !== 76) fail(`expected 76 of 77 items with photos, found ${withPhotos.length}`);
+const photoComing = ["ceramic-windshield"];
 const credits = readFileSync(join(root, "images/CREDITS.md"), "utf8");
 photoComing.forEach((id) => {
   if (photosFor(id).length) fail(`${id} must show Photo coming until a matching photo is added`);
@@ -672,7 +672,7 @@ const rcMat = items.find((item) => item.id === "rc-bed-mat-rcm671");
 if (!rcMat || rcMat.price !== 109.95 || rcMat.partNumber !== "RCM671" || rcMat.brand !== "Rough Country") {
   fail("the Rough Country bed mat rc-bed-mat-rcm671 must stay $109.95");
 }
-["yakima-overhaul-hd"].forEach((id) => {
+["yakima-overhaul-hd", "mud-flaps", "heavy-duty-bed-mat-rubber", "ceramic-full-tint-suvs-trucks", "ceramic-full-tint-sedans-coupes", "ford-5th-wheel-prep-package"].forEach((id) => {
   if (!photosFor(id).includes(`images/${id}.webp`)) fail(`${id} needs its replacement photo`);
   if (!credits.includes(`| ${id} |`)) fail(`${id} needs a credit`);
 });
@@ -717,7 +717,9 @@ const fifth = items.find((item) => item.id === "ford-5th-wheel-prep-package");
 if (!fifth || fifth.name !== "Ford 5th Wheel Prep Package" || fifth.brand !== "Ford" || fifth.price !== 2250 || fifth.category !== "towing-5th-wheel") {
   fail("Ford 5th Wheel Prep Package must be a $2,250 installed towing item");
 }
-if (!fifth.fits || fifth.fits.join("|") !== "Super Duty" || fifth.partNumber) fail("the 5th-wheel prep fits Super Duty and has no made-up part number");
+if (!fifth.fits || fifth.fits.join("|") !== "Super Duty" || fifth.partNumber !== "PC3Z5F057A") {
+  fail("the 5th-wheel prep fits Super Duty and uses Ford part PC3Z5F057A");
+}
 if (/https?:\/\//.test(JSON.stringify(fifth))) fail("the 5th-wheel prep must not carry a source URL");
 if (/priceSource|photoSourceUrl/.test(rawCatalog)) fail("public catalog must not carry source fields");
 if (/https?:\/\//.test(rawCatalog)) fail("public catalog must not carry source URLs");

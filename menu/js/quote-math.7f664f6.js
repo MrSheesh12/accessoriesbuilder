@@ -1,4 +1,4 @@
-import { hasPrice, PARTS_ONLY_NOTE } from "./price-label.41df9f3.js";
+import { hasPrice, PARTS_ONLY_NOTE } from "./price-label.7f664f6.js";
 
 export const TAX_RATE = 0.089;
 

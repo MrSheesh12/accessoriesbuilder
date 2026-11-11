@@ -1,0 +1,1266 @@
+{
+  "categories": [
+    {
+      "id": "floor-mats",
+      "name": "Floor Mats"
+    },
+    {
+      "id": "bed-covers",
+      "name": "Bed Covers"
+    },
+    {
+      "id": "lift-level-kits",
+      "name": "Lift & Level Kits"
+    },
+    {
+      "id": "bumper-grille",
+      "name": "Bumper & Grille"
+    },
+    {
+      "id": "lighting",
+      "name": "Lighting"
+    },
+    {
+      "id": "bedliners",
+      "name": "Bedliners"
+    },
+    {
+      "id": "running-boards-steps",
+      "name": "Running Boards/Steps"
+    },
+    {
+      "id": "towing-5th-wheel",
+      "name": "Towing / 5th Wheel"
+    },
+    {
+      "id": "wheels-tires",
+      "name": "Wheels & Tires"
+    },
+    {
+      "id": "performance",
+      "name": "Performance"
+    },
+    {
+      "id": "tint",
+      "name": "Tint"
+    },
+    {
+      "id": "commercial-fleet",
+      "name": "Commercial / Fleet"
+    },
+    {
+      "id": "interior",
+      "name": "Interior"
+    },
+    {
+      "id": "audio",
+      "name": "Audio"
+    },
+    {
+      "id": "ppf-coating",
+      "name": "PPF & Coating"
+    }
+  ],
+  "items": [
+    {
+      "id": "hard-folding-cover-f-150-6-5-bed-advantage-rev-ford",
+      "category": "bed-covers",
+      "name": "Hard folding cover, F-150 6.5' bed (Advantage/Rev, Ford)",
+      "brand": "Advantage",
+      "price": 1450,
+      "tier": "better",
+      "sellingPoint": "Ford OEM hard tri-fold.",
+      "fits": [
+        "F-150"
+      ],
+      "bedLengths": [
+        "6.5"
+      ]
+    },
+    {
+      "id": "soft-roll-up-cover-f-150-5-5-6-5-bed-truxedo-ford",
+      "category": "bed-covers",
+      "name": "Soft roll-up cover, F-150 5.5'/6.5' bed (TruXedo, Ford)",
+      "brand": "TruXedo",
+      "price": 549,
+      "tier": "good",
+      "sellingPoint": "Ford OEM TruXedo soft roll-up.",
+      "fits": [
+        "F-150"
+      ],
+      "bedLengths": [
+        "5.5",
+        "6.5"
+      ]
+    },
+    {
+      "id": "retractable-cover-f-150-5-5-bed-embark-ford",
+      "category": "bed-covers",
+      "name": "Retractable cover, F-150 5.5' bed (Embark, Ford)",
+      "brand": "Embark",
+      "price": 2350,
+      "tier": "best",
+      "sellingPoint": "Ford OEM Embark retractable.",
+      "fits": [
+        "F-150"
+      ],
+      "bedLengths": [
+        "5.5"
+      ]
+    },
+    {
+      "id": "hard-roll-up-cover-f-150-rev-ford",
+      "category": "bed-covers",
+      "name": "Hard roll-up cover, F-150 (Rev, Ford)",
+      "brand": "Rev",
+      "price": 1414,
+      "tier": "better",
+      "sellingPoint": "Ford OEM Rev hard roll-up.",
+      "fits": [
+        "F-150"
+      ],
+      "bedLengths": [
+        "5.5",
+        "6.5",
+        "8"
+      ]
+    },
+    {
+      "id": "powered-retractable-cover-f-150-6-5-bed-leer-ford",
+      "category": "bed-covers",
+      "name": "Powered retractable cover, F-150 6.5' bed (LEER, Ford)",
+      "brand": "LEER",
+      "price": 4529,
+      "tier": "best",
+      "sellingPoint": "Ford OEM LEER powered retractable; 4 hr install.",
+      "fits": [
+        "F-150"
+      ],
+      "bedLengths": [
+        "6.5"
+      ]
+    },
+    {
+      "id": "bakflip-mx4",
+      "category": "bed-covers",
+      "name": "BAKFlip MX4 (GEN 3) Hard Folding Tonneau Cover",
+      "brand": "BAK Industries",
+      "price": 1299.99,
+      "tier": null,
+      "sellingPoint": "America's best-selling hard tri-fold cover: matte FRP panels, slam latch, and clamp-on install for 2021–2026 F-150 5'7\" beds (incl. Lightning/Raptor).",
+      "fits": [
+        "F-150"
+      ],
+      "listPrice": true,
+      "partNumber": "448339",
+      "bedLengths": [
+        "5.5"
+      ]
+    },
+    {
+      "id": "rc-trifold-f150-49221550",
+      "category": "bed-covers",
+      "name": "Rough Country Hard Tri-Fold Flip-Up Bed Cover (F-150 5'7\" Bed)",
+      "brand": "Rough Country",
+      "price": 879.95,
+      "tier": null,
+      "sellingPoint": "A matte-black aluminum hard tri-fold cover that clamps onto a 2021–2027 F-150 5-foot-7-inch bed and flips fully open for complete bed access.",
+      "fits": [
+        "F-150"
+      ],
+      "partNumber": "49221550",
+      "listPrice": true,
+      "years": "2021-2027",
+      "bedLengths": [
+        "5.5"
+      ]
+    },
+    {
+      "id": "rc-lowprofile-f150-47221550b",
+      "category": "bed-covers",
+      "name": "Rough Country Hard Low-Profile Bed Cover (F-150 5'7\" Bed)",
+      "brand": "Rough Country",
+      "price": 699.95,
+      "tier": null,
+      "sellingPoint": "A flush-mount hard tri-fold cover with auto-latching aluminum panels that sits level with the bed rails on a 2021–2027 F-150 5-foot-7-inch bed.",
+      "fits": [
+        "F-150"
+      ],
+      "partNumber": "47221550B",
+      "listPrice": true,
+      "years": "2021-2027",
+      "bedLengths": [
+        "5.5"
+      ]
+    },
+    {
+      "id": "rc-trifold-sd-49220651",
+      "category": "bed-covers",
+      "name": "Rough Country Hard Tri-Fold Flip-Up Bed Cover (Super Duty 6'10\" Bed)",
+      "brand": "Rough Country",
+      "price": 879.95,
+      "tier": null,
+      "sellingPoint": "A clamp-on aluminum hard tri-fold cover made only for 2017–2026 F-250/F-350 Super Duty trucks with a 6-foot-10-inch bed, with full flip-up bed access.",
+      "fits": [
+        "Super Duty"
+      ],
+      "partNumber": "49220651",
+      "listPrice": true,
+      "years": "2017-2026",
+      "bedLengths": [
+        "6.75"
+      ]
+    },
+    {
+      "id": "fixed-running-boards-nerf-bars-dee-zee-etc",
+      "category": "running-boards-steps",
+      "name": "Fixed running boards / nerf bars (Dee Zee etc.)",
+      "brand": "Dee Zee",
+      "price": 695,
+      "tier": "good",
+      "sellingPoint": "Fixed boards / nerf bars; brand and cab change price.",
+      "fits": [
+        "Ranger",
+        "Super Duty"
+      ]
+    },
+    {
+      "id": "power-running-boards-amp-powersteps-or-similar",
+      "category": "running-boards-steps",
+      "name": "Power running boards (AMP PowerSteps or similar)",
+      "brand": "AMP",
+      "price": 2499,
+      "tier": "best",
+      "sellingPoint": "AMP PowerSteps.",
+      "fits": [
+        "Super Duty"
+      ]
+    },
+    {
+      "id": "amp-bedstep2-f150",
+      "category": "running-boards-steps",
+      "name": "AMP Research BedStep2 Retractable Bed Step",
+      "brand": "AMP Research",
+      "price": 349.99,
+      "tier": null,
+      "sellingPoint": "Frame-mounted retractable step that kicks down behind the cab for safer bed access—rated to 300 lb and made in the USA for 2015–2026 F-150 5.5'/6.5' beds.",
+      "fits": [
+        "F-150"
+      ],
+      "listPrice": true,
+      "partNumber": "75412-01A",
+      "bedLengths": [
+        "5.5",
+        "6.5"
+      ]
+    },
+    {
+      "id": "amp-powerstep-xl-f150",
+      "category": "running-boards-steps",
+      "name": "AMP Research PowerStep XL Electric Running Boards",
+      "brand": "AMP Research",
+      "price": 2399.99,
+      "tier": null,
+      "sellingPoint": "Power-deployable boards with integrated rocker rail and LED light that drop 3\" lower than standard PowerStep—ideal for lifted 2021–2025 F-150 SuperCrew (excludes PowerBoost).",
+      "fits": [
+        "F-150"
+      ],
+      "listPrice": true,
+      "partNumber": "77152-01A"
+    },
+    {
+      "id": "rc-ba2-boards-41010a",
+      "category": "running-boards-steps",
+      "name": "Rough Country BA2 Running Boards (F-150 and Super Duty Crew Cab)",
+      "brand": "Rough Country",
+      "price": 379.95,
+      "tier": null,
+      "sellingPoint": "Heavy-duty steel BA2 side steps with a 5-inch non-slip board and no-drill install for crew-cab 2015–2027 F-150 and 2017–2026 F-250/F-350 Super Duty.",
+      "fits": [
+        "F-150",
+        "Super Duty"
+      ],
+      "partNumber": "41010A",
+      "listPrice": true,
+      "years": "2015-2027"
+    },
+    {
+      "id": "rc-ba2-bronco-41007",
+      "category": "running-boards-steps",
+      "name": "Rough Country BA2 Running Boards (Bronco 4-Door)",
+      "brand": "Rough Country",
+      "price": 379.95,
+      "tier": null,
+      "sellingPoint": "Steel BA2 running boards with a wide 5-inch stepping surface and a no-drill, bolt-on install for 4-door 2021–2026 Broncos.",
+      "fits": [
+        "Bronco"
+      ],
+      "partNumber": "41007",
+      "listPrice": true,
+      "years": "2021-2026"
+    },
+    {
+      "id": "rc-hd2-boards-srb151791a",
+      "category": "running-boards-steps",
+      "name": "Rough Country HD2 Aluminum Running Boards (F-150 and Super Duty Crew Cab)",
+      "brand": "Rough Country",
+      "price": 379.95,
+      "tier": null,
+      "sellingPoint": "Lightweight, corrosion-resistant aluminum HD2 boards with a 5-inch cab-length step and no-drill install for crew-cab 2015–2027 F-150 and 2017–2026 Super Duty.",
+      "fits": [
+        "F-150",
+        "Super Duty"
+      ],
+      "partNumber": "SRB151791A",
+      "listPrice": true,
+      "years": "2015-2027"
+    },
+    {
+      "id": "rc-bed-step-pw049807",
+      "category": "running-boards-steps",
+      "name": "Rough Country Retractable Bed Step (F-150)",
+      "brand": "Rough Country",
+      "price": 199.95,
+      "tier": null,
+      "sellingPoint": "A driver-side, no-drill retractable bed step with a 6-inch aluminum board and a 5-inch drop for 2021–2027 F-150; does not fit dual-outlet factory exhaust.",
+      "fits": [
+        "F-150"
+      ],
+      "partNumber": "PW049807",
+      "listPrice": true,
+      "years": "2021-2027",
+      "bedLengths": [
+        "5.5",
+        "6.5",
+        "8"
+      ]
+    },
+    {
+      "id": "air-suspension-airbags-compressor",
+      "category": "lift-level-kits",
+      "name": "Air suspension (airbags + compressor)",
+      "brand": "Air Lift",
+      "price": 2398,
+      "tier": "best",
+      "sellingPoint": "Airbags + compressor.",
+      "fits": [
+        "Super Duty"
+      ]
+    },
+    {
+      "id": "lift-kit-3in-f-150-rough-country-41431",
+      "category": "lift-level-kits",
+      "name": "Lift kit 3in, F-150 (Rough Country 41431)",
+      "brand": "Rough Country",
+      "price": 2514,
+      "tier": "better",
+      "sellingPoint": "Rough Country 3\" lift + alignment; F-150 4WD.",
+      "fits": [
+        "F-150"
+      ],
+      "partNumber": "41431"
+    },
+    {
+      "id": "leveling-kit-f-150-readylift-2in-66-2120",
+      "category": "lift-level-kits",
+      "name": "Leveling kit, F-150 / non-Super Duty (ReadyLIFT 2in, 66-2120)",
+      "brand": "ReadyLIFT",
+      "price": 995,
+      "tier": "good",
+      "sellingPoint": "ReadyLIFT 2\" level + alignment; F-150 4WD (not CCD/Tremor/Raptor).",
+      "fits": [
+        "F-150"
+      ]
+    },
+    {
+      "id": "rough-country-ranger-leveling-50100",
+      "category": "lift-level-kits",
+      "name": "Rough Country 2.5 Inch Leveling Kit (Ranger)",
+      "brand": "Rough Country",
+      "price": 59.95,
+      "tier": null,
+      "sellingPoint": "Bolt-on front strut spacers that level a 2019–2026 Ranger (non-Tremor) for a more aggressive stance and clearance for larger tires while keeping factory ride quality.",
+      "fits": [
+        "Ranger"
+      ],
+      "listPrice": true,
+      "partNumber": "50100"
+    },
+    {
+      "id": "rough-country-bronco-lift-40400",
+      "category": "lift-level-kits",
+      "name": "Rough Country 2 Inch Lift Kit (Bronco)",
+      "brand": "Rough Country",
+      "price": 79.95,
+      "tier": null,
+      "sellingPoint": "Easy bolt-on strut spacers that add ~2\" of height on 2021–2026 Bronco 4WD (not Sasquatch/HOSS 3.0/4.0) for a taller stance and up to 35\" tires with proper wheels.",
+      "fits": [
+        "Bronco"
+      ],
+      "listPrice": true,
+      "partNumber": "40400"
+    },
+    {
+      "id": "rc-f150-2in-lift-57100",
+      "category": "lift-level-kits",
+      "name": "Rough Country 2 Inch Lift Kit (F-150)",
+      "brand": "Rough Country",
+      "price": 99.95,
+      "tier": null,
+      "sellingPoint": "A bolt-on 2-inch composite spacer kit that levels a 2021–2027 F-150, keeps the factory ride, and makes room for up to 33-inch tires; does not fit Raptor, Tremor, or CCD models.",
+      "fits": [
+        "F-150"
+      ],
+      "partNumber": "57100",
+      "listPrice": true,
+      "years": "2021-2027"
+    },
+    {
+      "id": "rc-sd-2in-leveling-51017",
+      "category": "lift-level-kits",
+      "name": "Rough Country 2 Inch Leveling Kit with Track Bar Bracket (Super Duty)",
+      "brand": "Rough Country",
+      "price": 159.95,
+      "tier": null,
+      "sellingPoint": "Cast-steel 2-inch front spacers and a track-bar bracket that level a 2017–2026 F-250/F-350 Super Duty 4WD and allow up to 33-inch tires; does not fit Tremor and does not fully level 2017 models.",
+      "fits": [
+        "Super Duty"
+      ],
+      "partNumber": "51017",
+      "listPrice": true,
+      "years": "2017-2026"
+    },
+    {
+      "id": "rc-maverick-1in-leveling-51063",
+      "category": "lift-level-kits",
+      "name": "Rough Country 1 Inch Leveling Kit (Maverick)",
+      "brand": "Rough Country",
+      "price": 79.95,
+      "tier": null,
+      "sellingPoint": "Bolt-on 1-inch upper strut spacers that level a 2022–2026 Maverick and add a little ground clearance; does not fit hybrid or Tremor models.",
+      "fits": [
+        "Maverick"
+      ],
+      "partNumber": "51063",
+      "listPrice": true,
+      "years": "2022-2026"
+    },
+    {
+      "id": "rc-f150-n3-struts-501068",
+      "category": "lift-level-kits",
+      "name": "Rough Country N3 2 Inch Loaded Leveling Struts (F-150 4WD)",
+      "brand": "Rough Country",
+      "price": 349.95,
+      "tier": null,
+      "sellingPoint": "Pre-assembled N3 loaded struts that lift the front of a 2014–2027 F-150 4WD two inches while keeping a factory-like ride; does not fit CCD, Tremor, 3.0L Power Stroke, or heavy-duty seven-lug models.",
+      "fits": [
+        "F-150"
+      ],
+      "partNumber": "501068",
+      "listPrice": true,
+      "years": "2014-2027"
+    },
+    {
+      "id": "rc-tremor-25in-lift-51028",
+      "category": "lift-level-kits",
+      "name": "Rough Country 2.5 Inch Lift Kit (F-150 Tremor)",
+      "brand": "Rough Country",
+      "price": 449.95,
+      "tier": null,
+      "sellingPoint": "N3 lifted struts and rear blocks that raise a 2021–2026 F-150 Tremor 2.5 inches in front and lower the rear 1.25 inches for a level stance, with room for 35-inch tires on stock wheels; Tremor only, no CCD.",
+      "fits": [
+        "F-150"
+      ],
+      "partNumber": "51028",
+      "listPrice": true,
+      "years": "2021-2026"
+    },
+    {
+      "id": "rc-ranger-35in-lift-51144",
+      "category": "lift-level-kits",
+      "name": "Rough Country 3.5 Inch Lift Kit (Ranger)",
+      "brand": "Rough Country",
+      "price": 619.95,
+      "tier": null,
+      "sellingPoint": "A 3.5-inch kit with tubular upper control arms, strut spacers, and a differential drop that levels a 2024–2026 Ranger 4WD and adds ground clearance; does not fit Raptor or trucks with a height/load sensor on the upper arm.",
+      "fits": [
+        "Ranger"
+      ],
+      "partNumber": "51144",
+      "listPrice": true,
+      "years": "2024-2026"
+    },
+    {
+      "id": "rc-sd-3in-lift-43630",
+      "category": "lift-level-kits",
+      "name": "Rough Country 3 Inch Lift Kit with N3 Shocks (F-250 Super Duty diesel)",
+      "brand": "Rough Country",
+      "price": 849.95,
+      "tier": null,
+      "sellingPoint": "A bolt-on 3-inch kit with lifted diesel coils, radius-arm and track-bar drops, and N3 shocks that levels a 2023–2026 F-250 Super Duty 4WD and clears 35-inch tires; does not fit F-350, gas, dually, or Tremor models.",
+      "fits": [
+        "Super Duty"
+      ],
+      "partNumber": "43630",
+      "listPrice": true,
+      "years": "2023-2026"
+    },
+    {
+      "id": "rc-bronco-2in-strut-591141",
+      "category": "lift-level-kits",
+      "name": "Rough Country 2 Inch Loaded Strut Lift Kit (Bronco)",
+      "brand": "Rough Country",
+      "price": 839.95,
+      "tier": null,
+      "sellingPoint": "Bolt-on N3 loaded struts that lift a 2021–2026 Bronco two inches, level the stance, and clear 35-inch tires with no cutting; this N3 configuration does not fit Sasquatch, First Edition, HOSS 3.0, or Raptor models.",
+      "fits": [
+        "Bronco"
+      ],
+      "partNumber": "591141",
+      "listPrice": true,
+      "years": "2021-2026"
+    },
+    {
+      "id": "all-terrain-tire-upgrade",
+      "category": "wheels-tires",
+      "name": "All-terrain tire upgrade",
+      "brand": "Toyo",
+      "price": 1950,
+      "tier": "good",
+      "sellingPoint": "AT tires mounted and balanced.",
+      "fits": [
+        "SUV",
+        "Car"
+      ]
+    },
+    {
+      "id": "wheel-and-tire-package",
+      "category": "wheels-tires",
+      "name": "Wheel and tire package",
+      "brand": "",
+      "price": 2495,
+      "tier": "better",
+      "sellingPoint": "Complete wheel + tire package; size/brand drive price.",
+      "fits": [
+        "F-150",
+        "Super Duty",
+        "Ranger",
+        "Bronco",
+        "Maverick"
+      ]
+    },
+    {
+      "id": "spray-in-bedliner",
+      "category": "bedliners",
+      "name": "Spray-in bedliner",
+      "brand": "",
+      "price": 650,
+      "tier": "best",
+      "sellingPoint": "In-house spray-in. Maverick and beds under 8 ft are $650. 8 ft and longer are $700.",
+      "fits": [
+        "F-150",
+        "Ranger",
+        "Super Duty",
+        "Maverick"
+      ],
+      "bedLengths": [
+        "5.5",
+        "6.5",
+        "8",
+        "5",
+        "6",
+        "6.75",
+        "4.5"
+      ]
+    },
+    {
+      "id": "heavy-duty-bed-mat-rubber",
+      "category": "bedliners",
+      "name": "Rubber Bed Mat",
+      "brand": "",
+      "price": 169,
+      "tier": "good",
+      "sellingPoint": "Drop-in plain rubber bed mat.",
+      "fits": [
+        "Super Duty",
+        "Ranger",
+        "Maverick"
+      ],
+      "bedLengths": [
+        "6.75",
+        "8",
+        "5",
+        "6",
+        "4.5"
+      ]
+    },
+    {
+      "id": "rc-bed-mat-rcm671",
+      "category": "bedliners",
+      "name": "Rough Country Rubber Bed Mat, RC Logo (F-150 5'7\" Bed)",
+      "brand": "Rough Country",
+      "price": 109.95,
+      "tier": null,
+      "sellingPoint": "A custom-molded 3/8-inch Nyracord rubber bed mat with an RC logo that drop-in fits 2015–2027 F-150 5-foot-7-inch beds, including Lightning and Raptor.",
+      "fits": [
+        "F-150"
+      ],
+      "partNumber": "RCM671",
+      "listPrice": true,
+      "years": "2015-2027",
+      "bedLengths": [
+        "5.5"
+      ]
+    },
+    {
+      "id": "ceramic-full-tint-suvs-trucks",
+      "category": "tint",
+      "name": "Ceramic Full Tint, SUVs and trucks",
+      "brand": "",
+      "price": 650,
+      "tier": null,
+      "sellingPoint": "Ceramic film for the full vehicle on trucks and SUVs.",
+      "fits": [
+        "F-150",
+        "Super Duty",
+        "Ranger",
+        "Maverick",
+        "Bronco",
+        "SUV"
+      ]
+    },
+    {
+      "id": "ceramic-full-tint-sedans-coupes",
+      "category": "tint",
+      "name": "Ceramic Full Tint, sedans and coupes",
+      "brand": "",
+      "price": 550,
+      "tier": null,
+      "sellingPoint": "Ceramic film for the full vehicle on sedans and coupes.",
+      "fits": [
+        "Car"
+      ]
+    },
+    {
+      "id": "ceramic-windshield",
+      "category": "tint",
+      "name": "Ceramic Windshield",
+      "brand": "",
+      "price": 300,
+      "tier": null,
+      "sellingPoint": "Ceramic film for the windshield.",
+      "fits": [
+        "F-150",
+        "Super Duty",
+        "Ranger",
+        "Maverick",
+        "Bronco",
+        "SUV",
+        "Car"
+      ]
+    },
+    {
+      "id": "cab-roof-lights-recon",
+      "category": "lighting",
+      "name": "Cab roof lights (Recon)",
+      "brand": "Recon",
+      "price": 1100,
+      "tier": "better",
+      "sellingPoint": "Recon cab roof lights.",
+      "fits": [
+        "Super Duty"
+      ]
+    },
+    {
+      "id": "fog-and-pod-lights",
+      "category": "lighting",
+      "name": "Fog and pod lights",
+      "brand": "",
+      "price": 395,
+      "tier": "good",
+      "sellingPoint": "Fog / pod light kits.",
+      "fits": [
+        "Super Duty",
+        "Maverick"
+      ]
+    },
+    {
+      "id": "reverse-lights-baja-designs",
+      "category": "lighting",
+      "name": "Reverse lights (Baja Designs)",
+      "brand": "Baja Designs",
+      "price": 799,
+      "tier": "better",
+      "sellingPoint": "Baja Designs reverse lights.",
+      "fits": [
+        "Super Duty"
+      ]
+    },
+    {
+      "id": "led-light-bar",
+      "category": "lighting",
+      "name": "LED light bar",
+      "brand": "Baja Designs",
+      "price": 595,
+      "tier": "better",
+      "sellingPoint": "LED light bar; size/brand change price.",
+      "fits": [
+        "F-150",
+        "Super Duty",
+        "Ranger",
+        "Bronco",
+        "Maverick",
+        "SUV",
+        "Car"
+      ]
+    },
+    {
+      "id": "baja-s2-pro-led-pair",
+      "category": "lighting",
+      "name": "Baja Designs S2 Pro LED Light Pod Pair w/ Harness",
+      "brand": "Baja Designs",
+      "price": 356.95,
+      "tier": null,
+      "sellingPoint": "Compact 2,245-lumen LED pods (pair) with wiring harness—perfect as ditch, A-pillar, or bumper auxiliaries without taxing the electrical system.",
+      "fits": [
+        "F-150",
+        "Super Duty",
+        "Ranger",
+        "Bronco",
+        "Maverick",
+        "SUV",
+        "Car"
+      ],
+      "listPrice": true,
+      "partNumber": "487801"
+    },
+    {
+      "id": "rc-50in-led-bar-70950bda",
+      "category": "lighting",
+      "name": "Rough Country 50 Inch Black Series LED Light Bar (Dual Row, Amber DRL)",
+      "brand": "Rough Country",
+      "price": 424.95,
+      "tier": null,
+      "sellingPoint": "A universal 50-inch dual-row Black Series LED bar with 43,200 lumens, amber daytime running lights, a wiring harness, and a snap-on cover for off-road use.",
+      "fits": [
+        "F-150",
+        "Super Duty",
+        "Ranger",
+        "Bronco",
+        "Maverick",
+        "SUV",
+        "Car"
+      ],
+      "partNumber": "70950BDA",
+      "listPrice": true
+    },
+    {
+      "id": "rc-20in-led-bar-70720bl",
+      "category": "lighting",
+      "name": "Rough Country 20 Inch Black Series LED Light Bar (Single Row)",
+      "brand": "Rough Country",
+      "price": 139.95,
+      "tier": null,
+      "sellingPoint": "A universal 20-inch single-row Black Series LED bar with 7,200 lumens, a 30-degree spot beam, a wiring harness, and noise silencers for off-road use.",
+      "fits": [
+        "F-150",
+        "Super Duty",
+        "Ranger",
+        "Bronco",
+        "Maverick",
+        "SUV",
+        "Car"
+      ],
+      "partNumber": "70720BL",
+      "listPrice": true
+    },
+    {
+      "id": "rc-2in-led-pods-70903blkdrla",
+      "category": "lighting",
+      "name": "Rough Country 2 Inch Black Series LED Light Pods (Spot, Amber DRL)",
+      "brand": "Rough Country",
+      "price": 94.95,
+      "tier": null,
+      "sellingPoint": "A universal pair of 2-inch square Black Series LED pods with a 30-degree spot beam, amber daytime running lights, and a wiring harness, rated at 3,600 lumens combined.",
+      "fits": [
+        "F-150",
+        "Super Duty",
+        "Ranger",
+        "Bronco",
+        "Maverick",
+        "SUV",
+        "Car"
+      ],
+      "partNumber": "70903BLKDRLA",
+      "listPrice": true
+    },
+    {
+      "id": "rc-f150-ditch-71028",
+      "category": "lighting",
+      "name": "Rough Country LED Ditch Light Kit with 2 Inch Black Series Spot Pods (F-150)",
+      "brand": "Rough Country",
+      "price": 94.95,
+      "tier": null,
+      "sellingPoint": "Bolt-on hood-hinge ditch-light brackets and a pair of 2-inch Black Series spot pods for 2015–2027 F-150, with no drilling and no interference with the washer nozzles.",
+      "fits": [
+        "F-150"
+      ],
+      "partNumber": "71028",
+      "listPrice": true,
+      "years": "2015-2027"
+    },
+    {
+      "id": "floor-liners-1st-and-2nd-row-weathertech-or-husky",
+      "category": "floor-mats",
+      "name": "Floor liners, 1st and 2nd row (WeatherTech or Husky)",
+      "brand": "WeatherTech",
+      "price": 240,
+      "tier": "good",
+      "sellingPoint": "WeatherTech or Husky 1st+2nd row.",
+      "fits": [
+        "F-150",
+        "Super Duty",
+        "Bronco",
+        "SUV",
+        "Car"
+      ]
+    },
+    {
+      "id": "cargo-mat-liner-weathertech",
+      "category": "floor-mats",
+      "name": "Cargo mat / liner (WeatherTech)",
+      "brand": "WeatherTech",
+      "price": 130,
+      "tier": "good",
+      "sellingPoint": "WeatherTech cargo mat / liner.",
+      "fits": [
+        "SUV",
+        "Car"
+      ]
+    },
+    {
+      "id": "rc-floor-mats-f150-m5115",
+      "category": "floor-mats",
+      "name": "Rough Country Floor Armor Front Floor Mats, Over Hump (F-150 Crew Cab)",
+      "brand": "Rough Country",
+      "price": 119.95,
+      "tier": null,
+      "sellingPoint": "Laser-measured heavy-duty polyethylene front mats with a spill-saver lip and lifetime warranty for crew-cab 2015–2027 F-150 models, including Lightning and Raptor.",
+      "fits": [
+        "F-150"
+      ],
+      "partNumber": "M-5115",
+      "listPrice": true,
+      "years": "2015-2027"
+    },
+    {
+      "id": "rc-floor-mats-sd-m51173",
+      "category": "floor-mats",
+      "name": "Rough Country Floor Armor Front and Rear Floor Mats, Front Bench (Super Duty Crew Cab)",
+      "brand": "Rough Country",
+      "price": 179.95,
+      "tier": null,
+      "sellingPoint": "A front-and-rear Floor Armor mat set for crew-cab 2017–2026 F-250/F-350 Super Duty with a front bench seat; does not fit vinyl floors or a floor-mounted manual 4x4 shifter.",
+      "fits": [
+        "Super Duty"
+      ],
+      "partNumber": "M-51173",
+      "listPrice": true,
+      "years": "2017-2026"
+    },
+    {
+      "id": "oem-trailer-hitch-and-wiring-ford",
+      "category": "towing-5th-wheel",
+      "name": "OEM trailer hitch and wiring (Ford)",
+      "brand": "Ford OEM",
+      "price": 1100,
+      "tier": "good",
+      "sellingPoint": "Ford OEM hitch + wiring.",
+      "fits": [
+        "F-150",
+        "Ranger",
+        "Maverick",
+        "SUV",
+        "Car"
+      ]
+    },
+    {
+      "id": "b-w-turnover-ball-super-duty-gooseneck-hitch",
+      "category": "towing-5th-wheel",
+      "name": "B&W turnover ball, Super Duty gooseneck hitch",
+      "brand": "B&W",
+      "price": 2000,
+      "tier": "better",
+      "sellingPoint": "B&W turnover ball.",
+      "fits": [
+        "Super Duty"
+      ]
+    },
+    {
+      "id": "ford-5th-wheel-prep-package",
+      "category": "towing-5th-wheel",
+      "name": "Ford 5th Wheel Prep Package",
+      "brand": "Ford",
+      "price": 2250,
+      "tier": null,
+      "sellingPoint": "Factory 5th-wheel prep for F-250, F-350, and F-450 Super Duty pickups.",
+      "fits": [
+        "Super Duty"
+      ],
+      "partNumber": "PC3Z5F057A"
+    },
+    {
+      "id": "mud-flaps",
+      "category": "bumper-grille",
+      "name": "Mud flaps",
+      "brand": "WeatherTech",
+      "price": 350,
+      "tier": null,
+      "sellingPoint": "WeatherTech no-drill mud flaps for Bronco.",
+      "fits": [
+        "Bronco"
+      ]
+    },
+    {
+      "id": "fender-flares",
+      "category": "bumper-grille",
+      "name": "Fender flares",
+      "brand": "Rough Country",
+      "price": 795,
+      "tier": null,
+      "sellingPoint": "Starting price is the unpainted 4-door kit for a 2021-2026 Bronco 4-door. Paint-match is available for extra.",
+      "fits": [
+        "Bronco"
+      ],
+      "partNumber": "O-F12124"
+    },
+    {
+      "id": "rain-guards-wind-deflectors",
+      "category": "bumper-grille",
+      "name": "Rain guards / wind deflectors",
+      "brand": "Ford",
+      "price": 199,
+      "tier": null,
+      "sellingPoint": "Rain guards / wind deflectors.",
+      "fits": [
+        "Super Duty"
+      ]
+    },
+    {
+      "id": "black-front-emblem-ford-oem",
+      "category": "bumper-grille",
+      "name": "Black front emblem (Ford OEM)",
+      "brand": "Ford OEM",
+      "price": 580,
+      "tier": null,
+      "sellingPoint": "Ford OEM black front emblem.",
+      "fits": [
+        "Super Duty"
+      ]
+    },
+    {
+      "id": "grille-guard-bull-bar",
+      "category": "bumper-grille",
+      "name": "Grille guard / bull bar",
+      "brand": "Ranch Hand",
+      "price": 799,
+      "tier": null,
+      "sellingPoint": "Grille guard / bull bar.",
+      "fits": [
+        "Super Duty"
+      ]
+    },
+    {
+      "id": "hood-deflector",
+      "category": "bumper-grille",
+      "name": "Hood deflector",
+      "brand": "Ford",
+      "price": 199,
+      "tier": null,
+      "sellingPoint": "Hood / bug deflector.",
+      "fits": [
+        "F-150"
+      ]
+    },
+    {
+      "id": "skid-plate",
+      "category": "bumper-grille",
+      "name": "Skid plate",
+      "brand": "",
+      "price": 803,
+      "tier": null,
+      "sellingPoint": "Skid plate; type and truck change price.",
+      "fits": [
+        "F-150"
+      ]
+    },
+    {
+      "id": "tremor-style-front-air-dam-valance",
+      "category": "bumper-grille",
+      "name": "Tremor-style front air dam / valance",
+      "brand": "",
+      "price": 350,
+      "tier": null,
+      "sellingPoint": "Tremor-style front air dam / valance.",
+      "fits": [
+        "Super Duty"
+      ]
+    },
+    {
+      "id": "ford-bronco-tube-doors-4dr",
+      "category": "bumper-grille",
+      "name": "Ford Performance Bronco Tube Door Kit (4-Door)",
+      "brand": "Ford Performance",
+      "price": 1250,
+      "tier": null,
+      "sellingPoint": "High-strength 2\" steel tube doors with black powder coat for open-air Bronco adventures—works with OEM latches on 2021–2026 4-door Bronco including Raptor.",
+      "fits": [
+        "Bronco"
+      ],
+      "listPrice": true,
+      "partNumber": "M-19008-BTD4"
+    },
+    {
+      "id": "rc-fxs-bumper-13012",
+      "category": "bumper-grille",
+      "name": "Rough Country FXS Front Bumper (F-150 EcoBoost)",
+      "brand": "Rough Country",
+      "price": 1999.95,
+      "tier": null,
+      "sellingPoint": "A factory-style hybrid front bumper with a 30-inch LED light bar, SAE fog lights, D-ring mounts, and a winch provision for 2021–2026 F-150 2.7L and 3.5L EcoBoost models.",
+      "fits": [
+        "F-150"
+      ],
+      "partNumber": "13012",
+      "listPrice": true,
+      "years": "2021-2026"
+    },
+    {
+      "id": "dash-camera-front-and-rear",
+      "category": "interior",
+      "name": "Dash camera, front and rear",
+      "brand": "",
+      "price": 850,
+      "tier": null,
+      "sellingPoint": "Front + rear dash camera.",
+      "fits": [
+        "Super Duty"
+      ]
+    },
+    {
+      "id": "covercraft-carhartt-seatsaver",
+      "category": "interior",
+      "name": "Covercraft Carhartt SeatSaver Custom Front Seat Covers",
+      "brand": "Covercraft",
+      "price": 393.99,
+      "tier": null,
+      "sellingPoint": "Custom-fit Carhartt duck-weave front-row SeatSavers in Gravel that protect factory seats from jobsite dirt and pets while keeping console and controls usable.",
+      "fits": [
+        "F-150"
+      ],
+      "listPrice": true,
+      "partNumber": "SSC3489CAGY"
+    },
+    {
+      "id": "rc-seat-covers-91018",
+      "category": "interior",
+      "name": "Rough Country Neoprene Seat Covers, Front Buckets and Rear Bench (F-150 and Super Duty Crew Cab)",
+      "brand": "Rough Country",
+      "price": 239.95,
+      "tier": null,
+      "sellingPoint": "Custom-fit four-layer neoprene front-bucket and rear-bench covers for crew-cab 2015–2027 F-150 and 2017–2026 Super Duty; does not fit headrest speakers or a folding rear armrest.",
+      "fits": [
+        "F-150",
+        "Super Duty"
+      ],
+      "partNumber": "91018",
+      "listPrice": true,
+      "years": "2015-2027"
+    },
+    {
+      "id": "rc-bronco-molle-51122",
+      "category": "interior",
+      "name": "Rough Country Rear MOLLE Mounting Panel (Bronco)",
+      "brand": "Rough Country",
+      "price": 189.95,
+      "tier": null,
+      "sellingPoint": "A 46.5-by-16.55-inch powder-coated 1/8-inch steel MOLLE panel that bolts to the rear roll bar of a 2021–2026 Bronco for organizing trail gear.",
+      "fits": [
+        "Bronco"
+      ],
+      "partNumber": "51122",
+      "listPrice": true,
+      "years": "2021-2026"
+    },
+    {
+      "id": "cold-air-intake",
+      "category": "performance",
+      "name": "Cold air intake",
+      "brand": "K&N",
+      "price": 495,
+      "tier": null,
+      "sellingPoint": "Cold air intake.",
+      "fits": [
+        "Ranger"
+      ]
+    },
+    {
+      "id": "tuner",
+      "category": "performance",
+      "name": "Tuner",
+      "brand": "",
+      "price": 850,
+      "tier": null,
+      "sellingPoint": "Engine tuner, installed.",
+      "fits": [
+        "Ranger",
+        "Bronco"
+      ]
+    },
+    {
+      "id": "bed-divider-ford",
+      "category": "commercial-fleet",
+      "name": "Bed divider (Ford)",
+      "brand": "Ford",
+      "price": 490,
+      "tier": null,
+      "sellingPoint": "Ford bed divider.",
+      "fits": [
+        "F-150"
+      ],
+      "bedLengths": [
+        "5.5",
+        "6.5",
+        "8"
+      ]
+    },
+    {
+      "id": "tool-box",
+      "category": "commercial-fleet",
+      "name": "Tool box",
+      "brand": "",
+      "price": 595,
+      "tier": null,
+      "sellingPoint": "Bed tool box.",
+      "fits": [
+        "F-150",
+        "Super Duty",
+        "Ranger",
+        "Bronco",
+        "Maverick"
+      ],
+      "bedLengths": [
+        "5.5",
+        "6.5",
+        "8",
+        "6.75",
+        "5",
+        "6",
+        "4.5"
+      ]
+    },
+    {
+      "id": "decked-drawer-system",
+      "category": "commercial-fleet",
+      "name": "DECKED Drawer System + Premium Accessory Pack",
+      "brand": "DECKED",
+      "price": 1699.99,
+      "tier": null,
+      "sellingPoint": "American-made dual full-bed drawers with weatherproof deck (up to 2,000 lb payload) that organize tools while keeping a flat load floor—locks with the tailgate.",
+      "fits": [
+        "F-150",
+        "Super Duty"
+      ],
+      "listPrice": true,
+      "bedLengths": [
+        "5.5",
+        "6.5",
+        "8",
+        "6.75"
+      ]
+    },
+    {
+      "id": "leitner-acs-forged",
+      "category": "commercial-fleet",
+      "name": "Leitner ACS FORGED Bed Rack (Ford)",
+      "brand": "Leitner Designs",
+      "price": 2099,
+      "tier": null,
+      "sellingPoint": "USA-made forged aluminum overland bed rack with sliding load bar, up to 1,400 lb static capacity, and GearPOD-ready mounting for tents, bikes, and recovery gear.",
+      "fits": [
+        "F-150",
+        "Ranger",
+        "Super Duty"
+      ],
+      "listPrice": true,
+      "bedLengths": [
+        "5.5",
+        "6.5",
+        "8",
+        "5",
+        "6",
+        "6.75"
+      ]
+    },
+    {
+      "id": "maverick-bed-divider",
+      "category": "commercial-fleet",
+      "name": "Ford Maverick Bed Divider (FLEXBED / Track System)",
+      "brand": "Ford",
+      "price": 370,
+      "tier": null,
+      "sellingPoint": "Genuine Ford anodized-aluminum bed divider that slides on the Maverick bed-track system to create load zones (requires Bed Track & Cleat kit, sold separately).",
+      "fits": [
+        "Maverick"
+      ],
+      "listPrice": true,
+      "partNumber": "NZ6Z-99286A72-A",
+      "bedLengths": [
+        "4.5"
+      ]
+    },
+    {
+      "id": "yakima-overhaul-hd",
+      "category": "commercial-fleet",
+      "name": "Yakima OverHaul HD Adjustable Truck Bed Rack",
+      "brand": "Yakima",
+      "price": 1319,
+      "tier": null,
+      "sellingPoint": "Height-adjustable (19–30\") aluminum bed rack with 500 lb on-road / 300 lb off-road rating, QuickChange mounts, and HD Bars for tents, lumber, and utility loads.",
+      "fits": [
+        "F-150",
+        "Super Duty",
+        "Ranger"
+      ],
+      "listPrice": true,
+      "bedLengths": [
+        "5.5",
+        "6.5",
+        "8",
+        "6.75",
+        "5",
+        "6"
+      ]
+    },
+    {
+      "id": "rc-headache-rack-24000a",
+      "category": "commercial-fleet",
+      "name": "Rough Country Headache Rack with MOLLE Panels (F-150)",
+      "brand": "Rough Country",
+      "price": 349.95,
+      "tier": null,
+      "sellingPoint": "A no-drill 2x3-inch steel headache rack with dual MOLLE panels that mounts in the stake pockets of a 2015–2027 F-150 and keeps the third brake light visible; does not work with a bed cover.",
+      "fits": [
+        "F-150"
+      ],
+      "partNumber": "24000A",
+      "listPrice": true,
+      "years": "2015-2027",
+      "bedLengths": [
+        "5.5",
+        "6.5",
+        "8"
+      ]
+    }
+  ]
+}
