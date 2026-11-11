@@ -1,16 +1,16 @@
 /* Corwin Ford Tri-Cities — iPad accessory menu.
    Item names and prices come from catalog.json. Photos are mapped locally. */
 
-import { bulletsFor, tierSwitch } from "./copy.js?v=66970ab";
-import { PARTS_ONLY_NOTE, PARTS_ONLY_TAG, hasPrice, money, priceLabel } from "./price-label.js?v=66970ab";
-import { bedLengthsFor, commitLinePrice, customItemError, laborLine, linePartNumber, normalizeQuote, parseDollars, quoteForBed, quoteNotes, quoteTotals, resetLinePrice } from "./quote-math.js?v=66970ab";
-import { photosFor } from "./photos.js?v=66970ab";
-import { itemMatchesVehicle } from "./vehicle-filter.js?v=66970ab";
+import { bulletsFor, tierSwitch } from "./copy.js";
+import { PARTS_ONLY_NOTE, PARTS_ONLY_TAG, hasPrice, money, priceLabel } from "./price-label.js";
+import { bedLengthsFor, commitLinePrice, customItemError, laborLine, linePartNumber, normalizeQuote, parseDollars, quoteForBed, quoteNotes, quoteTotals, resetLinePrice } from "./quote-math.js";
+import { photosFor } from "./photos.js";
+import { itemMatchesVehicle } from "./vehicle-filter.js";
 
 const PRICE_KEY = "accessory-menu-show-prices";
 const FILTER_KEY = "accessory-menu-vehicle";
 const QUOTE_KEY = "accessory-menu-quote";
-const VEHICLES = ["All", "F-150", "Super Duty", "Ranger", "Maverick", "Bronco", "Other"];
+const VEHICLES = ["All", "F-150", "Super Duty", "Ranger", "Maverick", "Bronco", "SUV", "Car"];
 const TIERS = ["good", "better", "best"];
 const TIER_LABEL = { good: "Good", better: "Better", best: "Best" };
 
@@ -1147,7 +1147,7 @@ async function boot() {
   if (vehicleSelect) vehicleSelect.value = state.vehicleFilter;
   renderTray();
   try {
-    const response = await fetch("catalog.json?v=66970ab", { cache: "no-store" });
+    const response = await fetch("catalog.json", { cache: "no-store" });
     if (!response.ok) throw new Error(`Catalog request failed (${response.status})`);
     state.catalog = await response.json();
   } catch (error) {

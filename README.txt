@@ -41,13 +41,13 @@ Customizing
 
 Accessory menu cache version
 ----------------------------
-The iPad menu in `menu/` is a separate static site. Every JS, CSS, manifest, and catalog reference shares one `?v=` tag so a deploy cannot mix a new script with a cached module.
+The iPad menu in `menu/` is a separate static site. Render's CDN ignores query strings, so each CSS file, JS module, catalog, and manifest is copied to a versioned filename such as `js/menu.<commit>.js`. `index.html` keeps its plain name and points at those copies. Imports inside the versioned modules use the same commit id.
 
 Bump that version on every menu change, before you push:
 
     node menu/stamp-assets.mjs
 
-That rewrites every `?v=` to the current short commit id. Pass a version if you want a date instead: `node menu/stamp-assets.mjs 20261110`. Commit the stamped files with the change. The live Render site does not run `render.yaml`, so an unbumped version stays cached.
+That writes the new copies from the plain source files and keeps the previous version's copies so a cached page does not 404. Older copies are removed. Pass a version if you want a date instead: `node menu/stamp-assets.mjs 20261110`. Commit the stamped files with the change. The live Render site does not run `render.yaml`.
 
 
 

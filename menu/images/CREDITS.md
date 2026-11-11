@@ -31,8 +31,6 @@ Each file is a product photo from the manufacturer or Ford Accessories. Photos a
 | cab-roof-lights-recon | RECON Super Duty cab lights, https://gorecon.com/products/ford-super-duty-99-16-5-piece-cab-lights-xenon-bulbs-amber-lens-in-amber |
 | wheel-and-tire-package | Fuel Off-Road on F-150, https://www.fueloffroad.com/news/best-fuel-wheels-for-the-ford-f-150 |
 | spray-in-bedliner | LINE-X in F-150, https://thetrackahead.com/projects/13th-gen-ford-f150/line-x-spray-in-bed-liner-13th-gen-ford-f-150/ |
-| heavy-duty-bed-mat-rubber | BedRug XLT bed mat in Ford F-150, https://truckoutfittersplus.com/BedRug_XLT_Mat-XLTBMQ15SBS.html |
-| front-window-tint-2-fronts-carbon | Tinted Ford Raptor, https://bloomingtonwindowtint.com/auto-window-tint-film-install/ceramic-film/no-more-blistering-hot-seats-steering-wheels-with-llumar-ctx-ceramic-window-film/ |
 | fog-and-pod-lights | Diode Dynamics SS3 fog pocket kit, https://square1offroad.com/products/diode-dynamics-ss3-led-fog-pocket-kit-for-2021-2022-ford-f150 |
 | skid-plate | Ford Performance M-5018-FSP, https://www.americantrucks.com/ford-performance-f150-tremor-front-skid-plate-kit-m-5018-fsp.html |
 | tremor-style-front-air-dam-valance | Tremor-style valance, https://www.cjcoffroad.com/products/2017-ford-tremor-valance |

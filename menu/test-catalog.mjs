@@ -160,7 +160,7 @@ HOME.forEach(([id, name], index) => {
   }
 });
 
-if (items.length !== 75) fail(`expected 75 public items, found ${items.length}`);
+if (items.length !== 77) fail(`expected 77 public items, found ${items.length}`);
 if (items.some((item) => item && item.review === true)) fail("catalog.json still has a review item");
 if (rawCatalog.includes("full-vehicle-tint")) fail("full-vehicle-tint must not be in the public catalog");
 if (/"review"\s*:/.test(rawCatalog)) fail("review flags must not be stored in catalog.json");
@@ -192,8 +192,37 @@ items.forEach((item, index) => {
   if ("example" in item) fail(`${where} still has an example flag`);
 });
 
-const carbon = items.find((item) => item.id === "front-window-tint-2-fronts-carbon");
-if (!carbon || carbon.price !== 280) fail("front carbon tint must stay priced at 280");
+const tintItems = items.filter((item) => item.category === "tint");
+if (tintItems.length !== 3) fail(`tint must be exactly three ceramic items, found ${tintItems.length}`);
+if (tintItems.some((item) => /carbon|dye|front window/i.test(`${item.id} ${item.name}`))) {
+  fail("non-ceramic tint items must be removed");
+}
+const tintById = Object.fromEntries(tintItems.map((item) => [item.id, item]));
+const suvTint = tintById["ceramic-full-tint-suvs-trucks"];
+const carTint = tintById["ceramic-full-tint-sedans-coupes"];
+const windshield = tintById["ceramic-windshield"];
+if (!suvTint || suvTint.price !== 650 || suvTint.name !== "Ceramic Full Tint, SUVs and trucks") {
+  fail("trucks and SUVs need the $650 ceramic full tint");
+}
+if (!carTint || carTint.price !== 550 || carTint.name !== "Ceramic Full Tint, sedans and coupes") {
+  fail("cars need the $550 ceramic full tint");
+}
+if (!windshield || windshield.price !== 300 || windshield.name !== "Ceramic Windshield") {
+  fail("every vehicle needs the $300 ceramic windshield");
+}
+[suvTint, carTint, windshield].forEach((item) => {
+  if (!item || item.partNumber) fail(`${item && item.id} must not invent a part number`);
+});
+["F-150", "Super Duty", "Ranger", "Maverick", "Bronco", "SUV"].forEach((vehicle) => {
+  if (!itemMatchesVehicle(suvTint, vehicle)) fail(`$650 ceramic tint must show for ${vehicle}`);
+  if (itemMatchesVehicle(carTint, vehicle)) fail(`$550 ceramic tint must stay off ${vehicle}`);
+});
+if (itemMatchesVehicle(suvTint, "Car") || !itemMatchesVehicle(carTint, "Car")) {
+  fail("Car must see the $550 ceramic tint and not the $650 one");
+}
+["All", "F-150", "Super Duty", "Ranger", "Maverick", "Bronco", "SUV", "Car"].forEach((vehicle) => {
+  if (!itemMatchesVehicle(windshield, vehicle)) fail(`ceramic windshield must show for ${vehicle}`);
+});
 
 ["audio", "ppf-coating"].forEach((id) => {
   if (items.some((item) => item.category === id)) fail(`${id} should have no public items, so its tile stays hidden`);
@@ -440,7 +469,7 @@ if (!/unpainted 4-door kit/.test(flares.sellingPoint) || !/Paint-match is availa
   fail("fender flares must say the start price is the unpainted 4-door kit and paint-match is extra");
 }
 if (/https?:\/\/|\$\d/.test(flares.sellingPoint)) fail("the fender flare note must not carry a vendor price or URL");
-["decked-drawer-system", "leitner-acs-forged", "yakima-overhaul-hd", "spray-in-bedliner", "front-window-tint-2-fronts-carbon"].forEach((id) => {
+["decked-drawer-system", "leitner-acs-forged", "yakima-overhaul-hd", "spray-in-bedliner", "ceramic-full-tint-suvs-trucks", "ceramic-full-tint-sedans-coupes", "ceramic-windshield", "mud-flaps", "heavy-duty-bed-mat-rubber"].forEach((id) => {
   const item = items.find((entry) => entry.id === id);
   if (!item) fail(`missing ${id}`);
   else if (item.partNumber) fail(`${id} should not have a part number yet`);
@@ -457,7 +486,7 @@ roughCountry.forEach((item) => {
 });
 universalLights.forEach((id) => {
   const item = items.find((entry) => entry.id === id);
-  ["All", "F-150", "Super Duty", "Ranger", "Bronco", "Maverick", "Other"].forEach((vehicle) => {
+  ["All", "F-150", "Super Duty", "Ranger", "Bronco", "Maverick", "SUV", "Car"].forEach((vehicle) => {
     if (!itemMatchesVehicle(item, vehicle)) fail(`${id} must show under ${vehicle}`);
   });
 });
@@ -476,6 +505,11 @@ if (cardFn.includes("partNumber") || cardFn.includes("Part #")) fail("menu cards
 const liner = items.find((item) => item.id === "spray-in-bedliner");
 const sprayItems = items.filter((item) => /spray-in bedliner/i.test(item.name));
 if (sprayItems.length !== 1 || !liner || liner.price !== 650) fail("spray-in bedliner stays one item at the $650 starting price");
+if (!liner.fits.includes("Maverick") || liner.fits.includes("Bronco")) fail("spray-in includes Maverick and still excludes Bronco");
+const maverickBed = bedLengthsFor(liner, "Maverick");
+if (maverickBed.length !== 1 || maverickBed[0].id !== "4.5" || quoteForBed(liner, maverickBed[0]).price !== 650) {
+  fail("a Maverick spray-in is the 4.5 ft bed at $650");
+}
 const f150Beds = bedLengthsFor(liner, "F-150");
 if (f150Beds.map((length) => length.label).join("|") !== "5.5 ft|6.5 ft|8 ft") fail("F-150 beds must be 5.5, 6.5, and 8 ft");
 const shortBed = quoteForBed(liner, f150Beds[0]);
@@ -590,15 +624,21 @@ if (/"newAddition"\s*:/.test(rawCatalog)) fail("newAddition flags must be remove
 const listPriced = items.filter((item) => item.listPrice === true);
 if (listPriced.length !== 38) fail(`expected 38 list-price items, found ${listPriced.length}`);
 const withPhotos = items.filter((item) => photosFor(item.id).length);
-if (withPhotos.length !== 73) fail(`expected 73 of 75 items with photos, found ${withPhotos.length}`);
-const photoComing = ["mud-flaps", "ford-5th-wheel-prep-package"];
+if (withPhotos.length !== 71) fail(`expected 71 of 77 items with photos, found ${withPhotos.length}`);
+const photoComing = ["mud-flaps", "ford-5th-wheel-prep-package", "heavy-duty-bed-mat-rubber", "ceramic-full-tint-suvs-trucks", "ceramic-full-tint-sedans-coupes", "ceramic-windshield"];
 const credits = readFileSync(join(root, "images/CREDITS.md"), "utf8");
 photoComing.forEach((id) => {
   if (photosFor(id).length) fail(`${id} must show Photo coming until a matching photo is added`);
   if (existsSync(join(root, "images", `${id}.webp`))) fail(`${id} photo file must be deleted`);
   if (credits.includes(id)) fail(`${id} credit must be removed`);
 });
-["heavy-duty-bed-mat-rubber", "yakima-overhaul-hd"].forEach((id) => {
+const mud = items.find((item) => item.id === "mud-flaps");
+if (!mud || mud.brand !== "WeatherTech" || mud.partNumber) fail("Bronco mud flaps are WeatherTech and have no guessed part number");
+const rubberMat = items.find((item) => item.id === "heavy-duty-bed-mat-rubber");
+if (!rubberMat || rubberMat.name !== "Rubber Bed Mat" || rubberMat.brand || rubberMat.price !== 169) {
+  fail("the plain rubber bed mat keeps the $169 price and drops the BedRug brand");
+}
+["yakima-overhaul-hd"].forEach((id) => {
   if (!photosFor(id).includes(`images/${id}.webp`)) fail(`${id} needs its replacement photo`);
   if (!credits.includes(`| ${id} |`)) fail(`${id} needs a credit`);
 });
@@ -609,18 +649,29 @@ if (!photosFor("fixed-running-boards-nerf-bars-dee-zee-etc").join(" ").includes(
   fail("the Dee Zee item must use the replacement photo");
 }
 const baja = items.find((item) => item.id === "baja-s2-pro-led-pair");
-["All", "F-150", "Super Duty", "Ranger", "Bronco", "Maverick", "Other"].forEach((vehicle) => {
+["All", "F-150", "Super Duty", "Ranger", "Bronco", "Maverick", "SUV", "Car"].forEach((vehicle) => {
   if (!itemMatchesVehicle(baja, vehicle)) fail(`Baja S2 pods must show under ${vehicle}`);
 });
 items.forEach((item) => {
   const coversNamed = ["F-150", "Super Duty", "Ranger", "Bronco", "Maverick"].every((name) => (item.fits || []).includes(name));
-  if (coversNamed && !itemMatchesVehicle(item, "Other")) {
-    fail(`${item.id} fits every named vehicle and must show under Other`);
+  const namesABody = (item.fits || []).some((fit) => fit === "SUV" || fit === "Car" || fit === "Other");
+  if (coversNamed && !namesABody) {
+    if (!itemMatchesVehicle(item, "SUV") || !itemMatchesVehicle(item, "Car")) {
+      fail(`${item.id} fits every named truck and must show under SUV and Car`);
+    }
   }
 });
-if (itemMatchesVehicle({ fits: ["Ranger"] }, "Other")) fail("a Ranger-only item must stay hidden under Other");
-if (!itemMatchesVehicle({ universal: true, fits: ["F-150"] }, "Other")) fail("an item marked universal must show under Other");
+if (itemMatchesVehicle({ fits: ["Ranger"] }, "SUV") || itemMatchesVehicle({ fits: ["Ranger"] }, "Car")) {
+  fail("a Ranger-only item must stay hidden under SUV and Car");
+}
+if (!itemMatchesVehicle({ universal: true, fits: ["F-150"] }, "SUV") || !itemMatchesVehicle({ universal: true, fits: ["F-150"] }, "Car")) {
+  fail("an item marked universal must show under SUV and Car");
+}
+if (!itemMatchesVehicle({ fits: ["Other"] }, "SUV") || !itemMatchesVehicle({ fits: ["Other"] }, "Car")) {
+  fail("a legacy Other fit must show under both SUV and Car");
+}
 if (!itemMatchesVehicle({ fits: ["universal"] }, "Bronco")) fail("a fits value of universal must show under every vehicle");
+if (html.includes(">Other<") || menuJs.includes('"Other"')) fail("the vehicle filter must offer SUV and Car instead of Other");
 if (!menuJs.includes("itemMatchesVehicle")) fail("the menu filter must use the shared vehicle match");
 if (menuJs.includes("New additions") || menuJs.includes("tag-new") || menuJs.includes("newBadge")) {
   fail("the New additions row and badges must not render");
@@ -647,35 +698,48 @@ function walkKeys(value, path) {
 }
 walkKeys(catalog, "catalog");
 
-const served = [
-  ["index.html", html],
-  ["js/menu.js", menuJs],
-  ["js/copy.js", readFileSync(join(root, "js/copy.js"), "utf8")],
-  ["js/quote-math.js", readFileSync(join(root, "js/quote-math.js"), "utf8")],
-  ["css/menu.css", css],
-  ["manifest.webmanifest", readFileSync(join(root, "manifest.webmanifest"), "utf8")],
-  ["catalog.json", rawCatalog],
-];
-readdirSync(join(root, "js")).filter((name) => name.endsWith(".js")).forEach((name) => {
-  if (served.some(([file]) => file === `js/${name}`)) return;
-  served.push([`js/${name}`, readFileSync(join(root, "js", name), "utf8")]);
-});
-const versions = new Set();
-served.forEach(([file, text]) => {
-  if (text.includes("ASSET_VERSION")) fail(`${file} still has the literal ASSET_VERSION token`);
-  const tags = text.match(/\?v=([A-Za-z0-9._-]+)/g) || [];
-  tags.forEach((tag) => versions.add(tag.slice(3)));
-  const specifiers = text.match(/from\s+["'](\.\/[^"']+)["']/g) || [];
-  specifiers.forEach((specifier) => {
-    if (!specifier.includes("?v=")) fail(`${file} import ${specifier} is missing ?v=`);
-  });
-});
-if (versions.size !== 1) fail(`?v= values must all match, found ${[...versions].join(", ") || "none"}`);
-const assetVersion = [...versions][0];
-if (!html.includes(`css/menu.css?v=${assetVersion}`) || !html.includes(`js/menu.js?v=${assetVersion}`)) {
-  fail("the page stylesheet and module script must share the version tag");
+const versionIn = (file) => {
+  const match = String(file).match(/\.([A-Za-z0-9._-]{4,40})\.(?:js|css|json|webmanifest)$/);
+  return match ? match[1] : "";
+};
+const linked = [];
+function resolveRef(fromFile, ref) {
+  const clean = ref.split("?")[0].split("#")[0];
+  if (!clean.startsWith("./")) return clean;
+  const dir = fromFile.includes("/") ? fromFile.slice(0, fromFile.lastIndexOf("/") + 1) : "";
+  return dir + clean.slice(2);
 }
-if (!menuJs.includes(`catalog.json?v=${assetVersion}`)) fail("catalog.json must be fetched with the shared version tag");
+function walkServed(file) {
+  if (linked.some((entry) => entry.file === file)) return;
+  const full = join(root, file);
+  if (!existsSync(full)) {
+    fail(`referenced file is missing: ${file}`);
+    return;
+  }
+  const text = readFileSync(full, "utf8");
+  linked.push({ file, text });
+  if (text.includes("ASSET_VERSION") || text.includes("?v=")) fail(`${file} still uses an unversioned cache query`);
+  const refs = new Set();
+  for (const match of text.matchAll(/(?:href|src)=["']([^"']+)["']/g)) refs.add(match[1]);
+  for (const match of text.matchAll(/from\s+["'](\.\/[^"']+)["']/g)) refs.add(match[1]);
+  for (const match of text.matchAll(/fetch\(\s*["']([^"']+)["']/g)) refs.add(match[1]);
+  refs.forEach((ref) => {
+    const next = resolveRef(file, ref);
+    if (!/\.(?:js|css|json|webmanifest)$/.test(next)) return;
+    if (!versionIn(next)) fail(`${file} references unversioned ${next}`);
+    walkServed(next);
+  });
+}
+walkServed("index.html");
+const servedVersions = new Set(linked.map((entry) => versionIn(entry.file)).filter(Boolean));
+if (servedVersions.size !== 1) fail(`asset versions must all match, found ${[...servedVersions].join(", ") || "none"}`);
+const assetVersion = [...servedVersions][0];
+if (!linked.some((entry) => entry.file === `js/quote-math.${assetVersion}.js`)) {
+  fail("quote-math.js must be published under the same versioned filename");
+}
+if (!linked.some((entry) => entry.file === `catalog.${assetVersion}.json`)) {
+  fail("catalog.json must be published under the same versioned filename");
+}
 const blueprint = readFileSync(join(root, "..", "render.yaml"), "utf8");
 ["/js/*", "/css/*", "/catalog.json"].forEach((path) => {
   const rule = new RegExp(`path:\\s*${path.replaceAll("*", "\\*").replaceAll(".", "\\.")}[\\s\\S]{0,80}value:\\s*no-cache`);

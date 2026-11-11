@@ -222,7 +222,8 @@
       "fits": [
         "Ranger",
         "Super Duty",
-        "Other"
+        "SUV",
+        "Car"
       ]
     },
     {
@@ -530,7 +531,8 @@
       "tier": "good",
       "sellingPoint": "AT tires mounted and balanced.",
       "fits": [
-        "Other"
+        "SUV",
+        "Car"
       ]
     },
     {
@@ -547,7 +549,8 @@
         "Ranger",
         "Bronco",
         "Maverick",
-        "Other"
+        "SUV",
+        "Car"
       ]
     },
     {
@@ -557,12 +560,14 @@
       "brand": "",
       "price": 650,
       "tier": "best",
-      "sellingPoint": "In-house spray-in.",
+      "sellingPoint": "In-house spray-in. Maverick and beds under 8 ft are $650. 8 ft and longer are $700.",
       "fits": [
         "F-150",
         "Ranger",
         "Super Duty",
-        "Other"
+        "SUV",
+        "Car",
+        "Maverick"
       ],
       "bedLengths": [
         "5.5",
@@ -570,17 +575,18 @@
         "8",
         "5",
         "6",
-        "6.75"
+        "6.75",
+        "4.5"
       ]
     },
     {
       "id": "heavy-duty-bed-mat-rubber",
       "category": "bedliners",
-      "name": "Heavy-duty bed mat (rubber)",
-      "brand": "BedRug",
+      "name": "Rubber Bed Mat",
+      "brand": "",
       "price": 169,
       "tier": "good",
-      "sellingPoint": "Drop-in rubber bed mat.",
+      "sellingPoint": "Drop-in plain rubber bed mat.",
       "fits": [
         "Super Duty",
         "Ranger",
@@ -613,16 +619,50 @@
       ]
     },
     {
-      "id": "front-window-tint-2-fronts-carbon",
+      "id": "ceramic-full-tint-suvs-trucks",
       "category": "tint",
-      "name": "Front window tint (2 fronts, carbon)",
+      "name": "Ceramic Full Tint, SUVs and trucks",
       "brand": "",
-      "price": 280,
-      "tier": "good",
-      "sellingPoint": "Carbon film, 2 front windows.",
+      "price": 650,
+      "tier": null,
+      "sellingPoint": "Ceramic film for the full vehicle on trucks and SUVs.",
       "fits": [
+        "F-150",
         "Super Duty",
-        "Other"
+        "Ranger",
+        "Maverick",
+        "Bronco",
+        "SUV"
+      ]
+    },
+    {
+      "id": "ceramic-full-tint-sedans-coupes",
+      "category": "tint",
+      "name": "Ceramic Full Tint, sedans and coupes",
+      "brand": "",
+      "price": 550,
+      "tier": null,
+      "sellingPoint": "Ceramic film for the full vehicle on sedans and coupes.",
+      "fits": [
+        "Car"
+      ]
+    },
+    {
+      "id": "ceramic-windshield",
+      "category": "tint",
+      "name": "Ceramic Windshield",
+      "brand": "",
+      "price": 300,
+      "tier": null,
+      "sellingPoint": "Ceramic film for the windshield.",
+      "fits": [
+        "F-150",
+        "Super Duty",
+        "Ranger",
+        "Maverick",
+        "Bronco",
+        "SUV",
+        "Car"
       ]
     },
     {
@@ -676,7 +716,8 @@
         "Ranger",
         "Bronco",
         "Maverick",
-        "Other"
+        "SUV",
+        "Car"
       ]
     },
     {
@@ -692,7 +733,9 @@
         "Super Duty",
         "Ranger",
         "Bronco",
-        "Maverick"
+        "Maverick",
+        "SUV",
+        "Car"
       ],
       "listPrice": true,
       "partNumber": "487801"
@@ -710,7 +753,9 @@
         "Super Duty",
         "Ranger",
         "Bronco",
-        "Maverick"
+        "Maverick",
+        "SUV",
+        "Car"
       ],
       "partNumber": "70950BDA",
       "listPrice": true
@@ -728,7 +773,9 @@
         "Super Duty",
         "Ranger",
         "Bronco",
-        "Maverick"
+        "Maverick",
+        "SUV",
+        "Car"
       ],
       "partNumber": "70720BL",
       "listPrice": true
@@ -746,7 +793,9 @@
         "Super Duty",
         "Ranger",
         "Bronco",
-        "Maverick"
+        "Maverick",
+        "SUV",
+        "Car"
       ],
       "partNumber": "70903BLKDRLA",
       "listPrice": true
@@ -778,7 +827,8 @@
         "F-150",
         "Super Duty",
         "Bronco",
-        "Other"
+        "SUV",
+        "Car"
       ]
     },
     {
@@ -790,7 +840,8 @@
       "tier": "good",
       "sellingPoint": "WeatherTech cargo mat / liner.",
       "fits": [
-        "Other"
+        "SUV",
+        "Car"
       ]
     },
     {
@@ -835,7 +886,8 @@
         "F-150",
         "Ranger",
         "Maverick",
-        "Other"
+        "SUV",
+        "Car"
       ]
     },
     {
@@ -866,10 +918,10 @@
       "id": "mud-flaps",
       "category": "bumper-grille",
       "name": "Mud flaps",
-      "brand": "Ranch Hand",
+      "brand": "WeatherTech",
       "price": 350,
       "tier": null,
-      "sellingPoint": "Mud flaps; brand and set change price.",
+      "sellingPoint": "WeatherTech no-drill mud flaps for Bronco.",
       "fits": [
         "Bronco"
       ]
@@ -1101,7 +1153,8 @@
         "Ranger",
         "Bronco",
         "Maverick",
-        "Other"
+        "SUV",
+        "Car"
       ],
       "bedLengths": [
         "5.5",

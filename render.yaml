@@ -1,8 +1,8 @@
 # Free Render static site for the iPad accessory menu.
 # rootDir limits autodeploys to changes under menu/. Publish path is
 # relative to that directory, so the site root is the menu folder.
-# The build only stamps ?v=<commit> onto JS, CSS, and catalog.json so a
-# deploy cannot mix a new module with a cached one. Hash routes
+# The build copies JS, CSS, the manifest, and catalog.json to versioned
+# filenames so a deploy cannot mix a new module with a cached one. Hash routes
 # (#/, #/c/..., #/p/...) need no CDN rewrite.
 # No disk, no database, no paid add-ons.
 services:
