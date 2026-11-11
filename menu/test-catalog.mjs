@@ -3,9 +3,9 @@ import { dirname, join, normalize, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { bulletsFor, tierSwitch } from "./js/copy.js";
 import { photosFor, PHOTOS } from "./js/photos.js";
-import { itemMatchesVehicle } from "./js/vehicle-filter.js";
+import { itemMatchesVehicle, savedVehiclePick } from "./js/vehicle-filter.js";
 import { money, PARTS_ONLY_NOTE, PARTS_ONLY_TAG, priceLabel } from "./js/price-label.js";
-import { bedLengthsFor, commitLinePrice, customItemError, isBedProduct, laborLine, linePartNumber, normalizeQuote, quoteForBed, quoteNotes, quoteTotals, resetLinePrice } from "./js/quote-math.js";
+import { bedLengthsFor, commitLinePrice, customItemError, dropRemovedQuoteLines, isBedProduct, laborLine, linePartNumber, normalizeQuote, quoteForBed, quoteNotes, quoteTotals, resetLinePrice } from "./js/quote-math.js";
 import { inflateSync } from "node:zlib";
 
 const root = dirname(fileURLToPath(import.meta.url));
@@ -223,6 +223,17 @@ if (itemMatchesVehicle(suvTint, "Car") || !itemMatchesVehicle(carTint, "Car")) {
 ["All", "F-150", "Super Duty", "Ranger", "Maverick", "Bronco", "SUV", "Car"].forEach((vehicle) => {
   if (!itemMatchesVehicle(windshield, vehicle)) fail(`ceramic windshield must show for ${vehicle}`);
 });
+const fullTints = tintItems.filter((item) => /full tint/i.test(item.name));
+["F-150", "Super Duty", "Ranger", "Maverick", "Bronco", "SUV", "Car"].forEach((vehicle) => {
+  const shown = fullTints.filter((item) => itemMatchesVehicle(item, vehicle));
+  if (shown.length !== 1) fail(`${vehicle} must show exactly one full tint, found ${shown.length}`);
+});
+if (fullTints.filter((item) => itemMatchesVehicle(item, "All")).length !== 2) {
+  fail("All vehicles must show both full tint prices");
+}
+if (savedVehiclePick("Other") !== "All" || savedVehiclePick("not-a-truck") !== "All" || savedVehiclePick("SUV") !== "SUV" || savedVehiclePick("F-150") !== "F-150") {
+  fail("a saved Other or unknown vehicle pick must fall back to All vehicles");
+}
 
 ["audio", "ppf-coating"].forEach((id) => {
   if (items.some((item) => item.category === id)) fail(`${id} should have no public items, so its tile stays hidden`);
@@ -436,6 +447,25 @@ if (kept.lines.length !== 2 || kept.lines[0].price !== 2500 || !kept.lines[0].pr
 if (normalizeQuote(null).lines.length !== 0 || !menuJs.includes("state.quote = normalizeQuote(null)")) {
   fail("Clear must wipe edited prices and labor lines");
 }
+const staleQuote = normalizeQuote({
+  lines: [
+    { id: "front-window-tint-2-fronts-carbon", name: "Front window tint (2 fronts, carbon)", price: 280, qty: 1 },
+    { id: "lift-kit-3in-f-150-rough-country-41431", name: "Lift kit 3in, F-150 (Rough Country 41431)", price: 1000, qty: 1 },
+    { id: "custom-towels", name: "Shop towels", price: 25, qty: 1, custom: true },
+    { id: "labor-install", name: "Installation labor", price: 150, qty: 1, labor: true },
+  ],
+});
+const withoutRemoved = dropRemovedQuoteLines(staleQuote, ["lift-kit-3in-f-150-rough-country-41431"]);
+if (withoutRemoved.lines.some((line) => line.id === "front-window-tint-2-fronts-carbon")) {
+  fail("a saved line for a removed item must be dropped");
+}
+if (withoutRemoved.lines.length !== 3) fail("custom and labor lines must stay when a catalog line is dropped");
+const beforeDrop = quoteTotals(staleQuote.lines);
+const afterDrop = quoteTotals(withoutRemoved.lines);
+if (beforeDrop.total === afterDrop.total || afterDrop.subtotal !== 1175) {
+  fail(`dropping the removed tint must recalculate the total, got ${JSON.stringify(afterDrop)}`);
+}
+if (!menuJs.includes("dropRemovedQuoteLines(")) fail("loading a quote must drop lines for removed catalog items");
 if (!menuJs.includes("Add labor") || !menuJs.includes("data-price") || !menuJs.includes("list-was") || !menuJs.includes("data-reset-price") || !menuJs.includes('aria-label="Reset price"')) {
   fail("the quote needs an editable price, a list price, a reset, and Add labor");
 }
@@ -635,8 +665,12 @@ photoComing.forEach((id) => {
 const mud = items.find((item) => item.id === "mud-flaps");
 if (!mud || mud.brand !== "WeatherTech" || mud.partNumber) fail("Bronco mud flaps are WeatherTech and have no guessed part number");
 const rubberMat = items.find((item) => item.id === "heavy-duty-bed-mat-rubber");
-if (!rubberMat || rubberMat.name !== "Rubber Bed Mat" || rubberMat.brand || rubberMat.price !== 169) {
+if (!rubberMat || rubberMat.id !== "heavy-duty-bed-mat-rubber" || rubberMat.name !== "Rubber Bed Mat" || rubberMat.brand || rubberMat.price !== 169) {
   fail("the plain rubber bed mat keeps the $169 price and drops the BedRug brand");
+}
+const rcMat = items.find((item) => item.id === "rc-bed-mat-rcm671");
+if (!rcMat || rcMat.price !== 109.95 || rcMat.partNumber !== "RCM671" || rcMat.brand !== "Rough Country") {
+  fail("the Rough Country bed mat rc-bed-mat-rcm671 must stay $109.95");
 }
 ["yakima-overhaul-hd"].forEach((id) => {
   if (!photosFor(id).includes(`images/${id}.webp`)) fail(`${id} needs its replacement photo`);
@@ -672,7 +706,9 @@ if (!itemMatchesVehicle({ fits: ["Other"] }, "SUV") || !itemMatchesVehicle({ fit
 }
 if (!itemMatchesVehicle({ fits: ["universal"] }, "Bronco")) fail("a fits value of universal must show under every vehicle");
 if (html.includes(">Other<") || menuJs.includes('"Other"')) fail("the vehicle filter must offer SUV and Car instead of Other");
-if (!menuJs.includes("itemMatchesVehicle")) fail("the menu filter must use the shared vehicle match");
+if (!menuJs.includes("itemMatchesVehicle") || !menuJs.includes("savedVehiclePick(")) {
+  fail("the menu filter must use the shared vehicle match and saved-pick fallback");
+}
 if (menuJs.includes("New additions") || menuJs.includes("tag-new") || menuJs.includes("newBadge")) {
   fail("the New additions row and badges must not render");
 }

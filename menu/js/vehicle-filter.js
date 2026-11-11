@@ -15,6 +15,13 @@ export function isUniversal(item) {
   return fits.some((fit) => fit.toLowerCase() === "universal");
 }
 
+const PICKS = ["All", "F-150", "Super Duty", "Ranger", "Maverick", "Bronco", "SUV", "Car"];
+
+/** A saved Other pick, or any unknown value, opens on All vehicles. */
+export function savedVehiclePick(value) {
+  return PICKS.includes(value) ? value : "All";
+}
+
 export function itemMatchesVehicle(item, vehicle) {
   if (!vehicle || vehicle === "All") return true;
   if (isUniversal(item)) return true;

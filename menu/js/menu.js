@@ -3,9 +3,9 @@
 
 import { bulletsFor, tierSwitch } from "./copy.js";
 import { PARTS_ONLY_NOTE, PARTS_ONLY_TAG, hasPrice, money, priceLabel } from "./price-label.js";
-import { bedLengthsFor, commitLinePrice, customItemError, laborLine, linePartNumber, normalizeQuote, parseDollars, quoteForBed, quoteNotes, quoteTotals, resetLinePrice } from "./quote-math.js";
+import { bedLengthsFor, commitLinePrice, customItemError, dropRemovedQuoteLines, laborLine, linePartNumber, normalizeQuote, parseDollars, quoteForBed, quoteNotes, quoteTotals, resetLinePrice } from "./quote-math.js";
 import { photosFor } from "./photos.js";
-import { itemMatchesVehicle } from "./vehicle-filter.js";
+import { itemMatchesVehicle, savedVehiclePick } from "./vehicle-filter.js";
 
 const PRICE_KEY = "accessory-menu-show-prices";
 const FILTER_KEY = "accessory-menu-vehicle";
@@ -53,7 +53,7 @@ const ICONS = {
 const state = {
   catalog: null,
   showPrices: localStorage.getItem(PRICE_KEY) !== "0",
-  vehicleFilter: VEHICLES.includes(localStorage.getItem(FILTER_KEY)) ? localStorage.getItem(FILTER_KEY) : "All",
+  vehicleFilter: savedVehiclePick(localStorage.getItem(FILTER_KEY)),
   quote: loadQuote(),
   bedLength: {},
   trayOpen: false,
@@ -1150,6 +1150,8 @@ async function boot() {
     const response = await fetch("catalog.json", { cache: "no-store" });
     if (!response.ok) throw new Error(`Catalog request failed (${response.status})`);
     state.catalog = await response.json();
+    const known = new Set((state.catalog.items || []).map((item) => item.id));
+    state.quote = dropRemovedQuoteLines(state.quote, known);
   } catch (error) {
     view.innerHTML = `<div class="message"><h1>The menu did not load.</h1><p>${esc(error.message)}</p><button class="back" type="button" id="retry">Try again</button></div>`;
     document.getElementById("retry").addEventListener("click", () => location.reload());
