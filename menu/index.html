@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Accessory Menu · Corwin Ford Tri-Cities</title>
+  <meta name="description" content="Accessory showroom menu for Corwin Ford Tri-Cities. Photos, installed starting prices, and a build-my-truck list.">
+  <meta name="theme-color" content="#00095B">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Accessory Menu">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.7f664f6.webmanifest">
+  <link rel="icon" href="icons/icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="css/menu.7f664f6.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#/">
+      <span class="brand-mark" aria-hidden="true">CF</span>
+      <span class="brand-text">
+        <span class="brand-dealer">Corwin Ford Tri-Cities</span>
+        <span class="brand-title">Accessory Menu</span>
+      </span>
+    </a>
+    <div class="top-actions">
+      <label class="vehicle-filter">Vehicle
+        <select id="vehicle-filter" aria-label="Vehicle">
+          <option value="All">All vehicles</option>
+          <option value="F-150">F-150</option>
+          <option value="Super Duty">Super Duty</option>
+          <option value="Ranger">Ranger</option>
+          <option value="Maverick">Maverick</option>
+          <option value="Bronco">Bronco</option>
+          <option value="SUV">SUV</option>
+          <option value="Car">Car</option>
+        </select>
+      </label>
+      <button class="header-btn" id="price-toggle" type="button" role="switch" aria-checked="true">Hide prices</button>
+    </div>
+  </header>
+
+  <main id="view" tabindex="-1">
+    <p class="loading">Loading the menu…</p>
+  </main>
+
+  <div class="tray" id="tray">
+    <div class="scrim" data-close-tray hidden></div>
+    <div class="tray-panel" id="tray-panel" hidden>
+      <div class="tray-panel-head">
+        <h2>Build my truck</h2>
+        <button class="text-btn" type="button" data-close-tray>Done</button>
+      </div>
+      <ul class="tray-list" id="tray-list"></ul>
+      <p class="tray-empty" id="tray-empty">Nothing in this build yet. Tap + on an accessory.</p>
+      <div class="tray-foot">
+        <p class="tray-total-line">
+          <span>Installed total</span>
+          <strong class="price" id="tray-total">$0.00</strong>
+          <strong class="prices-hidden-label">Prices hidden</strong>
+        </p>
+        <button class="add-wide" id="make-quote" type="button">Make quote</button>
+        <button class="clear-btn" id="tray-clear" type="button">Clear quote</button>
+        <p class="fine">Clear this list before handing the iPad to the next customer. Prices are starting, installed.</p>
+      </div>
+    </div>
+    <button class="tray-handle" id="tray-handle" type="button" aria-expanded="false" aria-controls="tray-panel">
+      <span class="handle-grip" aria-hidden="true"></span>
+      <span class="handle-title">Build my truck</span>
+      <span class="handle-count" id="tray-count">0</span>
+      <span class="price handle-total" id="tray-handle-total">$0.00</span>
+      <span class="prices-hidden-label">Prices hidden</span>
+    </button>
+  </div>
+
+  <div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="Photo">
+    <button class="lb-close" id="lb-close" type="button">Close</button>
+    <button class="lb-nav lb-prev" id="lb-prev" type="button" aria-label="Previous photo">Prev</button>
+    <div class="lb-stage" id="lb-stage"></div>
+    <button class="lb-nav lb-next" id="lb-next" type="button" aria-label="Next photo">Next</button>
+    <p class="lb-count" id="lb-count" aria-live="polite"></p>
+  </div>
+
+  <p class="sr" id="live" aria-live="polite"></p>
+  <noscript>
+    <p class="noscript">This menu needs JavaScript. It still has no account, no payment, and no build step.</p>
+  </noscript>
+  <script src="js/menu.7f664f6.js" type="module"></script>
+</body>
+</html>
