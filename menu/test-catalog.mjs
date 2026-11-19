@@ -517,9 +517,10 @@ roughCountry.forEach((item) => {
 });
 universalLights.forEach((id) => {
   const item = items.find((entry) => entry.id === id);
-  ["All", "F-150", "Super Duty", "Ranger", "Bronco", "Maverick", "SUV", "Car"].forEach((vehicle) => {
+  ["All", "F-150", "Super Duty", "Ranger", "Bronco", "Maverick", "SUV"].forEach((vehicle) => {
     if (!itemMatchesVehicle(item, vehicle)) fail(`${id} must show under ${vehicle}`);
   });
+  if (itemMatchesVehicle(item, "Car")) fail(`${id} is SUV and truck lighting and must not show under Car`);
 });
 if (linePartNumber({}, "448339") !== "448339") fail("a quote line should prefill the catalog part number");
 if (linePartNumber({ partTouched: true, partNumber: "FIT-1" }, "448339") !== "FIT-1") fail("an edited part number must persist");
@@ -684,9 +685,32 @@ if (!photosFor("fixed-running-boards-nerf-bars-dee-zee-etc").join(" ").includes(
   fail("the Dee Zee item must use the replacement photo");
 }
 const baja = items.find((item) => item.id === "baja-s2-pro-led-pair");
-["All", "F-150", "Super Duty", "Ranger", "Bronco", "Maverick", "SUV", "Car"].forEach((vehicle) => {
+["All", "F-150", "Super Duty", "Ranger", "Bronco", "Maverick", "SUV"].forEach((vehicle) => {
   if (!itemMatchesVehicle(baja, vehicle)) fail(`Baja S2 pods must show under ${vehicle}`);
 });
+if (itemMatchesVehicle(baja, "Car")) fail("Baja S2 pods must not show under Car");
+const tires = items.find((item) => item.id === "all-terrain-tire-upgrade");
+if (!tires || itemMatchesVehicle(tires, "Car") || itemMatchesVehicle(tires, "F-150") || !itemMatchesVehicle(tires, "SUV")) {
+  fail("the all-terrain upgrade is SUV only, not every vehicle and not Car");
+}
+const hitch = items.find((item) => item.id === "oem-trailer-hitch-and-wiring-ford");
+if (!hitch || itemMatchesVehicle(hitch, "Car") || !itemMatchesVehicle(hitch, "SUV") || !itemMatchesVehicle(hitch, "F-150")) {
+  fail("the Ford trailer hitch must stay on SUV and trucks and come off Car");
+}
+["floor-liners-1st-and-2nd-row-weathertech-or-husky", "cargo-mat-liner-weathertech", "ceramic-full-tint-sedans-coupes", "ceramic-windshield"].forEach((id) => {
+  const item = items.find((entry) => entry.id === id);
+  if (!item || !itemMatchesVehicle(item, "Car")) fail(`${id} must stay on the Car filter`);
+});
+const carQuote = dropRemovedQuoteLines(normalizeQuote({
+  customerName: "Casey",
+  vehicle: "2024 Mustang",
+  vehicleTouched: true,
+  number: "Q-20261119",
+  lines: [{ id: "oem-trailer-hitch-and-wiring-ford", name: "OEM trailer hitch and wiring (Ford)", price: 1100, qty: 1 }],
+}), new Set(items.map((item) => item.id)));
+if (savedVehiclePick("Car") !== "Car" || carQuote.lines.length !== 1 || carQuote.lines[0].id !== "oem-trailer-hitch-and-wiring-ford") {
+  fail("a saved Car quote must still open with its lines");
+}
 items.forEach((item) => {
   if (!isBedProduct(item)) return;
   if ((item.fits || []).includes("SUV") || (item.fits || []).includes("Car") || itemMatchesVehicle(item, "SUV") || itemMatchesVehicle(item, "Car")) {

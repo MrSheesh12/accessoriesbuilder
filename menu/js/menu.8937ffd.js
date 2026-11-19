@@ -1,11 +1,12 @@
 /* Corwin Ford Tri-Cities — iPad accessory menu.
-   Item names and prices come from catalog.7f664f6.json. Photos are mapped locally. */
+   Item names and prices come from catalog.8937ffd.json. Photos are mapped locally. */
 
-import { bulletsFor, tierSwitch } from "./copy.7f664f6.js";
-import { PARTS_ONLY_NOTE, PARTS_ONLY_TAG, hasPrice, money, priceLabel } from "./price-label.7f664f6.js";
-import { bedLengthsFor, commitLinePrice, customItemError, dropRemovedQuoteLines, laborLine, linePartNumber, normalizeQuote, parseDollars, quoteForBed, quoteNotes, quoteTotals, resetLinePrice } from "./quote-math.7f664f6.js";
-import { photosFor } from "./photos.7f664f6.js";
-import { itemMatchesVehicle, savedVehiclePick } from "./vehicle-filter.7f664f6.js";
+import { bulletsFor, tierSwitch } from "./copy.8937ffd.js";
+import { PARTS_ONLY_NOTE, PARTS_ONLY_TAG, hasPrice, money, priceLabel } from "./price-label.8937ffd.js";
+import { bedLengthsFor, commitLinePrice, customItemError, dropRemovedQuoteLines, laborLine, linePartNumber, normalizeQuote, parseDollars, quoteForBed, quoteNotes, quoteTotals, resetLinePrice } from "./quote-math.8937ffd.js";
+import { photosFor } from "./photos.8937ffd.js";
+import { decodePrintHash, encodePrintHash, isStandalone } from "./print-handoff.8937ffd.js";
+import { itemMatchesVehicle, savedVehiclePick } from "./vehicle-filter.8937ffd.js";
 
 const PRICE_KEY = "accessory-menu-show-prices";
 const FILTER_KEY = "accessory-menu-vehicle";
@@ -60,6 +61,9 @@ const state = {
   slideByItem: {},
   lightbox: null,
 };
+
+let pendingAutoPrint = false;
+let printGeneration = 0;
 
 const view = document.getElementById("view");
 const tray = document.getElementById("tray");
@@ -236,6 +240,11 @@ function render() {
   else if (route.name === "quote") renderQuote();
   else {
     view.innerHTML = `<div class="message"><h1>That page is not on the menu.</h1><p><a href="#/">Back to categories</a></p></div>`;
+  }
+  if (pendingAutoPrint && route.name === "quote") {
+    pendingAutoPrint = false;
+    const generation = ++printGeneration;
+    void printWhenReady(generation);
   }
 }
 
@@ -539,6 +548,58 @@ function vehicleText() {
 
 function saveQuote() {
   localStorage.setItem(QUOTE_KEY, JSON.stringify(state.quote));
+}
+
+function knownCatalogIds() {
+  return new Set((state.catalog?.items || []).map((item) => item.id));
+}
+
+/** A Home Screen app keeps its own localStorage, so Safari has to receive the quote in the URL. */
+function applyPrintHash() {
+  const decoded = decodePrintHash(location.hash);
+  if (!decoded) return false;
+  state.quote = dropRemovedQuoteLines(normalizeQuote(decoded), knownCatalogIds());
+  saveQuote();
+  pendingAutoPrint = true;
+  history.replaceState(null, "", `${location.pathname}${location.search}#/quote`);
+  return true;
+}
+
+function safariPrintHref() {
+  quoteNumber();
+  saveQuote();
+  const url = new URL(location.href);
+  const baseLength = url.origin.length + url.pathname.length + url.search.length;
+  url.hash = encodePrintHash(state.quote, vehicleText(), baseLength);
+  return url.href;
+}
+
+function armSafariPrint(link) {
+  const arm = () => {
+    link.href = safariPrintHref();
+  };
+  link.addEventListener("pointerdown", arm);
+  link.addEventListener("keydown", arm);
+}
+
+async function printWhenReady(generation) {
+  try {
+    if (document.fonts && document.fonts.ready) await document.fonts.ready;
+    await Promise.all([...document.images].map((img) => {
+      if (img.complete) return Promise.resolve();
+      return new Promise((resolve) => {
+        const done = () => resolve();
+        img.addEventListener("load", done, { once: true });
+        img.addEventListener("error", done, { once: true });
+        window.setTimeout(done, 4000);
+      });
+    }));
+  } catch (error) {
+    // The print button stays on the page if the wait fails.
+  }
+  if (generation !== printGeneration) return;
+  if (parseRoute().name !== "quote") return;
+  window.print();
 }
 
 function selectedLength(item) {
@@ -881,7 +942,9 @@ function renderQuote() {
     </table>
     <p class="print-foot">Prices subject to change; quote valid 30 days.</p>
     <div class="quote-actions no-print">
-      <button class="add-wide" id="quote-print" type="button">Print / Save PDF</button>
+      ${isStandalone()
+        ? `<a class="add-wide" id="quote-print" href="${esc(safariPrintHref())}" target="_blank" rel="noopener">Print / Save PDF</a>`
+        : `<button class="add-wide" id="quote-print" type="button">Print / Save PDF</button>`}
       <button class="clear-btn" id="quote-clear" type="button">Clear quote</button>
     </div>
   </article>`;
@@ -1021,11 +1084,15 @@ function renderQuote() {
     saveQuote();
     renderQuote();
   });
-  document.getElementById("quote-print").addEventListener("click", () => {
-    quoteNumber();
-    saveQuote();
-    window.print();
-  });
+  const printControl = document.getElementById("quote-print");
+  if (printControl.tagName === "A") armSafariPrint(printControl);
+  else {
+    printControl.addEventListener("click", () => {
+      quoteNumber();
+      saveQuote();
+      window.print();
+    });
+  }
   document.getElementById("quote-clear").addEventListener("click", clearQuote);
   view.querySelectorAll("[data-remove]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -1147,11 +1214,10 @@ async function boot() {
   if (vehicleSelect) vehicleSelect.value = state.vehicleFilter;
   renderTray();
   try {
-    const response = await fetch("catalog.7f664f6.json", { cache: "no-store" });
+    const response = await fetch("catalog.8937ffd.json", { cache: "no-store" });
     if (!response.ok) throw new Error(`Catalog request failed (${response.status})`);
     state.catalog = await response.json();
-    const known = new Set((state.catalog.items || []).map((item) => item.id));
-    state.quote = dropRemovedQuoteLines(state.quote, known);
+    if (!applyPrintHash()) state.quote = dropRemovedQuoteLines(state.quote, knownCatalogIds());
   } catch (error) {
     view.innerHTML = `<div class="message"><h1>The menu did not load.</h1><p>${esc(error.message)}</p><button class="back" type="button" id="retry">Try again</button></div>`;
     document.getElementById("retry").addEventListener("click", () => location.reload());
