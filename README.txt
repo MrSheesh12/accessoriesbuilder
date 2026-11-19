@@ -39,6 +39,16 @@ Customizing
 - Add categories by extending the `category` field on items and they will auto-populate the filter.
 - Add bundles in `CONFIG.packages` mapping to item ids.
 
+Accessory menu cache version
+----------------------------
+The iPad menu in `menu/` is a separate static site. Render's CDN ignores query strings, so each CSS file, JS module, catalog, and manifest is copied to a versioned filename such as `js/menu.<commit>.js`. `index.html` keeps its plain name and points at those copies. Imports inside the versioned modules use the same commit id.
+
+Bump that version on every menu change, before you push:
+
+    node menu/stamp-assets.mjs
+
+That writes the new copies from the plain source files and keeps the previous version's copies so a cached page does not 404. Older copies are removed. Pass a version if you want a date instead: `node menu/stamp-assets.mjs 20261110`. Commit the stamped files with the change. The live Render site does not run `render.yaml`.
+
 
 
 ----
