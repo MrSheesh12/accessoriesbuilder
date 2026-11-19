@@ -474,6 +474,14 @@ p.brand { margin: 0; color: var(--muted); font-size: 0.82rem; font-weight: 700; 
   color: #fff;
   font-weight: 750;
   font-size: 1.05rem;
+  box-sizing: border-box;
+}
+a.add-wide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  text-decoration: none;
 }
 .add-wide:active { background: #8d4520; }
 

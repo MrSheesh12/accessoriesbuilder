@@ -6,6 +6,7 @@ import { photosFor, PHOTOS } from "./js/photos.js";
 import { itemMatchesVehicle, savedVehiclePick } from "./js/vehicle-filter.js";
 import { money, PARTS_ONLY_NOTE, PARTS_ONLY_TAG, priceLabel } from "./js/price-label.js";
 import { bedLengthsFor, commitLinePrice, customItemError, dropRemovedQuoteLines, isBedProduct, laborLine, linePartNumber, normalizeQuote, quoteForBed, quoteNotes, quoteTotals, resetLinePrice } from "./js/quote-math.js";
+import { decodePrintHash, encodePrintHash, isStandalone, printableQuote } from "./js/print-handoff.js";
 import { inflateSync } from "node:zlib";
 
 const root = dirname(fileURLToPath(import.meta.url));
@@ -736,6 +737,102 @@ function walkKeys(value, path) {
   });
 }
 walkKeys(catalog, "catalog");
+
+const menuSrc = readFileSync(join(root, "js/menu.js"), "utf8");
+if (!menuSrc.includes("isStandalone(") || !menuSrc.includes("encodePrintHash(") || !menuSrc.includes('target="_blank"') || !menuSrc.includes('rel="noopener"')) {
+  fail("standalone print must open the quote in Safari with a new-tab link");
+}
+if (!menuSrc.includes("decodePrintHash(") || !menuSrc.includes("printWhenReady(") || !menuSrc.includes("window.print()")) {
+  fail("a print hash must load the quote and then print");
+}
+if (isStandalone(undefined, () => ({ matches: false }))) fail("a normal browser tab is not standalone");
+if (!isStandalone({ standalone: true }, () => ({ matches: false }))) fail("navigator.standalone must count as a Home Screen app");
+if (!isStandalone({}, (query) => ({ matches: query === "(display-mode: standalone)" }))) {
+  fail("display-mode standalone must count as a Home Screen app");
+}
+const handoffQuote = {
+  customerName: "Sam Rivera",
+  phone: "509-555-0142",
+  vehicle: "2024 F-150 Lariat",
+  vehicleTouched: true,
+  salesperson: "Landon Alexander",
+  number: "Q-20261119",
+  cost: "PRIVATE-COST",
+  gross: "PRIVATE-GROSS",
+  vendor: "PRIVATE-VENDOR",
+  notes: "PRIVATE-NOTES",
+  lines: [
+    {
+      id: "rc-bed-mat-rcm671",
+      name: "Rough Country Rubber Bed Mat",
+      description: "Logo mat",
+      tier: "better",
+      price: 99.95,
+      basePrice: 109.95,
+      priceTouched: true,
+      qty: 2,
+      listPrice: true,
+      taxable: true,
+      partNumber: "RCM671",
+      cost: "PRIVATE-COST",
+      vendor: "PRIVATE-VENDOR",
+    },
+    laborLine({ description: "Installation labor", price: 150, taxable: true }),
+    laborLine({ description: "Detail labor", price: 40, taxable: false, id: "labor-detail" }),
+  ],
+};
+const handoffHash = encodePrintHash(handoffQuote, handoffQuote.vehicle, 80);
+["PRIVATE-COST", "PRIVATE-GROSS", "PRIVATE-VENDOR", "PRIVATE-NOTES"].forEach((secret) => {
+  if (handoffHash.includes(secret)) fail(`the print URL must not carry ${secret}`);
+});
+const handoffBack = decodePrintHash(handoffHash);
+if (!handoffBack) fail("the print hash must decode");
+["customerName", "phone", "vehicle", "salesperson", "number"].forEach((key) => {
+  if (handoffBack[key] !== handoffQuote[key]) fail(`print hash lost ${key}`);
+});
+if (handoffBack.lines.length !== 3) fail("print hash dropped a line");
+if ("cost" in handoffBack || "notes" in handoffBack || handoffBack.lines.some((line) => "cost" in line || "basePrice" in line)) {
+  fail("the print hash must drop private and list-price bookkeeping fields");
+}
+if (handoffBack.lines[0].price !== 99.95 || handoffBack.lines[0].qty !== 2 || handoffBack.lines[0].partNumber !== "RCM671" || !handoffBack.lines[0].listPrice) {
+  fail("print hash must keep the edited price, quantity, part number, and parts-only flag");
+}
+if (!handoffBack.lines[1].labor || handoffBack.lines[1].taxable === false || handoffBack.lines[1].price !== 150) {
+  fail("taxable labor must survive the print hash");
+}
+if (!handoffBack.lines[2].labor || handoffBack.lines[2].taxable !== false || handoffBack.lines[2].price !== 40) {
+  fail("non-taxable labor must survive the print hash");
+}
+const handoffTotals = quoteTotals(handoffBack.lines);
+const originalTotals = quoteTotals(printableQuote(handoffQuote).lines);
+if (handoffTotals.subtotal !== originalTotals.subtotal || handoffTotals.tax !== originalTotals.tax || handoffTotals.total !== originalTotals.total) {
+  fail("print hash totals must match the quote that was handed off");
+}
+const longLines = Array.from({ length: 30 }, (_item, index) => ({
+  id: `custom-long-${index}`,
+  name: `Custom running board with a very long customer-facing description number ${index}`,
+  description: "Installed at the store, includes hardware and alignment.",
+  price: 125 + index,
+  qty: 1,
+  custom: true,
+  taxable: true,
+  partNumber: `PN-${index}`,
+}));
+const longHash = encodePrintHash({
+  customerName: "Sam Rivera",
+  phone: "509-555-0142",
+  vehicle: "2025 Super Duty Platinum",
+  salesperson: "Landon Alexander",
+  number: "Q-20261119",
+  lines: longLines,
+}, "2025 Super Duty Platinum", 80);
+if (!longHash.startsWith("#print=z")) fail("a long quote must compress its print hash");
+if (longHash.length + 80 > 8000) fail(`a long print URL is ${longHash.length + 80} characters`);
+const longBack = decodePrintHash(longHash);
+if (!longBack || longBack.lines.length !== 30 || longBack.lines[29].price !== 154 || longBack.customerName !== "Sam Rivera") {
+  fail("a compressed print hash must round-trip");
+}
+if (decodePrintHash("#/") || decodePrintHash("#print=not-json")) fail("a bad print hash must be ignored");
 
 const versionIn = (file) => {
   const match = String(file).match(/\.([A-Za-z0-9._-]{4,40})\.(?:js|css|json|webmanifest)$/);

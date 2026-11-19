@@ -66,7 +66,7 @@ writeFileSync(indexPath, rewriteIndex(readFileSync(indexPath, "utf8"), version))
 
 function pruneDir(dir) {
   readdirSync(dir).forEach((name) => {
-    const match = name.match(/^(?:menu|copy|quote-math|price-label|photos|vehicle-filter|catalog|manifest)\.([A-Za-z0-9._-]{4,40})\.(?:js|css|json|webmanifest)$/);
+    const match = name.match(/^(?:menu|copy|quote-math|price-label|photos|vehicle-filter|print-handoff|catalog|manifest)\.([A-Za-z0-9._-]{4,40})\.(?:js|css|json|webmanifest)$/);
     if (!match || keep.has(match[1])) return;
     unlinkSync(join(dir, name));
   });
