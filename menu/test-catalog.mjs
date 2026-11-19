@@ -697,19 +697,30 @@ const hitch = items.find((item) => item.id === "oem-trailer-hitch-and-wiring-for
 if (!hitch || itemMatchesVehicle(hitch, "Car") || !itemMatchesVehicle(hitch, "SUV") || !itemMatchesVehicle(hitch, "F-150")) {
   fail("the Ford trailer hitch must stay on SUV and trucks and come off Car");
 }
-["floor-liners-1st-and-2nd-row-weathertech-or-husky", "cargo-mat-liner-weathertech", "ceramic-full-tint-sedans-coupes", "ceramic-windshield"].forEach((id) => {
+const carKept = ["floor-liners-1st-and-2nd-row-weathertech-or-husky", "cargo-mat-liner-weathertech", "ceramic-full-tint-sedans-coupes", "ceramic-windshield"];
+carKept.forEach((id) => {
   const item = items.find((entry) => entry.id === id);
   if (!item || !itemMatchesVehicle(item, "Car")) fail(`${id} must stay on the Car filter`);
 });
+const carShown = items.filter((item) => itemMatchesVehicle(item, "Car")).map((item) => item.id).sort();
+if (carShown.join("|") !== [...carKept].sort().join("|")) fail(`Car should show only mats and ceramic tint, found ${carShown.join(", ")}`);
+const lightBar = items.find((item) => item.id === "led-light-bar");
+if (!lightBar || itemMatchesVehicle(lightBar, "Car") || !itemMatchesVehicle(lightBar, "SUV") || !itemMatchesVehicle(lightBar, "F-150")) {
+  fail("the generic LED light bar must stay on SUV and trucks and come off Car");
+}
 const carQuote = dropRemovedQuoteLines(normalizeQuote({
   customerName: "Casey",
   vehicle: "2024 Mustang",
   vehicleTouched: true,
   number: "Q-20261119",
-  lines: [{ id: "oem-trailer-hitch-and-wiring-ford", name: "OEM trailer hitch and wiring (Ford)", price: 1100, qty: 1 }],
+  lines: [
+    { id: "oem-trailer-hitch-and-wiring-ford", name: "OEM trailer hitch and wiring (Ford)", price: 1100, qty: 1 },
+    { id: "led-light-bar", name: "LED light bar", price: 595, qty: 1 },
+  ],
 }), new Set(items.map((item) => item.id)));
-if (savedVehiclePick("Car") !== "Car" || carQuote.lines.length !== 1 || carQuote.lines[0].id !== "oem-trailer-hitch-and-wiring-ford") {
-  fail("a saved Car quote must still open with its lines");
+const keptIds = carQuote.lines.map((line) => line.id).sort().join("|");
+if (savedVehiclePick("Car") !== "Car" || keptIds !== "led-light-bar|oem-trailer-hitch-and-wiring-ford") {
+  fail("a saved Car quote must still open with the hitch and LED light bar lines");
 }
 items.forEach((item) => {
   if (!isBedProduct(item)) return;

@@ -529,8 +529,7 @@
       "tier": "good",
       "sellingPoint": "AT tires mounted and balanced.",
       "fits": [
-        "SUV",
-        "Car"
+        "SUV"
       ]
     },
     {
@@ -710,8 +709,7 @@
         "Ranger",
         "Bronco",
         "Maverick",
-        "SUV",
-        "Car"
+        "SUV"
       ]
     },
     {
@@ -728,8 +726,7 @@
         "Ranger",
         "Bronco",
         "Maverick",
-        "SUV",
-        "Car"
+        "SUV"
       ],
       "listPrice": true,
       "partNumber": "487801"
@@ -748,8 +745,7 @@
         "Ranger",
         "Bronco",
         "Maverick",
-        "SUV",
-        "Car"
+        "SUV"
       ],
       "partNumber": "70950BDA",
       "listPrice": true
@@ -768,8 +764,7 @@
         "Ranger",
         "Bronco",
         "Maverick",
-        "SUV",
-        "Car"
+        "SUV"
       ],
       "partNumber": "70720BL",
       "listPrice": true
@@ -788,8 +783,7 @@
         "Ranger",
         "Bronco",
         "Maverick",
-        "SUV",
-        "Car"
+        "SUV"
       ],
       "partNumber": "70903BLKDRLA",
       "listPrice": true
@@ -880,8 +874,7 @@
         "F-150",
         "Ranger",
         "Maverick",
-        "SUV",
-        "Car"
+        "SUV"
       ]
     },
     {

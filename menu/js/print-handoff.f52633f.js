@@ -1,7 +1,7 @@
 /** Hand a printed quote from an iOS Home Screen app to Safari.
     The hash carries only fields the printed sheet shows. */
 
-import { normalizeQuote, normalizeQuoteLine } from "./quote-math.a276973.js";
+import { normalizeQuote, normalizeQuoteLine } from "./quote-math.f52633f.js";
 
 const PRINT_BUDGET = 8000;
 

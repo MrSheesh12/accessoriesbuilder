@@ -10,7 +10,6 @@ const CAR = [
   "Ceramic Full Tint, sedans and coupes",
   "Ceramic Windshield",
   "Floor liners, 1st and 2nd row (WeatherTech or Husky)",
-  "LED light bar",
 ];
 const SUV = [
   "All-terrain tire upgrade",
@@ -28,6 +27,7 @@ const SUV = [
 const OFF_CAR = [
   "All-terrain tire upgrade",
   "Baja Designs S2 Pro LED Light Pod Pair w/ Harness",
+  "LED light bar",
   "OEM trailer hitch and wiring (Ford)",
   "Rough Country 20 Inch Black Series LED Light Bar (Single Row)",
   "Rough Country 2 Inch Black Series LED Light Pods (Spot, Amber DRL)",
@@ -145,6 +145,12 @@ async function main() {
           price: 1100,
           qty: 1,
           taxable: true,
+        }, {
+          id: "led-light-bar",
+          name: "LED light bar",
+          price: 595,
+          qty: 1,
+          taxable: true,
         }],
       }));
     });
@@ -153,11 +159,12 @@ async function main() {
     const state = await saved.evaluate(() => ({
       filter: document.querySelector("#vehicle-filter")?.value || "",
       error: document.querySelector(".message")?.textContent || "",
-      line: document.querySelector(".line-name")?.textContent || "",
+      lines: [...document.querySelectorAll(".line-name")].map((node) => node.textContent.trim()),
     }));
     if (state.error) fail(`saved Car quote failed to open: ${state.error}`);
     if (state.filter !== "Car") fail(`saved Car filter opened as ${state.filter || "blank"}`);
-    if (!state.line.includes("OEM trailer hitch")) fail("saved Car quote dropped the hitch line");
+    if (!state.lines.some((line) => line.includes("OEM trailer hitch"))) fail("saved Car quote dropped the hitch line");
+    if (!state.lines.some((line) => line === "LED light bar")) fail("saved Car quote dropped the LED light bar line");
   } catch (error) {
     fail(error.stack || error.message);
   } finally {

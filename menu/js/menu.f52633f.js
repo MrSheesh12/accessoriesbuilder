@@ -1,12 +1,12 @@
 /* Corwin Ford Tri-Cities — iPad accessory menu.
-   Item names and prices come from catalog.a276973.json. Photos are mapped locally. */
+   Item names and prices come from catalog.f52633f.json. Photos are mapped locally. */
 
-import { bulletsFor, tierSwitch } from "./copy.a276973.js";
-import { PARTS_ONLY_NOTE, PARTS_ONLY_TAG, hasPrice, money, priceLabel } from "./price-label.a276973.js";
-import { bedLengthsFor, commitLinePrice, customItemError, dropRemovedQuoteLines, laborLine, linePartNumber, normalizeQuote, parseDollars, quoteForBed, quoteNotes, quoteTotals, resetLinePrice } from "./quote-math.a276973.js";
-import { photosFor } from "./photos.a276973.js";
-import { decodePrintHash, encodePrintHash, isStandalone } from "./print-handoff.a276973.js";
-import { itemMatchesVehicle, savedVehiclePick } from "./vehicle-filter.a276973.js";
+import { bulletsFor, tierSwitch } from "./copy.f52633f.js";
+import { PARTS_ONLY_NOTE, PARTS_ONLY_TAG, hasPrice, money, priceLabel } from "./price-label.f52633f.js";
+import { bedLengthsFor, commitLinePrice, customItemError, dropRemovedQuoteLines, laborLine, linePartNumber, normalizeQuote, parseDollars, quoteForBed, quoteNotes, quoteTotals, resetLinePrice } from "./quote-math.f52633f.js";
+import { photosFor } from "./photos.f52633f.js";
+import { decodePrintHash, encodePrintHash, isStandalone } from "./print-handoff.f52633f.js";
+import { itemMatchesVehicle, savedVehiclePick } from "./vehicle-filter.f52633f.js";
 
 const PRICE_KEY = "accessory-menu-show-prices";
 const FILTER_KEY = "accessory-menu-vehicle";
@@ -1214,7 +1214,7 @@ async function boot() {
   if (vehicleSelect) vehicleSelect.value = state.vehicleFilter;
   renderTray();
   try {
-    const response = await fetch("catalog.a276973.json", { cache: "no-store" });
+    const response = await fetch("catalog.f52633f.json", { cache: "no-store" });
     if (!response.ok) throw new Error(`Catalog request failed (${response.status})`);
     state.catalog = await response.json();
     if (!applyPrintHash()) state.quote = dropRemovedQuoteLines(state.quote, knownCatalogIds());
